@@ -1,0 +1,118 @@
+{% extends 'grocery/grocery_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+	<div class="content">
+		<div class="page-header">
+			<div class="add-item d-flex">
+				<div class="page-title">
+					<h4>Products</h4>
+					<h6>Manage your grocery products</h6>
+				</div>
+			</div>
+			<ul class="table-top-head">
+				<li><a data-bs-toggle="tooltip" title="Refresh" href="{% url 'grocery:product_list' %}"><i
+							class="ti ti-refresh"></i></a></li>
+			</ul>
+			<div class="page-btn">
+				<a href="{% url 'grocery:product_create' %}" class="btn btn-primary"><i
+						class="ti ti-circle-plus me-1"></i>Add Product</a>
+			</div>
+		</div>
+
+		<!-- Search -->
+		<div class="card mb-3">
+			<div class="card-body py-2">
+				<form method="get" class="d-flex align-items-center gap-2">
+					<input type="text" name="q" value="{{ q }}" class="form-control"
+						placeholder="Search by name, SKU or barcode...">
+					<button type="submit" class="btn btn-primary"><i class="ti ti-search"></i></button>
+					{% if q %}<a href="{% url 'grocery:product_list' %}" class="btn btn-secondary">Clear</a>{% endif %}
+				</form>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-body p-0">
+				<div class="table-responsive">
+					<table class="table datatable">
+						<thead class="thead-light">
+							<tr>
+								<th class="no-sort">
+									<div class="form-check form-check-md"><input class="form-check-input"
+											type="checkbox" id="select-all"></div>
+								</th>
+								<th>Product</th>
+								<th>SKU</th>
+								<th>Category</th>
+								<th>Brand</th>
+								<th>Purchase Price</th>
+								<th>Selling Price</th>
+								<th>Stock</th>
+								<th class="no-sort">Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for product in page_obj %}
+							<tr>
+								<td>
+									<div class="form-check form-check-md"><input class="form-check-input"
+											type="checkbox"></div>
+								</td>
+								<td>
+									<h6 class="fw-medium"><a href="{% url 'grocery:product_detail' product.pk %}">{{
+											product.name }}</a></h6>
+								</td>
+								<td>{{ product.sku|default:"-" }}</td>
+								<td>{{ product.category.name|default:"-" }}</td>
+								<td>{{ product.brand.name|default:"-" }}</td>
+								<td>₹{{ product.purchase_price|floatformat:2 }}</td>
+								<td>₹{{ product.selling_price|floatformat:2 }}</td>
+								<td><span
+										class="badge {% if product.current_stock <= 0 %}badge-danger{% elif product.current_stock <= 10 %}badge-warning{% else %}badge-success{% endif %} badge-xs">{{
+										product.current_stock }}</span></td>
+								<td>
+									<div class="action-icon d-inline-flex align-items-center">
+										<a href="{% url 'grocery:product_detail' product.pk %}"
+											class="p-2 d-flex align-items-center border rounded me-2"><i
+												class="ti ti-eye"></i></a>
+										<a href="{% url 'grocery:product_edit' product.pk %}"
+											class="p-2 d-flex align-items-center border rounded me-2"><i
+												class="ti ti-edit"></i></a>
+										<form method="post" action="{% url 'grocery:product_delete' product.pk %}"
+											class="d-inline">{% csrf_token %}<button type="submit"
+												class="p-2 d-flex align-items-center border rounded btn btn-link"
+												onclick="return confirm('Deactivate this product?')"><i
+													class="ti ti-trash"></i></button></form>
+									</div>
+								</td>
+							</tr>{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- Pagination -->
+		{% if page_obj.has_other_pages %}
+		<nav>
+			<ul class="pagination justify-content-center">
+				{% if page_obj.has_previous %}<li class="page-item"><a class="page-link"
+						href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">&laquo;</a></li>
+				{% endif %}
+				{% for num in page_obj.paginator.page_range %}
+				<li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link"
+						href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}">{{ num }}</a></li>
+				{% endfor %}
+				{% if page_obj.has_next %}<li class="page-item"><a class="page-link"
+						href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}">&raquo;</a></li>{%
+				endif %}
+			</ul>
+		</nav>
+		{% endif %}
+	</div>
+	<div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+		<p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub</p>
+	</div>
+</div>
+{% endblock %}

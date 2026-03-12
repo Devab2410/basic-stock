@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InventoryHub - Register</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicon.png' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/plugins/tabler-icons/tabler-icons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+</head>
+
+<body class="account-page">
+
+
+    <div class="main-wrapper">
+        <div class="account-content">
+            <div class="login-wrapper bg-img">
+                <div class="login-content authent-content">
+                    <form method="post" action="{% url 'accounts:register' %}">
+                        {% csrf_token %}
+                        {% if errors %}
+                        <div class="alert alert-danger mb-3">
+                            {% for err in errors %}<div>{{ err }}</div>{% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="login-userset">
+                            <div class="login-logo logo-normal">
+                                <img src="{% static 'assets/img/logo.svg' %}" alt="Logo">
+                            </div>
+                            <div class="login-userheading">
+                                <h3>Create Account</h3>
+                                <h4 class="fs-16">Register to access InventoryHub.</h4>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" name="first_name" value="{{ form_data.first_name|default:'' }}"
+                                        class="form-control" placeholder="First Name">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" name="last_name" value="{{ form_data.last_name|default:'' }}"
+                                        class="form-control" placeholder="Last Name">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Username <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" name="username" value="{{ form_data.username|default:'' }}"
+                                        class="form-control border-end-0" placeholder="Username">
+                                    <span class="input-group-text border-start-0"><i class="ti ti-user"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="email" name="email" value="{{ form_data.email|default:'' }}"
+                                        class="form-control border-end-0" placeholder="Email Address">
+                                    <span class="input-group-text border-start-0"><i class="ti ti-mail"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Phone</label>
+                                <div class="input-group">
+                                    <input type="text" name="phone" value="{{ form_data.phone|default:'' }}"
+                                        class="form-control border-end-0" placeholder="Phone Number">
+                                    <span class="input-group-text border-start-0"><i class="ti ti-phone"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Password <span class="text-danger">*</span></label>
+                                <div class="pass-group">
+                                    <input type="password" name="password" class="pass-input form-control"
+                                        placeholder="Password">
+                                    <span class="ti toggle-password ti-eye-off text-gray-9"></span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                                <div class="pass-group">
+                                    <input type="password" name="password_confirm" class="pass-input form-control"
+                                        placeholder="Confirm Password">
+                                    <span class="ti toggle-password ti-eye-off text-gray-9"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-login">
+                                <button type="submit" class="btn btn-primary w-100">Create Account</button>
+                            </div>
+
+                            <div class="signinform mt-3">
+                                <h4>Already have an account?
+                                    <a href="{% url 'accounts:login' %}" class="hover-a"> Sign In</a>
+                                </h4>
+                            </div>
+
+                            <div class="my-4 d-flex justify-content-center align-items-center copyright-text">
+                                <p>Copyright &copy; 2025 InventoryHub</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/script.js' %}"></script>
+</body>
+
+</html>

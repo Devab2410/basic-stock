@@ -1,0 +1,63 @@
+{% extends 'core/core_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>New Stock Adjustment</h4>
+                    <h6>Adjust stock quantity for a product</h6>
+                </div>
+            </div>
+            <ul class="table-top-head">
+                <li><a href="{% url 'grocery:stock_adjustment_list' %}" class="btn btn-sm btn-secondary"><i
+                            class="ti ti-arrow-left me-1"></i>Back</a></li>
+            </ul>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <form method="post" action="{% url 'grocery:stock_adjustment_create' %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Stock Item <span class="text-danger">*</span></label>
+                            <select name="stock" class="form-select" required>
+                                <option value="">-- Select Product Stock --</option>
+                                {% for s in stocks %}
+                                <option value="{{ s.id }}">{{ s.product.name }} (Batch: {{ s.batch_no|default:"N/A" }},
+                                    Qty: {{ s.quantity }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Adjustment Type <span class="text-danger">*</span></label>
+                            <select name="adjustment_type" class="form-select" required>
+                                {% for val, label in adjustment_types %}
+                                <option value="{{ val }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Quantity <span class="text-danger">*</span></label>
+                            <input type="number" name="quantity" class="form-control" min="1" required>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Reason <span class="text-danger">*</span></label>
+                            <input type="text" name="reason" class="form-control"
+                                placeholder="Enter reason for adjustment" required>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-2">
+                        <button type="submit" class="btn btn-primary">Save Adjustment</button>
+                        <a href="{% url 'grocery:stock_adjustment_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub. All Right Reserved</p>
+    </div>
+</div>
+{% endblock %}

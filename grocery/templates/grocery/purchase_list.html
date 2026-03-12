@@ -1,0 +1,74 @@
+{% extends 'grocery/grocery_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>Purchases</h4>
+                    <h6>Manage purchase orders</h6>
+                </div>
+            </div>
+            <div class="page-btn"><a href="{% url 'grocery:purchase_create' %}" class="btn btn-primary"><i
+                        class="ti ti-circle-plus me-1"></i>New Purchase</a></div>
+        </div>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table datatable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Purchase No</th>
+                                <th>Supplier</th>
+                                <th>Invoice No</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th class="no-sort">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for purchase in purchases %}
+                            <tr>
+                                <td>
+                                    <h6 class="fw-medium"><a href="{% url 'grocery:purchase_detail' purchase.pk %}">{{
+                                            purchase.purchase_no }}</a></h6>
+                                </td>
+                                <td>{{ purchase.supplier.name }}</td>
+                                <td>{{ purchase.supplier_invoice_no|default:"-" }}</td>
+                                <td>{{ purchase.purchase_date|date:"d M Y" }}</td>
+                                <td>₹{{ purchase.total|floatformat:2 }}</td>
+                                <td>
+                                    {% if purchase.status == 'received' %}<span
+                                        class="badge badge-success badge-xs">Received</span>
+                                    {% elif purchase.status == 'partial' %}<span
+                                        class="badge badge-info badge-xs">Partial</span>
+                                    {% elif purchase.status == 'cancelled' %}<span
+                                        class="badge badge-danger badge-xs">Cancelled</span>
+                                    {% else %}<span class="badge badge-warning badge-xs">Draft</span>{% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-icon d-inline-flex align-items-center">
+                                        <a href="{% url 'grocery:purchase_detail' purchase.pk %}"
+                                            class="p-2 d-flex align-items-center border rounded me-2" title="View"><i
+                                                class="ti ti-eye"></i></a>
+                                        <form method="post" action="{% url 'grocery:purchase_delete' purchase.pk %}"
+                                            class="d-inline">{% csrf_token %}<button type="submit"
+                                                class="p-2 d-flex align-items-center border rounded btn btn-link"
+                                                onclick="return confirm('Delete this purchase?')" title="Delete"><i
+                                                    class="ti ti-trash text-danger"></i></button></form>
+                                    </div>
+                                </td>
+                            </tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub</p>
+    </div>
+</div>
+{% endblock %}

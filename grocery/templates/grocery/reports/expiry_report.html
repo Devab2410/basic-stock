@@ -1,0 +1,67 @@
+{% extends 'core/core_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>Product Expiry Report</h4>
+                    <h6>Stock items expiring within {{ days }} days</h6>
+                </div>
+            </div>
+            <ul class="table-top-head">
+                <form method="get" action="{% url 'grocery:report_expiry' %}" class="d-flex gap-2 align-items-center">
+                    <select name="days" class="form-select form-select-sm" style="width:120px">
+                        <option value="7" {% if days==7 %}selected{% endif %}>7 days</option>
+                        <option value="14" {% if days==14 %}selected{% endif %}>14 days</option>
+                        <option value="30" {% if days==30 %}selected{% endif %}>30 days</option>
+                        <option value="60" {% if days==60 %}selected{% endif %}>60 days</option>
+                        <option value="90" {% if days==90 %}selected{% endif %}>90 days</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+                </form>
+            </ul>
+        </div>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table datatable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Batch No</th>
+                                <th>Qty</th>
+                                <th>Expiry Date</th>
+                                <th>Days Left</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stock in stocks %}
+                            <tr>
+                                <td>
+                                    <h6 class="fw-medium">{{ stock.product.name }}</h6>
+                                </td>
+                                <td>{{ stock.batch_no|default:"-" }}</td>
+                                <td>{{ stock.quantity }}</td>
+                                <td class="text-warning fw-bold">{{ stock.expiry_date|date:"d/m/Y"|default:"-" }}</td>
+                                <td>
+                                    {% if stock.days_to_expiry is not None %}
+                                    <span
+                                        class="badge {% if stock.days_to_expiry <= 3 %}badge-danger{% else %}badge-warning{% endif %} badge-xs">{{
+                                        stock.days_to_expiry }} days</span>
+                                    {% else %}-{% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub. All Right Reserved</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,216 @@
+{% extends 'pharmacy/pharmacy_base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="content">
+	<div class="page-header">
+		<div class="add-item d-flex">
+			<div class="page-title">
+				<h4>Purchase Details</h4>
+			</div>
+		</div>
+		<ul class="table-top-head">
+			<li>
+				<a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"><img
+						src="{% static 'assets/img/icons/pdf.svg' %}" alt="img"></a>
+			</li>
+			<li>
+				<a data-bs-toggle="tooltip" data-bs-placement="top" title="Print"><i data-feather="printer"
+						class="feather-rotate-ccw"></i></a>
+			</li>
+			<li>
+				<a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header"><i
+						class="ti ti-chevron-up"></i></a>
+			</li>
+		</ul>
+		<div class="page-btn">
+			<a href="{% url 'pharmacy:purchase_list' %}" class="btn btn-primary"><i data-feather="arrow-left"
+					class="me-2"></i>Back to Purchases</a>
+		</div>
+	</div>
+
+
+	<!-- Purchases -->
+	<div class="card">
+		<div class="card-body">
+			<div class="row justify-content-between align-items-center border-bottom mb-3">
+				<div class="col-md-6">
+					{% if purchase.store.company.logo %}
+					<div class="mb-2 invoice-logo">
+						<img src="{{ purchase.store.company.logo.url }}" width="130" class="img-fluid logo"
+							alt="logo">
+						<img src="{{ purchase.store.company.logo.url }}" width="130" class="img-fluid logo-white"
+							alt="logo">
+					</div>
+					{% else %}
+					<div class="mb-2 invoice-logo">
+						<img src="{% static 'assets/img/logo.svg' %}" width="130" class="img-fluid logo" alt="logo">
+						<img src="{% static 'assets/img/logo-white.svg' %}" width="130" class="img-fluid logo-white"
+							alt="logo">
+					</div>
+					{% endif %}
+					<p>{{ purchase.store.address }}</p>
+				</div>
+				<div class="col-md-6">
+					<div class=" text-end mb-3">
+						<h5 class="text-gray mb-1">Purchase No <span class="text-primary">
+								#{{ purchase.purchase_no }}</span></h5>
+						<p class="mb-1 fw-medium">Purchase Date : <span class="text-dark">
+								{{ purchase.purchase_date|date:'d/m/Y' }}</span></p>
+						{% if purchase.supplier_invoice_no %}<p class="fw-medium">Supplier Invoice : <span
+								class="text-dark">{{ purchase.supplier_invoice_no }}</span></p>{% endif %}
+					</div>
+				</div>
+			</div>
+			<div class="row border-bottom mb-3">
+				<div class="col-md-5">
+					<p class="text-dark mb-2 fw-semibold">From</p>
+					<div>
+						<h4 class="mb-1">{{ purchase.supplier.name }}</h4>
+						<p class="mb-1">{{ purchase.supplier.address }}</p>
+						<p class="mb-1">Email : <span class="text-dark">{{ purchase.supplier.email }}</span></p>
+						<p>Phone : <span class="text-dark">{{ purchase.supplier.phone }}</span></p>
+					</div>
+				</div>
+				<div class="col-md-5">
+					<p class="text-dark mb-2 fw-semibold">To</p>
+					<div>
+						<h4 class="mb-1">{{ purchase.store.name }}</h4>
+						<p class="mb-1">{{ purchase.store.address }}</p>
+						<p class="mb-1">Email : <span class="text-dark">{{ purchase.store.email }}</span></p>
+						<p>Phone : <span class="text-dark">{{ purchase.store.phone }}</span></p>
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="mb-3">
+						<p class="text-title mb-2 fw-medium">Purchase Status </p>
+						{% if purchase.status == 'draft' %}
+						<span class="bg-info text-white fs-15 p-1 rounded"><i class="ti ti-point-filled "></i>
+							{{ purchase.get_status_display }}</span>
+						{% elif purchase.status == 'partial' %}
+						<span class="bg-warning text-white fs-15 p-1 rounded"><i class="ti ti-point-filled "></i>
+							{{ purchase.get_status_display }}</span>
+						{% elif purchase.status == 'received' %}
+						<span class="bg-success text-white fs-15 p-1 rounded"><i class="ti ti-point-filled "></i>
+							{{ purchase.get_status_display }}</span>
+						{% else %}
+						<span class="bg-danger text-white fs-15 p-1 rounded"><i class="ti ti-point-filled "></i>
+							{{ purchase.get_status_display }}</span>
+						{% endif %}
+
+
+					</div>
+				</div>
+			</div>
+			<div>
+				<p class="fw-medium">Purchase For : <span class="text-dark fw-medium">
+					{{ purchase.store.name }}</span></p>
+				<div class="table-responsive mb-3">
+					<table class="table">
+						<thead class="thead-light">
+							<tr>
+								<th>Product Name</th>
+								<th>Batch No</th>
+								<th>Expiry Date</th>
+								<th class="text-end">Qty</th>
+								<th class="text-end">Cost</th>
+								<th class="text-end">Tax</th>
+								<th class="text-end">Total</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for item in purchase.items.all %}
+							<tr>
+								<td>
+									<h6>{{ item.product.name }}</h6>
+								</td>
+								<td class="text-gray-9 fw-medium">{{ item.batch_no }}</td>
+								<td class="text-gray-9 fw-medium">{{ item.expiry_date }}</td>
+								<td class="text-gray-9 fw-medium text-end">{{ item.quantity }}</td>
+								<td class="text-gray-9 fw-medium text-end">{{ item.unit_price }}</td>
+								<td class="text-gray-9 fw-medium text-end">{{ item.tax_amount }}</td>
+								<td class="text-gray-9 fw-medium text-end">{{ item.subtotal }}</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div class="row border-bottom mb-3">
+				<div class="col-md-5 ms-auto mb-3">
+					<div class="d-flex justify-content-between align-items-center border-bottom mb-2 pe-3">
+						<p class="mb-0">Sub Total</p>
+						<p class="text-dark fw-medium mb-2">{{ purchase.subtotal }}</p>
+					</div>
+					<div class="d-flex justify-content-between align-items-center border-bottom mb-2 pe-3">
+						<p class="mb-0">Discount (0%)</p>
+						<p class="text-dark fw-medium mb-2">{{ purchase.discount }}</p>
+					</div>
+					<div class="d-flex justify-content-between align-items-center mb-2 pe-3">
+						<p class="mb-0">Tax</p>
+						<p class="text-dark fw-medium mb-2">₹{{ purchase.tax_amount }}</p>
+					</div>
+					<div class="d-flex justify-content-between align-items-center mb-2 pe-3">
+						<h5>Total Amount</h5>
+						<h5>{{ purchase.total }}</h5>
+					</div>
+
+				</div>
+			</div>
+			<div class="row align-items-center border-bottom mb-3">
+				<div class="col-md-7">
+					<div>
+						<div class="mb-3">
+							<h6 class="mb-1">Terms and Conditions</h6>
+							<p>Please pay within 15 days from the date of Purchase, overdue interest @ 14% will be
+								charged on delayed payments.</p>
+						</div>
+						<div class="mb-3">
+							<h6 class="mb-1">Notes</h6>
+							<p>Please quote purchase number when remitting funds.</p>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-5">
+					<div class="text-end mb-3">
+						{% if purchase.created_by %}
+						<h6 class="fs-14 fw-medium pe-3">{{ purchase.created_by.display_name }}</h6>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+			<div class="text-center">
+				{% if purchase.store.company.logo %}
+				<div class="mb-3 invoice-logo d-flex align-items-center justify-content-center">
+					<img src="{{ purchase.store.company.logo.url }}" width="130" class="img-fluid logo" alt="logo">
+					<img src="{{ purchase.store.company.logo.url }}" width="130" class="img-fluid logo-white"
+						alt="logo">
+				</div>
+				{% else %}
+				<div class="mb-3 invoice-logo d-flex align-items-center justify-content-center">
+					<img src="{% static 'assets/img/logo.svg' %}" width="130" class="img-fluid logo" alt="logo">
+					<img src="{% static 'assets/img/logo-white.svg' %}" width="130" class="img-fluid logo-white"
+						alt="logo">
+				</div>
+				{% endif %}
+				{% if purchase.notes %}
+				<p class="text-dark mb-1">{{ purchase.notes }}</p>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+	<!-- /Invoices -->
+
+	<div class="d-flex justify-content-center align-items-center mb-4">
+		<a href="#" class="btn btn-primary d-flex justify-content-center align-items-center me-2"><i
+				class="ti ti-printer me-2"></i>Print Invoice</a>
+		<a href="#" class="btn btn-secondary d-flex justify-content-center align-items-center border"><i
+				class="ti ti-copy me-2"></i>Clone Invoice</a>
+	</div>
+</div>
+
+
+
+{% endblock %}

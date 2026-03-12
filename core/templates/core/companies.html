@@ -1,0 +1,763 @@
+{% extends 'core/core_base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+	<div class="content">
+		<div class="page-header">
+			<div class="add-item d-flex">
+				<div class="page-title">
+					<h4>Companies</h4>
+					<h6>Manage your companies</h6>
+				</div>
+			</div>
+			<ul class="table-top-head">
+				<li>
+					<a data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf"><img src="{% static 'assets/img/icons/pdf.svg' %}" alt="img"></a>
+				</li>
+				<li>
+					<a data-bs-toggle="tooltip" data-bs-placement="top" title="Excel"><img src="{% static 'assets/img/icons/excel.svg' %}" alt="img"></a>
+				</li>
+				<li>
+					<a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh"><i class="ti ti-refresh"></i></a>
+				</li>
+				<li>
+					<a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header"><i class="ti ti-chevron-up"></i></a>
+				</li>
+			</ul>
+			<div class="page-btn">
+				<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_company"><i class="ti ti-circle-plus me-1"></i>Add Company</a>
+			</div>
+		</div>
+
+		<div class="row">
+
+			<!-- Total Companies -->
+			<div class="col-lg-3 col-md-6 d-flex">
+				<div class="card flex-fill">
+					<div class="card-body d-flex align-items-center justify-content-between">
+						<div class="d-flex align-items-center overflow-hidden">
+							<span class="avatar avatar-lg bg-primary flex-shrink-0">
+								<i class="ti ti-building fs-16"></i>
+							</span>
+							<div class="ms-2 overflow-hidden">
+								<p class="fs-12 fw-medium mb-1 text-truncate">Total Companies</p>
+								<h4>950</h4>
+							</div>
+						</div>
+						<div id="total-chart"></div>
+					</div>
+				</div>
+			</div>
+			<!-- /Total Companies -->
+
+			<!-- Total Companies -->
+			<div class="col-lg-3 col-md-6 d-flex">
+				<div class="card flex-fill">
+					<div class="card-body d-flex align-items-center justify-content-between">
+						<div class="d-flex align-items-center overflow-hidden">
+							<span class="avatar avatar-lg bg-success flex-shrink-0">
+								<i class="ti ti-building fs-16"></i>
+							</span>
+							<div class="ms-2 overflow-hidden">
+								<p class="fs-12 fw-medium mb-1 text-truncate">Active Companies</p>
+								<h4>920</h4>
+							</div>
+						</div>
+						<div id="active-chart"></div>
+					</div>
+				</div>
+			</div>
+			<!-- /Total Companies -->
+
+			<!-- Inactive Companies -->
+			<div class="col-lg-3 col-md-6 d-flex">
+				<div class="card flex-fill">
+					<div class="card-body d-flex align-items-center justify-content-between">
+						<div class="d-flex align-items-center overflow-hidden">
+							<span class="avatar avatar-lg bg-danger flex-shrink-0">
+								<i class="ti ti-building fs-16"></i>
+							</span>
+							<div class="ms-2 overflow-hidden">
+								<p class="fs-12 fw-medium mb-1 text-truncate">Inactive Companies</p>
+								<h4>30</h4>
+							</div>
+						</div>
+						<div id="inactive-chart"></div>
+					</div>
+				</div>
+			</div>
+			<!-- /Inactive Companies -->
+
+			<!-- Company Location -->
+			<div class="col-lg-3 col-md-6 d-flex">
+				<div class="card flex-fill">
+					<div class="card-body d-flex align-items-center justify-content-between">
+						<div class="d-flex align-items-center overflow-hidden">
+							<span class="avatar avatar-lg bg-skyblue flex-shrink-0">
+								<i class="ti ti-map-pin-check fs-16"></i>
+							</span>
+							<div class="ms-2 overflow-hidden">
+								<p class="fs-12 fw-medium mb-1 text-truncate">Company Location</p>
+								<h4>180</h4>
+							</div>
+						</div>
+						<div id="location-chart"></div>
+					</div>
+				</div>
+			</div>
+			<!-- /Company Location -->
+
+		</div>
+
+		<!-- /Company list -->
+		<div class="card">
+			<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+				<div class="search-set">
+					<div class="search-input">
+						<span class="btn-searchset"><i class="ti ti-search fs-14 feather-search"></i></span>
+					</div>
+				</div>
+				<div class="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+					<div class="dropdown me-2">
+						<a href="javascript:void(0);" class="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center" data-bs-toggle="dropdown">
+							Select Plan
+						</a>
+						<ul class="dropdown-menu  dropdown-menu-end p-3">
+							<li>
+								<a href="javascript:void(0);" class="dropdown-item rounded-1">Advance</a>
+							</li>
+							<li>
+								<a href="javascript:void(0);" class="dropdown-item rounded-1">Basic</a>
+							</li>
+							<li>
+								<a href="javascript:void(0);" class="dropdown-item rounded-1">Enterprise</a>
+							</li>
+						</ul>
+					</div>
+					<div class="dropdown me-2">
+						<a href="javascript:void(0);" class="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center" data-bs-toggle="dropdown">
+							Select Status
+						</a>
+						<ul class="dropdown-menu  dropdown-menu-end p-3">
+							<li>
+								<a href="javascript:void(0);" class="dropdown-item rounded-1">Active</a>
+							</li>
+							<li>
+								<a href="javascript:void(0);" class="dropdown-item rounded-1">Inactive</a>
+							</li>
+						</ul>
+					</div>
+					<div class="dropdown">
+						<a href="javascript:void(0);" class="dropdown-toggle btn btn-white btn-md d-inline-flex align-items-center" data-bs-toggle="dropdown">
+							Sort By : Last 7 Days
+						</a>
+						<ul class="dropdown-menu  dropdown-menu-end p-3">
+							<li>
+								<a href="javascript:void(0);" class="dropdown-item rounded-1">Recently Added</a>
+							</li>
+							<li>
+								<a href="javascript:void(0);" class="dropdown-item rounded-1">Ascending</a>
+							</li>
+							<li>
+								<a href="javascript:void(0);" class="dropdown-item rounded-1">Desending</a>
+							</li>
+							<li>
+								<a href="javascript:void(0);" class="dropdown-item rounded-1">Last Month</a>
+							</li>
+							<li>
+								<a href="javascript:void(0);" class="dropdown-item rounded-1">Last 7 Days</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="card-body p-0">
+				<div class="table-responsive">
+					<table class="table datatable">
+						<thead class="thead-light">
+							<tr>
+								<th class="no-sort">
+									<div class="form-check form-check-md">
+										<input class="form-check-input" type="checkbox" id="select-all">
+									</div>
+								</th>
+								<th>Company Name</th>
+								<th>Slug</th>
+								<th>Registration No</th>
+								<th>GSTIN</th>
+								<th>Owner</th>
+								<th>Business Type</th>
+								<th>Phone</th>
+								<th>Email</th>
+								<th>Address</th>
+								<th>City</th>
+								<th>State</th>
+								<!-- <th>Zip Code</th> -->
+								<th>Country</th>
+								<th>Status</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for company in companies %}
+							<tr>
+								<td>
+									<div class="form-check form-check-md">
+										<input class="form-check-input" type="checkbox">
+									</div>
+								</td>
+								<td>
+									<div class="d-flex align-items-center file-name-icon">
+										{% if company.logo %}
+										<a href="#" class="avatar avatar-md border rounded-circle">
+											<img src="{{ company.logo.url }}" class="img-fluid" alt="img">
+										</a>
+										{% else %}
+										<a href="#" class="avatar avatar-md border rounded-circle">
+											<img src="{% static 'assets/img/company/company-01.svg' %}" class="img-fluid" alt="img">
+										</a>
+										{% endif %}
+										<div class="ms-2">
+											<h6 class="fw-medium"><a href="#">{{ company.name }}</a></h6>
+										</div>
+									</div>
+								</td>
+								<td>{{ company.slug }}</td>
+								<td>{{ company.registration_no }}</td>
+								<td>{{ company.gstin }}</td>
+								<td>{{ company.owner }}</td>
+								<td>
+									{% for business_type in company.business_types.all %}
+									<span style="background-color: {{ business_type.color }}; color: white; padding: 5px 10px; border-radius: 5px;">
+										{{ business_type.name }}
+									</span>
+									{% endfor %}
+								</td>
+								<td>{{ company.phone }}</td>
+								<td>{{ company.email }}</td>
+								<td>{{ company.address }}</td>
+								<td>{{ company.city }}</td>
+								<td>{{ company.state }}</td>
+								<!-- <td>{{ company.zip_code }}</td> -->
+								<td>{{ company.country }}</td>
+								<td>
+									{% if company.is_active %}
+									<span class="badge badge-success d-inline-flex align-items-center badge-xs">
+										<i class="ti ti-point-filled me-1"></i>Active
+									</span>
+									{% else %}
+									<span class="badge badge-danger d-inline-flex align-items-center badge-xs">
+										<i class="ti ti-point-filled me-1"></i>Inactive
+									</span>
+									{% endif %}
+								</td>
+								<td>
+									<div class="action-icon d-inline-flex align-items-center">
+										<a href="#" class="p-2 d-flex align-items-center border rounded me-2"  data-bs-toggle="modal" data-bs-target="#company_detail"><i class="ti ti-eye"></i></a>
+										<!-- Edit -->
+										<a href="#" class="p-2 d-flex align-items-center border rounded me-2 edit-btn" data-bs-toggle="modal" data-bs-target="#edit_company" data-id="{{ company.id }}" data-name="{{ company.name }}" data-slug="{{ company.slug }}" data-registration_no="{{ company.registration_no }}" data-gstin="{{ company.gstin }}" data-owner="{{ company.owner.id }}" data-business_type="{% for bt in company.business_types.all %}{{ bt.id }},{% endfor %}" data-phone="{{ company.phone }}" data-email="{{ company.email }}" data-address="{{ company.address }}" data-city="{{ company.city }}" data-state="{{ company.state }}" data-country="{{ company.country }}" data-active="{{ company.is_active }}"> <i class="ti ti-edit"></i> </a>
+
+										<!-- Delete -->
+										<a href="#" class="p-2 d-flex align-items-center border rounded" data-bs-toggle="modal" data-bs-target="#delete_modal" onclick="setDeleteId('{{ company.id }}')"> <i class="ti ti-trash"></i> </a>	
+									</div>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<!-- /Company list -->
+	</div>
+	<div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+		<p class="mb-0 text-gray-9">2014 - 2025 &copy; DreamsPOS. All Right Reserved</p>
+		<p>Designed &amp; Developed by <a href="javascript:void(0);" class="text-primary">Dreams</a></p>
+	</div>
+</div>
+
+<!-- Add Company -->
+<div class="modal fade" id="add_company">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Add New Company</h4>
+				<button type="button" class="btn-close custom-btn-close p-0" data-bs-dismiss="modal" aria-label="Close">
+					<i class="ti ti-x"></i>
+				</button>
+			</div>
+			<form action="{% url 'core:companies' %}" method="post" enctype="multipart/form-data">
+				{% csrf_token %}
+				<input type="hidden" name="action" value="create">
+				<div class="modal-body pb-0">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="d-flex align-items-center flex-wrap row-gap-3 bg-light w-100 rounded p-3 mb-4">                                                
+								<div class="d-flex align-items-center justify-content-center avatar avatar-xxl rounded-circle border border-dashed me-2 flex-shrink-0 text-dark frames">
+									<i class="ti ti-photo"></i>
+								</div>                                              
+								<div class="profile-upload">
+									<div class="mb-2">
+										<h6 class="mb-1">Upload Logo Image</h6>
+										<p class="fs-12">Image should be below 4 mb</p>
+									</div>
+									<div class="profile-uploader d-flex align-items-center">
+										<div class="drag-upload-btn btn btn-sm btn-primary me-2">
+											Upload
+											<input type="file" class="form-control image-sign" name="logo" multiple="">
+										</div>
+										<a href="javascript:void(0);" class="btn btn-secondary btn-sm">Cancel</a>
+									</div>
+									
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Name <span class="text-danger"> *</span></label>
+								<input type="text" name="name" placeholder="Enter Company Name" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Owner <span class="text-danger"> *</span></label>
+								<select name="owner" class="form-control select2">
+									<option value="">Select Owner</option>
+									{% for user in users %}
+										<option value="{{ user.id }}">{{ user.username }}</option>
+									{% endfor %}
+								</select>
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Slug <span class="text-danger"> *</span></label>
+								<input type="text" name="slug" placeholder="Enter Company Slug" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Business Type <span class="text-danger"> *</span></label>
+								<select name="business_type" class="form-control select2" multiple>
+									<option value="">Select Business Type</option>
+									{% for bt in business_types %}
+										<option value="{{ bt.id }}">{{ bt.name }}</option>
+									{% endfor %}
+								</select>
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Registration No <span class="text-danger"> *</span></label>
+								<input type="text" name="registration_no" placeholder="Enter Registration No" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">GSTIN <span class="text-danger"> *</span></label>
+								<input type="text" name="gstin" placeholder="Enter GSTIN" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Email Address</label>
+								<input type="email" name="email" placeholder="Enter Email Address" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Phone Number <span class="text-danger"> *</span></label>
+								<input type="text" name="phone" placeholder="Enter Phone Number" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-12">
+							<div class="mb-3">
+								<label class="form-label">Address</label>
+								<input type="text" name="address" placeholder="Enter Address" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">City <span class="text-danger"> *</span></label>
+								<input type="text" name="city" placeholder="Enter City" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">State <span class="text-danger"> *</span></label>
+								<input type="text" name="state" placeholder="Enter State" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Zip Code <span class="text-danger"> *</span></label>
+								<input type="text" name="zip_code" placeholder="Enter Zip Code" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Country <span class="text-danger"> *</span></label>
+								<input type="text" name="country" placeholder="Enter Country" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-4">
+							<div class="mb-3 ">
+								<label class="form-label">Status</label>
+								<select name="is_active" class="form-control">
+									<option value="">Select</option>
+									<option value="True">Active</option>
+									<option value="False">Inactive</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Add Company</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<!-- /Add Company -->
+
+<!-- Edit Company -->
+<div class="modal fade" id="edit_company">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Edit Company</h4>
+				<button type="button" class="btn-close custom-btn-close p-0" data-bs-dismiss="modal" aria-label="Close">
+					<i class="ti ti-x"></i>
+				</button>
+			</div>
+			<form action="{% url 'core:companies' %}" method="post" enctype="multipart/form-data">
+				{% csrf_token %}
+				<input type="hidden" name="action" value="update">
+				<input type="hidden" name="id" id="edit_id">
+				<div class="modal-body pb-0">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="d-flex align-items-center flex-wrap row-gap-3 bg-light w-100 rounded p-3 mb-4">                                                
+								<div class="d-flex align-items-center justify-content-center avatar avatar-xxl rounded-circle border border-dashed me-2 flex-shrink-0 text-dark frames">
+									<i class="ti ti-photo"></i>
+								</div>                                              
+								<div class="profile-upload">
+									<div class="mb-2">
+										<h6 class="mb-1">Upload Logo Image</h6>
+										<p class="fs-12">Image should be below 4 mb</p>
+									</div>
+									<div class="profile-uploader d-flex align-items-center">
+										<div class="drag-upload-btn btn btn-sm btn-primary me-2">
+											Upload
+											<input type="file" class="form-control image-sign" name="logo" multiple="">
+										</div>
+										<a href="javascript:void(0);" class="btn btn-secondary btn-sm">Cancel</a>
+									</div>
+									
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Name <span class="text-danger"> *</span></label>
+								<input type="text" name="name" id="edit_name" placeholder="Enter Company Name" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Owner <span class="text-danger"> *</span></label>
+								<select name="owner" id="edit_owner" class="form-control select2">
+									<option value="">Select Owner</option>
+									{% for user in users %}
+										<option value="{{ user.id }}">{{ user.username }}</option>
+									{% endfor %}
+								</select>
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Slug <span class="text-danger"> *</span></label>
+								<input type="text" name="slug" id="edit_slug" placeholder="Enter Company Slug" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Business Type <span class="text-danger"> *</span></label>
+								<select name="business_type" id="edit_business_type" class="form-control select2" multiple>
+									<option value="" disabled>Select Business Type</option>
+									{% for bt in business_types %}
+										<option value="{{ bt.id }}">{{ bt.name }}</option>
+									{% endfor %}
+								</select>
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Registration No <span class="text-danger"> *</span></label>
+								<input type="text" name="registration_no" id="edit_registration_no" placeholder="Enter Registration No" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">GSTIN <span class="text-danger"> *</span></label>
+								<input type="text" name="gstin" id="edit_gstin" placeholder="Enter GSTIN" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Email Address</label>
+								<input type="email" name="email" id="edit_email" placeholder="Enter Email Address" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Phone Number <span class="text-danger"> *</span></label>
+								<input type="text" name="phone" id="edit_phone" placeholder="Enter Phone Number" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-12">
+							<div class="mb-3">
+								<label class="form-label">Address</label>
+								<input type="text" name="address" id="edit_address" placeholder="Enter Address" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">City <span class="text-danger"> *</span></label>
+								<input type="text" name="city" id="edit_city" placeholder="Enter City" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">State <span class="text-danger"> *</span></label>
+								<input type="text" name="state" id="edit_state" placeholder="Enter State" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Zip Code <span class="text-danger"> *</span></label>
+								<input type="text" name="zip_code" id="edit_zip_code" placeholder="Enter Zip Code" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-6">
+							<div class="mb-3">
+								<label class="form-label">Country <span class="text-danger"> *</span></label>
+								<input type="text" name="country" id="edit_country" placeholder="Enter Country" class="form-control">
+							</div>									
+						</div>
+						<div class="col-md-4">
+							<div class="mb-3 ">
+								<label class="form-label">Status</label>
+								<select name="is_active" id="edit_is_active" class="form-control">
+									<option value="">Select</option>
+									<option value="True">Active</option>
+									<option value="False">Inactive</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Add Company</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<!-- /Edit Company -->
+
+<!-- Company Detail -->
+<div class="modal fade" id="company_detail">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Company Detail</h4>
+				<button type="button" class="btn-close custom-btn-close p-0" data-bs-dismiss="modal" aria-label="Close">
+					<i class="ti ti-x"></i>
+				</button>
+			</div>
+			<div class="moday-body">
+				<div class="p-3">
+					<div class="d-flex justify-content-between align-items-center rounded bg-light p-3">                                                
+						<div class="file-name-icon d-flex align-items-center">
+							<a href="#" class="avatar avatar-md border rounded-circle flex-shrink-0 me-2">
+								<img src="{% static 'assets/img/company/company-01.svg' %}" class="img-fluid" alt="img">
+							</a> 
+							<div>
+								<p class="text-gray-9 fw-medium mb-0">BrightWave Innovations</p>
+								<p><a href="https://dreamspos.dreamstechnologies.com/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5934303a31383c35193c21383429353c773a3634">[email&#160;protected]</a></p>
+							</div>
+						</div>                                        
+						<span class="badge badge-success"><i class="ti ti-point-filled"></i>Active</span>
+					</div>
+				</div>
+				<div class="p-3">                                                
+					<p class="text-gray-9 fw-medium">Basic Info</p>                                            
+					<div class="pb-1 border-bottom mb-4">
+						<div class="row align-items-center">
+							<div class="col-md-4">
+								<div class="mb-3">
+									<p class="fs-12 mb-0">Account URL</p>
+									<p class="text-gray-9">bwi.example.com</p>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="mb-3">
+									<p class="fs-12 mb-0">Phone Number</p>
+									<p class="text-gray-9">(163) 2459 315</p>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="mb-3">
+									<p class="fs-12 mb-0">Website</p>
+									<p class="text-gray-9">www.exmple.com</p>
+								</div>
+							</div>
+						</div>
+						<div class="row align-items-center">
+							<div class="col-md-4">
+								<div class="mb-3">
+									<p class="fs-12 mb-0">Currency</p>
+									<p class="text-gray-9">United Stated Dollar (USD)</p>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="mb-3">
+									<p class="fs-12 mb-0">Language</p>
+									<p class="text-gray-9">English</p>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="mb-3">
+									<p class="fs-12 mb-0">Addresss</p>
+									<p class="text-gray-9">3705 Lynn Avenue, Phelps, WI 54554</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<p class="text-gray-9 fw-medium">Plan Details</p>                                            
+					<div>
+						<div class="row align-items-center">
+							<div class="col-md-4">
+								<div class="mb-3">
+									<p class="fs-12 mb-0">Plan Name</p>
+									<p class="text-gray-9">Advanced</p>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="mb-3">
+									<p class="fs-12 mb-0">Plan Type</p>
+									<p class="text-gray-9">Monthly</p>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="mb-3">
+									<p class="fs-12 mb-0">Price</p>
+									<p class="text-gray-9">$200</p>
+								</div>
+							</div>
+						</div>
+						<div class="row align-items-center">
+							<div class="col-md-4">
+								<div class="mb-3">
+									<p class="fs-12 mb-0">Register Date</p>
+									<p class="text-gray-9">12 Sep 2024</p>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="mb-3">
+									<p class="fs-12 mb-0">Expiring On</p>
+									<p class="text-gray-9">11 Oct 2024</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /Company Detail -->
+
+<!-- Delete Modal -->
+<div class="modal fade" id="delete_modal">
+	<div class="modal-dialog modal-dialog-centered modal-sm">
+		<div class="modal-content">
+			<div class="modal-body text-center">
+				<span class="avatar avatar-xl bg-danger-transparent rounded-circle text-danger mb-3">
+					<i class="ti ti-trash-x fs-36"></i>
+				</span>
+				<h4 class="mb-1">Confirm Delete</h4>
+				<p class="mb-3">You want to delete all the marked items, this cant be undone once you delete.</p>
+				<div class="d-flex justify-content-center">
+					<a href="javascript:void(0);" class="btn btn-secondary me-3" data-bs-dismiss="modal">Cancel</a>
+					<a href="#" class="btn btn-primary">
+						<form method="post" action="{% url 'core:companies' %}">
+							{% csrf_token %}
+							<input type="hidden" name="id" id="delete_id">
+							<input type="hidden" name="action" value="delete">
+
+							<button type="submit" class="btn btn-primary">
+								Yes, Delete
+							</button>
+						</form>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /Delete Modal -->
+
+<script>
+
+function setDeleteId(id) {
+	document.getElementById("delete_id").value = id;
+}
+
+</script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+	document.querySelectorAll(".edit-btn").forEach(btn => {
+
+		btn.addEventListener("click", function () {
+
+			// Set ID
+			document.getElementById("edit_id").value = this.dataset.id;
+
+			// Set text fields
+			document.getElementById("edit_name").value = this.dataset.name;
+			document.getElementById("edit_owner").value = this.dataset.owner;
+			document.getElementById("edit_slug").value = this.dataset.slug;
+			document.getElementById("edit_registration_no").value = this.dataset.registration_no;
+			document.getElementById("edit_gstin").value = this.dataset.gstin;
+			document.getElementById("edit_email").value = this.dataset.email;
+			document.getElementById("edit_phone").value = this.dataset.phone;
+			document.getElementById("edit_address").value = this.dataset.address;
+			document.getElementById("edit_city").value = this.dataset.city;
+			document.getElementById("edit_state").value = this.dataset.state;
+			document.getElementById("edit_zip_code").value = this.dataset.zip_code;
+			document.getElementById("edit_country").value = this.dataset.country;
+
+			// checkbox
+			document.getElementById("edit_is_active").value = this.dataset.active;
+
+			// multiple select
+			let types = this.dataset.business_type ? this.dataset.business_type.split(',') : [];
+			$('#edit_business_type').val(types).trigger('change');
+
+		});
+
+	});
+
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'grocery/grocery_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>{{ purchase.purchase_no }}</h4>
+                    <h6>Purchase Details</h6>
+                </div>
+            </div>
+            <div class="page-btn">
+                <a href="{% url 'grocery:purchase_list' %}" class="btn btn-secondary"><i
+                        class="ti ti-arrow-left me-1"></i>Back</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Purchase Info</h5>
+                        {% if purchase.status == 'received' %}<span class="badge badge-success">Received</span>
+                        {% elif purchase.status == 'partial' %}<span class="badge badge-info">Partial</span>
+                        {% elif purchase.status == 'cancelled' %}<span class="badge badge-danger">Cancelled</span>
+                        {% else %}<span class="badge badge-warning">Draft</span>{% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Purchase No:</strong> {{ purchase.purchase_no }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Supplier:</strong> {{ purchase.supplier.name }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Invoice No:</strong> {{ purchase.supplier_invoice_no|default:"-" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Date:</strong> {{ purchase.purchase_date|date:"d M Y" }}</p>
+                            </div>
+                            <div class="col-12">
+                                <p><strong>Notes:</strong> {{ purchase.notes|default:"-" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Items</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Qty</th>
+                                        <th>Received</th>
+                                        <th>Price</th>
+                                        <th>Batch</th>
+                                        <th>Tax</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                    <tr>
+                                        <td>{{ item.product.name }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>{{ item.received_qty }}</td>
+                                        <td>₹{{ item.price|floatformat:2 }}</td>
+                                        <td>{{ item.batch_no|default:"-" }}</td>
+                                        <td>{{ item.tax_rate|default:"0" }}%</td>
+                                        <td>₹{{ item.total|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td><strong>Subtotal</strong></td>
+                                        <td>₹{{ purchase.subtotal|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td><strong>Tax</strong></td>
+                                        <td>₹{{ purchase.tax_amount|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5"></td>
+                                        <td><strong>Discount</strong></td>
+                                        <td>-₹{{ purchase.discount|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr class="fw-bold">
+                                        <td colspan="5"></td>
+                                        <td><strong>Total</strong></td>
+                                        <td>₹{{ purchase.total|floatformat:2 }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Update Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{% url 'grocery:purchase_receive' purchase.pk %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <select name="status" class="form-select">
+                                    <option value="draft" {% if purchase.status=='draft' %}selected{% endif %}>Draft
+                                    </option>
+                                    <option value="partial" {% if purchase.status=='partial' %}selected{% endif %}>
+                                        Partially Received</option>
+                                    <option value="received" {% if purchase.status=='received' %}selected{% endif %}>
+                                        Fully Received</option>
+                                    <option value="cancelled" {% if purchase.status=='cancelled' %}selected{% endif %}>
+                                        Cancelled</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Update Status</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub</p>
+    </div>
+</div>
+{% endblock %}

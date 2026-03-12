@@ -1,0 +1,75 @@
+{% extends 'grocery/grocery_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>Sales Report</h4>
+                    <h6>Grocery sales analysis</h6>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="dash-widget w-100">
+                    <div class="dash-widgetcontent">
+                        <h5>{{ total_sales }}</h5>
+                        <h6>Total Sales</h6>
+                    </div>
+                    <div class="dash-widgetimg"><span class="dash-widget-icon bg-success-light"><i
+                                class="ti ti-receipt"></i></span></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="dash-widget w-100">
+                    <div class="dash-widgetcontent">
+                        <h5>₹{{ total_revenue|floatformat:2 }}</h5>
+                        <h6>Revenue</h6>
+                    </div>
+                    <div class="dash-widgetimg"><span class="dash-widget-icon bg-info-light"><i
+                                class="ti ti-currency-rupee"></i></span></div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table datatable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Sale No</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sale in sales %}
+                            <tr>
+                                <td><a href="{% url 'grocery:sale_detail' sale.pk %}">{{ sale.sale_no }}</a></td>
+                                <td>{{ sale.customer.name|default:"Walk-in" }}</td>
+                                <td>{{ sale.sale_date|date:"d M Y" }}</td>
+                                <td>{{ sale.items.count }}</td>
+                                <td>₹{{ sale.total|floatformat:2 }}</td>
+                                <td>{{ sale.get_payment_method_display }}</td>
+                                <td>{% if sale.status == 'completed' %}<span
+                                        class="badge badge-success badge-xs">Completed</span>{% else %}<span
+                                        class="badge badge-warning badge-xs">{{ sale.status|title }}</span>{% endif %}
+                                </td>
+                            </tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends 'grocery/grocery_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>New Purchase</h4>
+                    <h6>Create a new purchase order</h6>
+                </div>
+            </div>
+            <div class="page-btn"><a href="{% url 'grocery:purchase_list' %}" class="btn btn-secondary"><i
+                        class="ti ti-arrow-left me-1"></i>Back</a></div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <form method="post" id="purchaseForm">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="mb-3"><label class="form-label">Supplier <span
+                                        class="text-danger">*</span></label><select name="supplier" class="form-select"
+                                    required>
+                                    <option value="">-- Select --</option>{% for s in suppliers %}<option
+                                        value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+                                </select></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3"><label class="form-label">Purchase Date</label><input type="date"
+                                    name="purchase_date" class="form-control" value="{{ today }}"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3"><label class="form-label">Supplier Invoice No</label><input type="text"
+                                    name="supplier_invoice_no" class="form-control"></div>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3">Items</h5>
+                    <div class="table-responsive mb-3">
+                        <table class="table" id="itemsTable">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Batch</th>
+                                    <th>Tax %</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsBody">
+                                <tr class="item-row">
+                                    <td><select name="items[0][product]" class="form-select" required>
+                                            <option value="">-- Select --</option>{% for p in products %}<option
+                                                value="{{ p.id }}" data-price="{{ p.purchase_price }}">{{ p.name }}
+                                            </option>{% endfor %}
+                                        </select></td>
+                                    <td><input type="number" name="items[0][quantity]" class="form-control item-qty"
+                                            value="1" min="1" required></td>
+                                    <td><input type="number" step="0.01" name="items[0][price]"
+                                            class="form-control item-price" required></td>
+                                    <td><input type="text" name="items[0][batch_no]" class="form-control"></td>
+                                    <td><input type="number" step="0.01" name="items[0][tax_rate]"
+                                            class="form-control item-tax" value="0"></td>
+                                    <td><span class="item-total">0.00</span></td>
+                                    <td><button type="button" class="btn btn-sm btn-danger remove-row"><i
+                                                class="ti ti-x"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="btn btn-info btn-sm mb-3" id="addRow"><i
+                            class="ti ti-plus me-1"></i>Add Item</button>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3"><label class="form-label">Notes</label><textarea name="notes"
+                                    class="form-control" rows="3"></textarea></div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3"><label class="form-label">Discount</label><input type="number"
+                                            step="0.01" name="discount" class="form-control" value="0"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3"><label class="form-label">Grand Total</label><input type="text"
+                                            id="grandTotal" class="form-control" readonly></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Create Purchase</button>
+                        <a href="{% url 'grocery:purchase_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    let rowIdx = 1;
+    document.getElementById('addRow').addEventListener('click', function () {
+        const first = document.querySelector('.item-row');
+        const clone = first.cloneNode(true);
+        clone.querySelectorAll('input, select').forEach(el => {
+            el.name = el.name.replace(/\[\d+\]/, '[' + rowIdx + ']');
+            if (el.type !== 'hidden') el.value = el.tagName === 'SELECT' ? '' : (el.classList.contains('item-qty') ? '1' : '');
+        });
+        clone.querySelector('.item-total').textContent = '0.00';
+        document.getElementById('itemsBody').appendChild(clone);
+        rowIdx++;
+    });
+
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('.remove-row')) {
+            const rows = document.querySelectorAll('.item-row');
+            if (rows.length > 1) e.target.closest('.item-row').remove();
+            calcGrand();
+        }
+    });
+
+    document.addEventListener('change', function (e) {
+        if (e.target.tagName === 'SELECT' && e.target.name.includes('[product]')) {
+            const opt = e.target.options[e.target.selectedIndex];
+            const price = opt.dataset.price || '0';
+            const row = e.target.closest('.item-row');
+            row.querySelector('.item-price').value = price;
+            calcRow(row);
+        }
+    });
+
+    document.addEventListener('input', function (e) {
+        if (e.target.classList.contains('item-qty') || e.target.classList.contains('item-price') || e.target.classList.contains('item-tax')) {
+            calcRow(e.target.closest('.item-row'));
+        }
+    });
+
+    function calcRow(row) {
+        const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.item-price').value) || 0;
+        const tax = parseFloat(row.querySelector('.item-tax').value) || 0;
+        const total = qty * price * (1 + tax / 100);
+        row.querySelector('.item-total').textContent = total.toFixed(2);
+        calcGrand();
+    }
+
+    function calcGrand() {
+        let sum = 0;
+        document.querySelectorAll('.item-total').forEach(el => sum += parseFloat(el.textContent) || 0);
+        document.getElementById('grandTotal').value = sum.toFixed(2);
+    }
+</script>
+{% endblock %}

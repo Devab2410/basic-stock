@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pharmacy POS</title>
+	<script src="{% static 'assets/js/theme-script.js' %}"></script>
+	<link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicon.png' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/dataTables.bootstrap5.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/daterangepicker/daterangepicker.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/tabler-icons/tabler-icons.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/owlcarousel/owl.carousel.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/owlcarousel/owl.theme.default.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/%40simonwep/pickr/themes/nano.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+
+	<style>
+		/* ── Rx / OTC badge ───────────────────────── */
+		.rx-badge {
+			position: absolute;
+			top: 6px;
+			left: 6px;
+			z-index: 5;
+			font-size: 10px;
+			font-weight: 800;
+			padding: 2px 6px;
+			border-radius: 4px;
+			pointer-events: none;
+		}
+
+		.rx-badge.rx {
+			background: #e11d48;
+			color: #fff;
+		}
+
+		.rx-badge.otc {
+			background: #ccfbf1;
+			color: #0d9488;
+		}
+
+		/* ── Out-of-stock overlay ─────────────────── */
+		.oos-overlay {
+			position: absolute;
+			inset: 0;
+			z-index: 4;
+			background: rgba(255, 255, 255, .72);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: inherit;
+			pointer-events: none;
+		}
+
+		.oos-label {
+			background: #e11d48;
+			color: #fff;
+			font-size: 10px;
+			font-weight: 800;
+			padding: 4px 10px;
+			border-radius: 5px;
+		}
+
+		/* ── Image placeholder ────────────────────── */
+		.product-img-placeholder {
+			width: 100%;
+			aspect-ratio: 1/1;
+			background: #f1f5f9;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 2.5rem;
+			color: #cbd5e1;
+		}
+
+		/* ── Card hover & Uniform Size ───────────────────────────── */
+		.product-info.card {
+			cursor: pointer;
+			position: relative;
+			overflow: hidden;
+			transition: box-shadow .15s, border-color .15s, transform .12s;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.product-info.card .product-image {
+			width: 100%;
+			aspect-ratio: 1/1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+			background: #fff;
+		}
+
+		.product-info.card .product-image img {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+		}
+
+		.product-info.card .product-content {
+			flex-grow: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+		}
+
+		.product-info.card:hover:not(.oos) {
+			box-shadow: 0 6px 18px rgba(13, 148, 136, .18);
+			border-color: #0d9488;
+			transform: translateY(-2px);
+		}
+
+		.product-info.card.oos {
+			cursor: not-allowed;
+			opacity: .75;
+		}
+
+		/* ── Low stock colour ─────────────────────── */
+		.text-warning-stock {
+			color: #d97706 !important;
+			font-weight: 700;
+		}
+
+		/* ── Cart flash animation ─────────────────── */
+		@keyframes cartFlash {
+			0% {
+				box-shadow: 0 0 0 3px rgba(13, 148, 136, .7);
+			}
+
+			100% {
+				box-shadow: none;
+			}
+		}
+
+		.cart-flash {
+			animation: cartFlash .45s ease-out;
+		}
+
+		/* ── Live clock ───────────────────────────── */
+		#liveClock {
+			font-variant-numeric: tabular-nums;
+		}
+	</style>
+</head>
+
+<body class="pos-page">
+	<div class="main-wrapper pos-three">
+
+		<!-- ══════════════ HEADER ══════════════ -->
+		<div class="header pos-header">
+			<div class="header-left active">
+				<a href="#" class="logo logo-normal">
+					<img src="{% static 'assets/img/logo.svg' %}" alt="Logo">
+				</a>
+				<a href="#" class="logo logo-white">
+					<img src="{% static 'assets/img/logo-white.svg' %}" alt="Logo">
+				</a>
+				<a href="#" class="logo-small">
+					<img src="{% static 'assets/img/logo-small.png' %}" alt="Logo">
+				</a>
+				<a href="#" class="logo-small-white">
+					<img src="{% static 'assets/img/logo-small-white.png' %}" alt="Logo">
+				</a>
+			</div>
+
+			<a id="mobile_btn" class="mobile_btn d-none" href="#sidebar">
+				<span class="bar-icon"><span></span><span></span><span></span></span>
+			</a>
+
+			<ul class="nav user-menu">
+				<li class="nav-item time-nav">
+					<span class="bg-teal text-white d-inline-flex align-items-center">
+						<img src="{% static 'assets/img/icons/clock-icon.svg' %}" alt="clock" class="me-2">
+						<span id="liveClock">--:--:--</span>
+					</span>
+				</li>
+
+				<li class="nav-item pos-nav">
+					<a href="{% url 'pharmacy:product_list' %}" class="btn btn-purple btn-md d-inline-flex align-items-center">
+						<i class="ti ti-world me-1"></i>Dashboard
+					</a>
+				</li>
+
+				<!-- Store selector -->
+				<li class="nav-item dropdown has-arrow main-drop select-store-dropdown">
+					<a href="javascript:void(0);" class="dropdown-toggle nav-link select-store"
+						data-bs-toggle="dropdown">
+						<span class="user-info">
+							<span class="user-letter">
+								{% if store.company.logo %}
+								<img src="{{ store.company.logo.url }}" alt="Store" class="img-fluid">
+								{% else %}
+								<img src="{% static 'assets/img/store/store-01.png' %}" alt="Store" class="img-fluid">
+								{% endif %}
+							</span>
+							<span class="user-detail">
+								<span class="user-name">{{ store.name }}</span>
+							</span>
+						</span>
+					</a>
+				</li>
+
+				<li class="nav-item nav-item-box">
+					<a href="#" data-bs-toggle="modal" data-bs-target="#calculator"
+						class="bg-orange border-orange text-white">
+						<i class="ti ti-calculator"></i>
+					</a>
+				</li>
+				<li class="nav-item nav-item-box">
+					<a href="javascript:void(0);" id="btnFullscreen"><i class="ti ti-maximize"></i></a>
+				</li>
+				<li class="nav-item nav-item-box">
+					<a href="#" data-bs-toggle="modal" data-bs-target="#cash-register"><i class="ti ti-cash"></i></a>
+				</li>
+				<li class="nav-item nav-item-box">
+					<a href="#"><i class="ti ti-printer"></i></a>
+				</li>
+				<li class="nav-item nav-item-box">
+					<a href="#" data-bs-toggle="modal" data-bs-target="#today-sale"><i class="ti ti-progress"></i></a>
+				</li>
+				<li class="nav-item dropdown has-arrow main-drop profile-nav">
+					<a href="javascript:void(0);" class="nav-link userset" data-bs-toggle="dropdown">
+						<span class="user-info p-0">
+							<span class="user-letter">
+								<img src="{% static 'assets/img/profiles/avator1.jpg' %}" alt="User" class="img-fluid">
+							</span>
+						</span>
+					</a>
+					<div class="dropdown-menu menu-drop-user">
+						<div class="profilename">
+							<div class="profileset">
+								<span class="user-img">
+									<img src="{% static 'assets/img/profiles/avator1.jpg' %}" alt="User">
+									<span class="status online"></span>
+								</span>
+								<div class="profilesets">
+									<h6>{{ request.user.get_full_name|default:request.user.username }}</h6>
+									<h5>Pharmacist</h5>
+								</div>
+							</div>
+							<hr class="m-0">
+							<a class="dropdown-item logout" href="{% url 'accounts:logout' %}">
+								<img src="{% static 'assets/img/icons/log-out.svg' %}" class="me-2" alt="logout">Logout
+							</a>
+						</div>
+					</div>
+				</li>
+			</ul>
+
+			<div class="dropdown mobile-user-menu">
+				<a href="javascript:void(0);" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+					<i class="fa fa-ellipsis-v"></i>
+				</a>
+				<div class="dropdown-menu dropdown-menu-right">
+					<a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a>
+				</div>
+			</div>
+		</div>
+		<!-- /Header -->
+
+		<div class="page-wrapper pos-pg-wrapper ms-0">
+			<div class="content pos-design p-0">
+				<div class="row align-items-start pos-wrapper">
+
+					<!-- ══════════════════════════════════════
+                     LEFT — PRODUCTS
+                ══════════════════════════════════════ -->
+					<div class="col-md-12 col-lg-7 col-xl-8">
+						<div class="pos-categories tabs_wrapper">
+
+							<!-- Top bar -->
+							<div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+								<div>
+									<h5 class="mb-1">Welcome, 
+										{{ request.user.get_full_name|default:request.user.username }}</h5>
+									<p>{% now "F j, Y" %}</p>
+								</div>
+								<div class="d-flex align-items-center gap-3">
+									<div class="input-icon-start pos-search position-relative">
+										<span class="input-icon-addon">
+											<i class="ti ti-search"></i>
+										</span>
+										<input type="text" id="productSearch" class="form-control"
+											placeholder="Search medicine, brand, barcode…">
+									</div>
+								</div>
+							</div>
+
+							<!-- ── Category tabs (owl carousel) ── -->
+							<!-- IMPORTANT: li id & data-tab must match tab_content data-tab below -->
+							<ul class="tabs owl-carousel pos-category3 mb-4">
+								<li id="all" class="active">
+									<a href="javascript:void(0);">
+										<img src="{% static 'assets/img/categories/category-01.svg' %}" alt="All">
+									</a>
+									<h6><a href="javascript:void(0);">All</a></h6>
+								</li>
+								{% for category in categories %}
+								<li id="cat-{{ category.id }}">
+									<a href="javascript:void(0);">
+										{% if category.image %}
+										<img src="{{ category.image.url }}" alt="{{ category.name }}">
+										{% else %}
+										<!-- Fallback icon when no category image -->
+										<i class="ti ti-category"> </i>
+										{% endif %}
+									</a>
+									<h6><a href="javascript:void(0);"> {{ category.name }}</a></h6>
+								</li>
+								{% endfor %}
+							</ul>
+
+							<!-- ── Product grid ── -->
+							<div class="pos-products">
+								<div class="tabs_container">
+
+									<!-- ALL tab -->
+									<div class="tab_content active" data-tab="all">
+										<div class="row row-cols-xxl-5 g-3" id="allProductGrid">
+
+											{% for product in products %}
+											{% with stock=product.current_stock %}
+											<div class="col-sm-12 col-md-4 col-lg-3 col-xl-2 col-xxl product-col"
+												data-name="{{ product.name|lower }}"
+												data-brand="{{ product.brand.name|lower|default:'' }}"
+												data-barcode="{{ product.barcode|lower|default:'' }}"
+												data-cat="cat-{{ product.category_id }}">
+
+												<div class="product-info card {% if stock == 0 %}oos{% endif %}"
+													data-id="{{ product.id }}" data-name="{{ product.name }}"
+													data-price="{{ product.selling_price }}"
+													data-tax="{{ product.tax_rate|default:0 }}" data-stock="{{ stock }}"
+													data-unit="{% if product.unit %}{{ product.unit.short_name|default:product.unit.name }}{% else %}pcs{% endif %}"
+													onclick="posAddToCart(this)">
+
+													<!-- Rx / OTC badge -->
+													{% if product.requires_prescription %}
+													<span class="rx-badge rx">Rx</span>
+													{% else %}
+													<span class="rx-badge otc">OTC</span>
+													{% endif %}
+
+													<!-- Product image -->
+													<a href="javascript:void(0);" class="product-image">
+														{% if product.images.first %}
+														<img src="{{ product.images.first.image.url }}"
+															alt="{{ product.name }}">
+														{% else %}
+														<div class="product-img-placeholder">
+															<i class="ti ti-pill"></i>
+														</div>
+														{% endif %}
+													</a>
+
+													<!-- Out-of-stock overlay -->
+													{% if stock == 0 %}
+													<div class="oos-overlay">
+														<span class="oos-label">OUT OF STOCK</span>
+													</div>
+													{% endif %}
+
+													<!-- Card text -->
+													<div class="product-content">
+														<h6 class="fs-14 fw-bold mb-1">
+															<a href="javascript:void(0);">{{ product.name }}</a>
+														</h6>
+														{% if product.brand %}
+														<small class="text-muted d-block mb-1" style="font-size:.7rem;">
+															{{ product.brand.name }}
+														</small>
+														{% endif %}
+														<div class="d-flex align-items-center justify-content-between">
+															<h6 class="text-teal fs-14 fw-bold mb-0">
+																₹{{ product.selling_price }}
+															</h6>
+															<p
+																class="mb-0 {% if stock == 0 %}text-danger{% elif stock <= 10 %}text-warning-stock{% else %}text-pink{% endif %}">
+																{{ stock }}
+																{% if product.unit %}
+																{{ product.unit.short_name|default:product.unit.name }}
+																{% else %}pcs{% endif %}
+															</p>
+														</div>
+													</div>
+
+												</div>
+											</div>
+											{% endwith %}
+											{% empty %}
+											<div class="col-12 text-center py-5 text-muted">
+												<i class="ti ti-mood-empty"
+													style="font-size:3rem;opacity:.3;display:block;"></i>
+												<p class="mt-2">No products found.</p>
+											</div>
+											{% endfor %}
+
+											<!-- No-results (shown by JS search) -->
+											<div class="col-12 text-center py-5 text-muted" id="noResults"
+												style="display:none;">
+												<i class="ti ti-search-off"
+													style="font-size:3rem;opacity:.3;display:block;"></i>
+												<p class="mt-2">No products match your search.</p>
+											</div>
+
+										</div>
+									</div>
+									<!-- /ALL tab -->
+
+									<!-- Per-category tabs -->
+									<!-- IMPORTANT: data-tab="cat-{{ category.id }}" must match li id above -->
+									{% for category in categories %}
+									<div class="tab_content" data-tab="cat-{{ category.id }}">
+										<div class="row row-cols-xxl-5 g-3">
+											{% for child in category.children.all %}
+											{% for product in child.products.all %}
+
+											{% if product.is_active %}
+											{% with stock=product.current_stock %}
+											<div class="col-sm-12 col-md-4 col-lg-3 col-xl-2 col-xxl">
+												<div class="product-info card {% if stock == 0 %}oos{% endif %}"
+													data-id="{{ product.id }}" data-name="{{ product.name }}"
+													data-price="{{ product.selling_price }}"
+													data-tax="{{ product.tax_rate|default:0 }}" data-stock="{{ stock }}"
+													data-unit="{% if product.unit %}{{ product.unit.short_name|default:product.unit.name }}{% else %}pcs{% endif %}"
+													onclick="posAddToCart(this)">
+
+													{% if product.requires_prescription %}
+													<span class="rx-badge rx">Rx</span>
+													{% else %}
+													<span class="rx-badge otc">OTC</span>
+													{% endif %}
+
+													<a href="javascript:void(0);" class="product-image">
+														{% if product.images.first %}
+														<img src="{{ product.images.first.image.url }}"
+															alt="{{ product.name }}">
+														{% else %}
+														<div class="product-img-placeholder">
+															<i class="ti ti-pill"></i>
+														</div>
+														{% endif %}
+													</a>
+
+													{% if stock == 0 %}
+													<div class="oos-overlay">
+														<span class="oos-label">OUT OF STOCK</span>
+													</div>
+													{% endif %}
+
+													<div class="product-content">
+														<h6 class="fs-14 fw-bold mb-1">
+															<a href="javascript:void(0);">{{ product.name }}</a>
+														</h6>
+														{% if product.brand %}
+														<small class="text-muted d-block mb-1" style="font-size:.7rem;">
+															{{ product.brand.name }}
+														</small>
+														{% endif %}
+														<div class="d-flex align-items-center justify-content-between">
+															<h6 class="text-teal fs-14 fw-bold mb-0">
+																₹{{ product.selling_price }}
+															</h6>
+															<p
+																class="mb-0 {% if stock == 0 %}text-danger{% elif stock <= 10 %}text-warning-stock{% else %}text-pink{% endif %}">
+																{{ stock }}
+																{% if product.unit %}
+																{{ product.unit.short_name|default:product.unit.name }}
+																{% else %}pcs{% endif %}
+															</p>
+														</div>
+													</div>
+												</div>
+											</div>
+											{% endwith %}
+											{% endif %}
+											{% endfor %}
+
+											{% endfor %}
+										</div>
+									</div>
+									{% endfor %}
+
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<!-- /Products -->
+
+
+					<!-- ══════════════════════════════════════
+                     RIGHT — ORDER DETAILS
+                ══════════════════════════════════════ -->
+					<div class="col-md-12 col-lg-5 col-xl-4 ps-0 theiaStickySidebar">
+						<aside class="product-order-list">
+
+							<!-- Customer row -->
+							<div class="customer-info">
+								<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+									<div class="d-flex align-items-center">
+										<h4 class="mb-0">New Order</h4>
+									</div>
+									<a href="#" class="btn btn-sm btn-outline-primary shadow-primary"
+										data-bs-toggle="modal" data-bs-target="#create">Add Customer</a>
+								</div>
+								<select class="select" id="customerSelect">
+									<option value="">Walk-in Customer</option>
+									{% for c in customers %}
+									<option value="{{ c.id }}">{{ c.name }}{% if c.phone %} — {{ c.phone }}{% endif %}
+									</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<!-- Cart items -->
+							<div class="product-added block-section">
+								<div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+									<h5 class="d-flex align-items-center mb-0">Order Details</h5>
+									<div class="badge bg-light text-gray-9 fs-12 fw-semibold py-2 border rounded">
+										Items : <span class="text-teal" id="cartItemCount">0</span>
+									</div>
+								</div>
+								<div class="product-wrap">
+
+									<!-- Empty state -->
+									<div class="empty-cart text-center" id="emptyCartMsg">
+										<div class="mb-1">
+											<img src="{% static 'assets/img/icons/empty-cart.svg' %}" alt="empty">
+										</div>
+										<p class="fw-bold">No Products Selected</p>
+									</div>
+
+									<!-- Cart table (hidden until items added) -->
+									<div class="product-list border-0 p-0" id="cartTableWrap" style="display:none;">
+										<div class="table-responsive">
+											<table class="table table-borderless">
+												<thead>
+													<tr>
+														<th class="bg-transparent fw-bold">Product</th>
+														<th class="bg-transparent fw-bold">QTY</th>
+														<th class="bg-transparent fw-bold">Price</th>
+														<th class="bg-transparent fw-bold text-end"></th>
+													</tr>
+												</thead>
+												<tbody id="cartTableBody"></tbody>
+											</table>
+										</div>
+									</div>
+
+								</div>
+							</div>
+
+							<!-- Totals + action buttons -->
+							<div class="block-section order-method bg-light m-0">
+								<div class="order-total">
+									<div class="table-responsive">
+										<table class="table table-borderless">
+											<tr>
+												<td>Sub Total</td>
+												<td class="text-end" id="cartSubtotal">₹0.00</td>
+											</tr>
+											<tr>
+												<td>Tax</td>
+												<td class="text-end" id="cartTax">₹0.00</td>
+											</tr>
+											<tr>
+												<td>Discount</td>
+												<td class="text-danger text-end">
+													-₹<span id="cartDiscountDisplay">0.00</span>
+												</td>
+											</tr>
+											<tr>
+												<td class="fw-bold">Grand Total</td>
+												<td class="text-end fw-bold text-teal" id="cartTotal">₹0.00</td>
+											</tr>
+										</table>
+									</div>
+								</div>
+
+								<div class="row gx-2">
+									<div class="col-sm-4">
+										<a href="javascript:void(0);"
+											class="btn btn-teal d-flex align-items-center justify-content-center w-100 mb-2"
+											data-bs-toggle="modal" data-bs-target="#discount">
+											<i class="ti ti-percentage me-2"></i>Discount
+										</a>
+										<a href="javascript:void(0);"
+											class="btn btn-orange d-flex align-items-center justify-content-center w-100 mb-2"
+											data-bs-toggle="modal" data-bs-target="#hold-order">
+											<i class="ti ti-player-pause me-2"></i>Hold
+										</a>
+										<a href="javascript:void(0);"
+											class="btn btn-secondary d-flex align-items-center justify-content-center w-100 mb-2"
+											data-bs-toggle="modal" data-bs-target="#orders">
+											<i class="ti ti-shopping-cart me-2"></i>View Orders
+										</a>
+									</div>
+									<div class="col-sm-4">
+										<a href="javascript:void(0);"
+											class="btn btn-purple d-flex align-items-center justify-content-center w-100 mb-2"
+											data-bs-toggle="modal" data-bs-target="#order-tax">
+											<i class="ti ti-receipt-tax me-2"></i>Tax
+										</a>
+										<a href="javascript:void(0);"
+											class="btn btn-info d-flex align-items-center justify-content-center w-100 mb-2"
+											onclick="posClearCart()">
+											<i class="ti ti-trash me-2"></i>Void
+										</a>
+										<a href="javascript:void(0);"
+											class="btn btn-indigo d-flex align-items-center justify-content-center w-100 mb-2"
+											data-bs-toggle="modal" data-bs-target="#reset">
+											<i class="ti ti-reload me-2"></i>Reset
+										</a>
+									</div>
+									<div class="col-sm-4">
+										<a href="javascript:void(0);"
+											class="btn btn-pink d-flex align-items-center justify-content-center w-100 mb-2"
+											data-bs-toggle="modal" data-bs-target="#shipping-cost">
+											<i class="ti ti-package-import me-2"></i>Shipping
+										</a>
+										<a href="javascript:void(0);"
+											class="btn btn-cyan d-flex align-items-center justify-content-center w-100 mb-2"
+											onclick="posOpenPayment('cash')">
+											<i class="ti ti-cash-banknote me-2"></i>Payment
+										</a>
+										<a href="javascript:void(0);"
+											class="btn btn-danger d-flex align-items-center justify-content-center w-100 mb-2"
+											data-bs-toggle="modal" data-bs-target="#recents">
+											<i class="ti ti-refresh-dot me-2"></i>Transaction
+										</a>
+									</div>
+								</div>
+							</div>
+
+							<!-- Payment method + Pay button -->
+							<div class="block-section payment-method">
+								<h5 class="mb-2">Select Payment</h5>
+								<div class="row align-items-center justify-content-center methods g-2 mb-4">
+									<div class="col-sm-6 col-md-4 col-xl d-flex">
+										<a href="javascript:void(0);" class="payment-item flex-fill"
+											onclick="posOpenPayment('cash')">
+											<img src="{% static 'assets/img/icons/cash-icon.svg' %}" alt="cash">
+											<p class="fw-medium">Cash</p>
+										</a>
+									</div>
+									<div class="col-sm-6 col-md-4 col-xl d-flex">
+										<a href="javascript:void(0);" class="payment-item flex-fill"
+											onclick="posOpenPayment('card')">
+											<img src="{% static 'assets/img/icons/card.svg' %}" alt="card">
+											<p class="fw-medium">Card</p>
+										</a>
+									</div>
+									<div class="col-sm-6 col-md-4 col-xl d-flex">
+										<a href="javascript:void(0);" class="payment-item flex-fill"
+											onclick="posOpenPayment('upi')">
+											<img src="{% static 'assets/img/icons/points.svg' %}" alt="upi">
+											<p class="fw-medium">UPI</p>
+										</a>
+									</div>
+									<div class="col-sm-6 col-md-4 col-xl d-flex">
+										<a href="javascript:void(0);" class="payment-item flex-fill"
+											onclick="posOpenPayment('deposit')">
+											<img src="{% static 'assets/img/icons/deposit.svg' %}" alt="deposit">
+											<p class="fw-medium">Deposit</p>
+										</a>
+									</div>
+									<div class="col-sm-6 col-md-4 col-xl d-flex">
+										<a href="javascript:void(0);" class="payment-item flex-fill"
+											onclick="posOpenPayment('cheque')">
+											<img src="{% static 'assets/img/icons/cheque.svg' %}" alt="cheque">
+											<p class="fw-medium">Cheque</p>
+										</a>
+									</div>
+								</div>
+
+								<!-- THE REAL SUBMIT FORM -->
+								<form method="post" action="{% url 'pharmacy:pos' %}" id="posForm">
+									{% csrf_token %}
+									<!-- These hidden inputs are filled by JS before submit -->
+									<input type="hidden" name="customer_id" id="fCustomerId">
+									<input type="hidden" name="discount" id="fDiscount" value="0">
+									<input type="hidden" name="payment_method" id="fPaymentMethod" value="cash">
+									<input type="hidden" name="amount_paid" id="fAmountPaid" value="0">
+									<input type="hidden" name="notes" id="fNotes">
+									<!-- Cart line items injected here -->
+									<div id="posCartInputs"></div>
+
+									<div class="btn-block m-0">
+										<button type="button" class="btn btn-teal w-100" onclick="posConfirmPayment()">
+											Pay : <span id="payBtnTotal">₹0.00</span>
+										</button>
+									</div>
+								</form>
+
+							</div>
+						</aside>
+					</div>
+					<!-- /Order Details -->
+
+				</div>
+			</div>
+		</div>
+
+	</div><!-- /main-wrapper -->
+
+
+	<!-- ══════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════ -->
+
+	<!-- product detail modal -->
+	 <div class="modal fade show" id="items_details" aria-modal="true" role="dialog" style="display: block;">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+
+                    <div class="modal-body p-4">
+
+                        <!-- start row -->
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <div class="items-img p-3 border rounded bg-light">
+                                    <img src="assets/img/food/food-img-1.png" alt="food" class="img-fluid img-1">
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="items-content">
+                                    <h4 class="mb-2">Chicken Taco</h4>
+                                    <p class="mb-3">Tender grilled chicken wrapped in soft tortillas, topped with fresh lettuce, salsa, and creamy sauce.</p>
+                                    <div class="items-info mb-4 pb-4 border-bottom">
+                                        <h6 class="fw-semibold mb-3">Sizes</h6>
+                                        <div class="d-flex align-items-center flex-wrap gap-2 size-group">
+                                            <div class="size-tab">
+                                                <button class="tag d-flex align-items-center justify-content-between gap-3">Small <span>$28</span> </button> 
+                                            </div>
+                                            <div class="size-tab">
+                                                <button class="tag d-flex align-items-center justify-content-between gap-3">Medium <span>$28</span></button>
+                                            </div>
+                                            <div class="size-tab">  
+                                                <button class="tag d-flex align-items-center justify-content-between gap-3">Regular <span>$28</span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4 pb-4 border-bottom">
+                                        <h6 class="fw-semibold mb-3">Add-ons &amp; Upgrades</h6>
+                                        <div class="upgrade-slider slick-initialized slick-slider"><div class="slick-list draggable"><div class="slick-track" style="opacity: 1; width: 1520px; transform: translate3d(-380px, 0px, 0px);"><div class="slick-slide slick-cloned" data-slick-index="-2" id="" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
+                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
+                                                    <div class="avatar rounded-circle border">
+                                                        <img src="assets/img/food/food-2.png" alt="food" class="img-fluid img-1">
+                                                    </div>
+                                                    <div>
+                                                        <p class="fw-medium mb-1 text-dark">Grilled Chicken</p>
+                                                        <p class="mb-0 fw-medium">$8</p>
+                                                    </div>
+                                                </div>
+                                            </div></div></div><div class="slick-slide slick-cloned" data-slick-index="-1" id="" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
+                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
+                                                    <div class="avatar rounded-circle border">
+                                                        <img src="assets/img/food/food-3.png" alt="food" class="img-fluid img-1">
+                                                    </div>
+                                                    <div>
+                                                        <p class="fw-medium mb-1 text-dark">Chicken Soup</p>
+                                                        <p class="mb-0 fw-medium">$2</p>
+                                                    </div>
+                                                </div>
+                                            </div></div></div><div class="slick-slide slick-current slick-active" data-slick-index="0" aria-hidden="false" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
+                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
+                                                    <div class="avatar rounded-circle border">
+                                                        <img src="assets/img/food/food-1.png" alt="food" class="img-fluid img-1">
+                                                    </div>
+                                                    <div>
+                                                        <p class="fw-medium mb-1 text-dark">Extra Chicken</p>
+                                                        <p class="mb-0 fw-medium">$2</p>
+                                                    </div>
+                                                </div>
+                                            </div></div></div><div class="slick-slide slick-active" data-slick-index="1" aria-hidden="false" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
+                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
+                                                    <div class="avatar rounded-circle border">
+                                                        <img src="assets/img/food/food-2.png" alt="food" class="img-fluid img-1">
+                                                    </div>
+                                                    <div>
+                                                        <p class="fw-medium mb-1 text-dark">Grilled Chicken</p>
+                                                        <p class="mb-0 fw-medium">$8</p>
+                                                    </div>
+                                                </div>
+                                            </div></div></div><div class="slick-slide" data-slick-index="2" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
+                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
+                                                    <div class="avatar rounded-circle border">
+                                                        <img src="assets/img/food/food-3.png" alt="food" class="img-fluid img-1">
+                                                    </div>
+                                                    <div>
+                                                        <p class="fw-medium mb-1 text-dark">Chicken Soup</p>
+                                                        <p class="mb-0 fw-medium">$2</p>
+                                                    </div>
+                                                </div>
+                                            </div></div></div><div class="slick-slide slick-cloned" data-slick-index="3" id="" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
+                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
+                                                    <div class="avatar rounded-circle border">
+                                                        <img src="assets/img/food/food-1.png" alt="food" class="img-fluid img-1">
+                                                    </div>
+                                                    <div>
+                                                        <p class="fw-medium mb-1 text-dark">Extra Chicken</p>
+                                                        <p class="mb-0 fw-medium">$2</p>
+                                                    </div>
+                                                </div>
+                                            </div></div></div><div class="slick-slide slick-cloned" data-slick-index="4" id="" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
+                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
+                                                    <div class="avatar rounded-circle border">
+                                                        <img src="assets/img/food/food-2.png" alt="food" class="img-fluid img-1">
+                                                    </div>
+                                                    <div>
+                                                        <p class="fw-medium mb-1 text-dark">Grilled Chicken</p>
+                                                        <p class="mb-0 fw-medium">$8</p>
+                                                    </div>
+                                                </div>
+                                            </div></div></div><div class="slick-slide slick-cloned" data-slick-index="5" id="" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
+                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
+                                                    <div class="avatar rounded-circle border">
+                                                        <img src="assets/img/food/food-3.png" alt="food" class="img-fluid img-1">
+                                                    </div>
+                                                    <div>
+                                                        <p class="fw-medium mb-1 text-dark">Chicken Soup</p>
+                                                        <p class="mb-0 fw-medium">$2</p>
+                                                    </div>
+                                                </div>
+                                            </div></div></div></div></div></div>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-4 d-flex align-items-center justify-content-between">Total <span>$274</span></h5>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="quantity-control">
+                                                <button type="button" class="minus-btn"><i class="icon-minus"></i></button>
+                                                <input type="text" class="quantity-input" value="1" aria-label="Quantity">
+                                                <button type="button" class="add-btn"><i class="icon-plus"></i></button>
+                                            </div>
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#item_view" class="btn btn-primary w-100 d-flex align-items-center gap-2"> <i class="icon-shopping-bag"></i> Add to Cart</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>  
+                        </div>
+                        <!-- end row -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+	<!-- Finalize Sale (payment modal) -->
+	<div class="modal fade modal-default" id="payment-modal">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Finalize Sale</h5>
+					<button type="button" class="close" data-bs-dismiss="modal"><span>×</span></button>
+				</div>
+				<div class="modal-body pb-1">
+					<div class="row">
+						<div class="col-md-4 mb-3">
+							<label class="form-label">Grand Total</label>
+							<div class="input-icon-start position-relative">
+								<span class="input-icon-addon text-gray-9"><i class="ti ti-currency-rupee"></i></span>
+								<input type="text" class="form-control fw-bold" id="modalGrandTotal" readonly>
+							</div>
+						</div>
+						<div class="col-md-4 mb-3">
+							<label class="form-label">Amount Received <span class="text-danger">*</span></label>
+							<div class="input-icon-start position-relative">
+								<span class="input-icon-addon text-gray-9"><i class="ti ti-currency-rupee"></i></span>
+								<input type="number" class="form-control" id="modalAmountReceived" placeholder="0.00"
+									oninput="posCalcChange()" min="0">
+							</div>
+						</div>
+						<div class="col-md-4 mb-3">
+							<label class="form-label">Balance / Change</label>
+							<div class="input-icon-start position-relative">
+								<span class="input-icon-addon text-gray-9"><i class="ti ti-currency-rupee"></i></span>
+								<input type="text" class="form-control" id="modalChange" readonly>
+							</div>
+						</div>
+						<div class="col-md-12 mb-3">
+							<label class="form-label">Payment Type <span class="text-danger">*</span></label>
+							<select class="select" id="modalPaymentMethod">
+								<option value="cash">Cash</option>
+								<option value="card">Credit / Debit Card</option>
+								<option value="upi">UPI</option>
+								<option value="deposit">Deposit</option>
+								<option value="cheque">Cheque</option>
+							</select>
+						</div>
+						<!-- Quick cash buttons -->
+						<div class="col-md-12 mb-3">
+							<div class="quick-cash bg-light p-2 rounded">
+								<div class="d-flex align-items-center flex-wrap gap-3">
+									<h5 class="text-nowrap mb-0">Quick ₹</h5>
+									<button type="button" class="btn btn-white btn-sm"
+										onclick="posQuickCash(100)">100</button>
+									<button type="button" class="btn btn-white btn-sm"
+										onclick="posQuickCash(200)">200</button>
+									<button type="button" class="btn btn-white btn-sm"
+										onclick="posQuickCash(500)">500</button>
+									<button type="button" class="btn btn-white btn-sm"
+										onclick="posQuickCash(1000)">1000</button>
+									<button type="button" class="btn btn-white btn-sm"
+										onclick="posQuickCash(2000)">2000</button>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-12 mb-3">
+							<label class="form-label">Notes</label>
+							<textarea class="form-control" id="modalNotes" rows="2"
+								placeholder="Optional notes…"></textarea>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer gap-2">
+					<button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-md btn-primary" onclick="posSubmitSale()">
+						<i class="ti ti-check me-1"></i>Confirm & Submit
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Add Customer -->
+	<div class="modal fade" id="create" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Add Customer</h5>
+					<button type="button" class="close" data-bs-dismiss="modal"><span>×</span></button>
+				</div>
+				<form method="post" action="#">
+					{% csrf_token %}
+					<input type="hidden" name="next" value="{{ request.path }}">
+					<div class="modal-body pb-1">
+						<div class="row">
+							<div class="col-lg-6 col-12 mb-3">
+								<label class="form-label">Customer Name <span class="text-danger">*</span></label>
+								<input type="text" name="name" class="form-control" required>
+							</div>
+							<div class="col-lg-6 col-12 mb-3">
+								<label class="form-label">Phone <span class="text-danger">*</span></label>
+								<input type="text" name="phone" class="form-control" required>
+							</div>
+							<div class="col-lg-12 mb-3">
+								<label class="form-label">Email</label>
+								<input type="email" name="email" class="form-control">
+							</div>
+							<div class="col-lg-12 mb-3">
+								<label class="form-label">Address</label>
+								<input type="text" name="address" class="form-control">
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer gap-2">
+						<button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-md btn-primary">Save</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- Discount -->
+	<div class="modal fade modal-default" id="discount">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Discount</h5>
+					<button type="button" class="close" data-bs-dismiss="modal"><span>×</span></button>
+				</div>
+				<div class="modal-body pb-1">
+					<div class="mb-3">
+						<label class="form-label">Discount Type</label>
+						<select class="select" id="discountType">
+							<option value="flat">Flat (₹)</option>
+							<option value="percent">Percentage (%)</option>
+						</select>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Value <span class="text-danger">*</span></label>
+						<input type="number" class="form-control" id="discountValue" placeholder="0" min="0">
+					</div>
+				</div>
+				<div class="modal-footer gap-2">
+					<button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-md btn-primary" onclick="posApplyDiscount()"
+						data-bs-dismiss="modal">Apply</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Reset -->
+	<div class="modal fade modal-default" id="reset">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body p-0">
+					<div class="success-wrap text-center">
+						<div class="icon-success bg-purple-transparent text-purple mb-2">
+							<i class="ti ti-transition-top"></i>
+						</div>
+						<h3 class="mb-2">Confirm Reset</h3>
+						<p class="fs-16 mb-3">Clear the current order?</p>
+						<div class="d-flex align-items-center justify-content-center gap-2">
+							<button type="button" class="btn btn-md btn-secondary"
+								data-bs-dismiss="modal">Cancel</button>
+							<button type="button" class="btn btn-md btn-primary" onclick="posClearCart()"
+								data-bs-dismiss="modal">Yes, Reset</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Hold Order -->
+	<div class="modal fade modal-default pos-modal" id="hold-order">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Hold Order</h5>
+					<button type="button" class="close" data-bs-dismiss="modal"><span>×</span></button>
+				</div>
+				<div class="modal-body">
+					<div class="bg-light br-10 p-4 text-center mb-3">
+						<h2 class="display-1" id="holdTotalDisplay">₹0.00</h2>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Order Reference</label>
+						<input class="form-control" type="text" id="holdReference" placeholder="e.g. Customer name…">
+					</div>
+					<p class="text-muted small">This order will be saved on hold. Retrieve it from View Orders → On
+						Hold.</p>
+				</div>
+				<div class="modal-footer gap-2">
+					<button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-md btn-primary" onclick="posHoldOrder()"
+						data-bs-dismiss="modal">Hold Order</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Order Tax -->
+	<div class="modal fade modal-default" id="order-tax">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Order Tax</h5>
+					<button type="button" class="close" data-bs-dismiss="modal"><span>×</span></button>
+				</div>
+				<div class="modal-body pb-1">
+					<div class="mb-3">
+						<label class="form-label">Extra Tax (%)</label>
+						<input type="number" class="form-control" id="extraTaxInput" placeholder="0" min="0" max="100">
+						<small class="text-muted">Applied on top of per-product tax. Leave 0 to skip.</small>
+					</div>
+				</div>
+				<div class="modal-footer gap-2">
+					<button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-md btn-primary" onclick="posApplyExtraTax()"
+						data-bs-dismiss="modal">Apply</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Shipping Cost -->
+	<div class="modal fade modal-default" id="shipping-cost">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Shipping Cost</h5>
+					<button type="button" class="close" data-bs-dismiss="modal"><span>×</span></button>
+				</div>
+				<div class="modal-body pb-1">
+					<div class="mb-3">
+						<label class="form-label">Shipping Amount (₹)</label>
+						<input type="number" class="form-control" id="shippingInput" placeholder="0" min="0">
+					</div>
+				</div>
+				<div class="modal-footer gap-2">
+					<button type="button" class="btn btn-md btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-md btn-primary" onclick="posApplyShipping()"
+						data-bs-dismiss="modal">Apply</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Recent Transactions (kept as-is from your original — static display) -->
+	<div class="modal fade pos-modal" id="recents" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Recent Transactions</h5>
+					<button type="button" class="close" data-bs-dismiss="modal"><span>×</span></button>
+				</div>
+				<div class="modal-body">
+					<p class="text-muted">Recent transaction list will appear here from your database.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Orders (kept as-is) -->
+	<div class="modal fade pos-modal" id="orders" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-md modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Orders</h5>
+					<button type="button" class="close" data-bs-dismiss="modal"><span>×</span></button>
+				</div>
+				<div class="modal-body">
+					<p class="text-muted">On-hold and pending orders will appear here.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Calculator (unchanged from original) -->
+	<div class="modal fade pos-modal" id="calculator" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-md modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body p-0">
+					<div class="calculator-wrap">
+						<div class="p-3">
+							<div class="d-flex align-items-center">
+								<h3>Calculator</h3>
+								<button type="button" class="close" data-bs-dismiss="modal"><span>×</span></button>
+							</div>
+							<input class="input" type="text" placeholder="0" readonly>
+						</div>
+						<div class="calculator-body d-flex justify-content-between">
+							<div class="text-center">
+								<button class="btn btn-clear" onclick="clr()">C</button>
+								<button class="btn btn-number" onclick="dis('7')">7</button>
+								<button class="btn btn-number" onclick="dis('4')">4</button>
+								<button class="btn btn-number" onclick="dis('1')">1</button>
+								<button class="btn btn-number" onclick="dis(',')">，</button>
+							</div>
+							<div class="text-center">
+								<button class="btn btn-expression" onclick="dis('/')">÷</button>
+								<button class="btn btn-number" onclick="dis('8')">8</button>
+								<button class="btn btn-number" onclick="dis('5')">5</button>
+								<button class="btn btn-number" onclick="dis('2')">2</button>
+								<button class="btn btn-number" onclick="dis('00')">00</button>
+							</div>
+							<div class="text-center">
+								<button class="btn btn-expression" onclick="dis('%')">%</button>
+								<button class="btn btn-number" onclick="dis('9')">9</button>
+								<button class="btn btn-number" onclick="dis('6')">6</button>
+								<button class="btn btn-number" onclick="dis('3')">3</button>
+								<button class="btn btn-number" onclick="dis('.')">.</button>
+							</div>
+							<div class="text-center">
+								<button class="btn btn-clear" onclick="back()"><i class="ti ti-backspace"></i></button>
+								<button class="btn btn-expression" onclick="dis('*')">×</button>
+								<button class="btn btn-expression" onclick="dis('-')">−</button>
+								<button class="btn btn-expression" onclick="dis('+')">+</button>
+								<button class="btn btn-clear" onclick="solve()">=</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Cash Register / Today's Sale (keep your originals, just shown here shortened) -->
+	<div class="modal fade pos-modal" id="cash-register" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-md modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Cash Register Details</h5>
+					<button type="button" class="close" data-bs-dismiss="modal"><span>×</span></button>
+				</div>
+				<div class="modal-body">
+					<p class="text-muted">Cash register summary from your database.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-md btn-primary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade pos-modal" id="today-sale" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-md modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Today's Sale</h5>
+					<button type="button" class="close" data-bs-dismiss="modal"><span>×</span></button>
+				</div>
+				<div class="modal-body">
+					<p class="text-muted">Today's sale summary from your database.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-md btn-primary" data-bs-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- ══════════════════════════════════════════════
+     SCRIPTS  (same order as your original)
+══════════════════════════════════════════════ -->
+	<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+	<script src="{% static 'assets/js/feather.min.js' %}"></script>
+	<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
+	<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+	<script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+	<script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+	<script src="{% static 'assets/js/jquery.dataTables.min.js' %}"></script>
+	<script src="{% static 'assets/js/dataTables.bootstrap5.min.js' %}"></script>
+	<script src="{% static 'assets/js/moment.min.js' %}"></script>
+	<script src="{% static 'assets/plugins/daterangepicker/daterangepicker.js' %}"></script>
+	<script src="{% static 'assets/plugins/owlcarousel/owl.carousel.min.js' %}"></script>
+	<script src="{% static 'assets/plugins/select2/js/select2.min.js' %}"></script>
+	<script src="{% static 'assets/plugins/theia-sticky-sidebar/ResizeSensor.js' %}"></script>
+	<script src="{% static 'assets/plugins/theia-sticky-sidebar/theia-sticky-sidebar.js' %}"></script>
+	<script src="{% static 'assets/plugins/%40simonwep/pickr/pickr.es5.min.js' %}"></script>
+	<script src="{% static 'assets/js/theme-colorpicker.js' %}"></script>
+	<script src="{% static 'assets/js/calculator.js' %}"></script>
+	<script src="{% static 'assets/js/script.js' %}"></script>
+
+	<script>
+		/* ═══════════════════════════════════════════════════
+		   PHARMACY POS — CART ENGINE
+		   cart  = { [productId]: {id, name, price, tax, qty, stock, unit} }
+		   extra = { discount, shipping, extraTaxPct }
+		═══════════════════════════════════════════════════ */
+
+
+		let cart = {};
+		let extra = { discount: 0, shipping: 0, extraTaxPct: 0 };
+
+		$(document).ready(function () {
+			// Disable the conflicting script.js behavior that toggles .active and hides the cart
+			$(document).off("click", ".product-info");
+		});
+
+		/* ── Live clock ─────────────────────────────── */
+		(function tick() {
+			document.getElementById('liveClock').textContent =
+				new Date().toTimeString().slice(0, 8);
+			setTimeout(tick, 1000);
+		})();
+
+		/* ── Product search (filters ALL tab only) ── */
+		document.getElementById('productSearch').addEventListener('input', function () {
+			const q = this.value.toLowerCase().trim();
+			const cols = document.querySelectorAll('#allProductGrid .product-col');
+			let n = 0;
+			cols.forEach(col => {
+				const match = !q ||
+					col.dataset.name.includes(q) ||
+					col.dataset.brand.includes(q) ||
+					col.dataset.barcode.includes(q);
+				col.style.display = match ? '' : 'none';
+				if (match) n++;
+			});
+			document.getElementById('noResults').style.display = (n === 0 && q) ? 'block' : 'none';
+		});
+
+		/* ── Add to cart ────────────────────────────── */
+		function posAddToCart(cardEl) {
+			const stock = parseInt(cardEl.dataset.stock);
+			if (stock === 0) return;                     // blocked — OOS
+
+			const id = cardEl.dataset.id;
+			const name = cardEl.dataset.name;
+			const price = parseFloat(cardEl.dataset.price);
+			const tax = parseFloat(cardEl.dataset.tax) || 0;
+			const unit = cardEl.dataset.unit || 'pcs';
+
+			if (cart[id]) {
+				if (cart[id].qty >= cart[id].stock) {
+					alert('Cannot add more — stock limit reached.');
+					return;
+				}
+				cart[id].qty++;
+			} else {
+				cart[id] = { id, name, price, tax, qty: 1, stock, unit };
+			}
+
+			/* Flash visual feedback on card */
+			cardEl.classList.add('cart-flash');
+			setTimeout(() => cardEl.classList.remove('cart-flash'), 450);
+
+			renderCart();
+		}
+
+		/* ── Remove from cart ───────────────────────── */
+		function posRemoveFromCart(id) {
+			delete cart[id];
+			renderCart();
+		}
+
+		/* ── Change quantity ────────────────────────── */
+		function posUpdateQty(id, delta) {
+			if (!cart[id]) return;
+			const newQty = cart[id].qty + delta;
+			if (newQty <= 0) { posRemoveFromCart(id); return; }
+			if (newQty > cart[id].stock) { alert('Insufficient stock.'); return; }
+			cart[id].qty = newQty;
+			renderCart();
+		}
+
+		/* ── Clear cart ─────────────────────────────── */
+		function posClearCart() {
+			cart = {};
+			extra = { discount: 0, shipping: 0, extraTaxPct: 0 };
+			renderCart();
+		}
+
+		/* ── Apply discount ─────────────────────────── */
+		function posApplyDiscount() {
+			const type = document.getElementById('discountType').value;
+			const val = parseFloat(document.getElementById('discountValue').value) || 0;
+			if (type === 'percent') {
+				const subtotal = Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0);
+				extra.discount = subtotal * val / 100;
+			} else {
+				extra.discount = val;
+			}
+			renderCart();
+		}
+
+		/* ── Apply shipping ─────────────────────────── */
+		function posApplyShipping() {
+			extra.shipping = parseFloat(document.getElementById('shippingInput').value) || 0;
+			renderCart();
+		}
+
+		/* ── Apply extra order tax ──────────────────── */
+		function posApplyExtraTax() {
+			extra.extraTaxPct = parseFloat(document.getElementById('extraTaxInput').value) || 0;
+			renderCart();
+		}
+
+		/* ── Quick cash buttons ─────────────────────── */
+		function posQuickCash(amt) {
+			document.getElementById('modalAmountReceived').value = amt;
+			posCalcChange();
+		}
+
+		/* ── Calculate change in modal ──────────────── */
+		function posCalcChange() {
+			const total = parseFloat(document.getElementById('modalGrandTotal').value) || 0;
+			const received = parseFloat(document.getElementById('modalAmountReceived').value) || 0;
+			const diff = received - total;
+			document.getElementById('modalChange').value =
+				diff >= 0 ? '+ ₹' + diff.toFixed(2) + ' (change)' : '- ₹' + Math.abs(diff).toFixed(2) + ' (due)';
+		}
+
+		/* ── Open payment modal ─────────────────────── */
+		function posOpenPayment(method) {
+			if (Object.keys(cart).length === 0) {
+				alert('Please add at least one product to the cart.');
+				return;
+			}
+			const total = calcGrandTotal();
+			document.getElementById('modalGrandTotal').value = total.toFixed(2);
+			document.getElementById('modalAmountReceived').value = '';
+			document.getElementById('modalChange').value = '';
+			document.getElementById('modalPaymentMethod').value = method;
+			document.getElementById('modalNotes').value = '';
+			// Show modal
+			const modal = new bootstrap.Modal(document.getElementById('payment-modal'));
+			modal.show();
+		}
+
+		/* Alias for the Pay button at the bottom */
+		function posConfirmPayment() { posOpenPayment('cash'); }
+
+		/* ── Open hold modal ────────────────────────── */
+		// Called when user opens hold modal — pre-fill the total
+		document.getElementById('hold-order').addEventListener('show.bs.modal', function () {
+			document.getElementById('holdTotalDisplay').textContent = '₹' + calcGrandTotal().toFixed(2);
+		});
+
+		function posHoldOrder() {
+			// TODO: AJAX call to save hold order in DB
+			alert('Order held. Feature: connect to your hold-order view.');
+		}
+
+		/* ── Submit sale ────────────────────────────── */
+		function posSubmitSale() {
+			const received = parseFloat(document.getElementById('modalAmountReceived').value) || 0;
+			const method = document.getElementById('modalPaymentMethod').value;
+			const notes = document.getElementById('modalNotes').value;
+			const total = calcGrandTotal();
+
+			if (method === 'cash' && received <= 0) {
+				alert('Please enter the amount received.');
+				return;
+			}
+
+			/* Fill hidden form inputs */
+			document.getElementById('fCustomerId').value = document.getElementById('customerSelect').value;
+			document.getElementById('fDiscount').value = extra.discount.toFixed(2);
+			document.getElementById('fPaymentMethod').value = method;
+			document.getElementById('fAmountPaid').value = Math.min(received || total, total).toFixed(2);
+			document.getElementById('fNotes').value = notes;
+
+			/* Build cart line-item hidden inputs */
+			const wrap = document.getElementById('posCartInputs');
+			wrap.innerHTML = '';
+			Object.values(cart).forEach(item => {
+				wrap.innerHTML += `
+            <input type="hidden" name="product_id"    value="${item.id}">
+            <input type="hidden" name="sale_qty"      value="${item.qty}">
+            <input type="hidden" name="sale_price"    value="${item.price}">
+            <input type="hidden" name="sale_tax_rate" value="${item.tax}">`;
+			});
+			// Also pass shipping
+			wrap.innerHTML += `<input type="hidden" name="shipping" value="${extra.shipping}">`;
+
+			document.getElementById('posForm').submit();
+		}
+
+		/* ── Grand total calculation ────────────────── */
+		function calcGrandTotal() {
+			const items = Object.values(cart);
+			const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+			const taxAmt = items.reduce((s, i) => s + (i.price * i.qty * i.tax / 100), 0);
+			const extraTax = subtotal * extra.extraTaxPct / 100;
+			return Math.max(0, subtotal + taxAmt + extraTax + extra.shipping - extra.discount);
+		}
+
+		/* ── Render cart UI ─────────────────────────── */
+		function renderCart() {
+			const items = Object.values(cart);
+			const tbody = document.getElementById('cartTableBody');
+			const emptyMsg = document.getElementById('emptyCartMsg');
+			const tableWrap = document.getElementById('cartTableWrap');
+			const countEl = document.getElementById('cartItemCount');
+
+			// Sync .active class on all .product-info cards
+			document.querySelectorAll('.product-info').forEach(card => {
+				if (cart[card.dataset.id]) {
+					card.classList.add('active');
+				} else {
+					card.classList.remove('active');
+				}
+			});
+
+			if (items.length === 0) {
+				emptyMsg.style.display = 'block';
+				tableWrap.style.display = 'none';
+				countEl.textContent = '0';
+				updateTotals(0, 0, 0);
+				return;
+			}
+
+			emptyMsg.style.display = 'none';
+			tableWrap.style.display = 'block';
+			countEl.textContent = items.reduce((s, i) => s + i.qty, 0);
+
+			tbody.innerHTML = items.map(item => `
+        <tr>
+            <td>
+                <div class="d-flex align-items-center mb-1">
+                    <h6 class="fs-14 fw-medium mb-0">${item.name}</h6>
+                </div>
+                <small class="text-muted">₹${item.price.toFixed(2)} / ${item.unit}</small>
+            </td>
+            <td>
+                <div class="qty-item m-0">
+                    <a href="javascript:void(0);" class="dec d-flex justify-content-center align-items-center"
+                       onclick="posUpdateQty('${item.id}', -1)">
+                        <i data-feather="minus-circle" class="feather-14"></i>
+                    </a>
+                    <input type="text" class="form-control text-center" value="${item.qty}" readonly>
+                    <a href="javascript:void(0);" class="inc d-flex justify-content-center align-items-center"
+                       onclick="posUpdateQty('${item.id}', 1)">
+                        <i data-feather="plus-circle" class="feather-14"></i>
+                    </a>
+                </div>
+            </td>
+            <td class="fw-bold">₹${(item.price * item.qty).toFixed(2)}</td>
+            <td class="text-end">
+                <a class="btn-icon delete-icon" href="javascript:void(0);"
+                   onclick="posRemoveFromCart('${item.id}')">
+                    <i class="ti ti-trash"></i>
+                </a>
+            </td>
+        </tr>
+    `).join('');
+
+			/* Re-init feather icons rendered inside cart rows */
+			if (typeof feather !== 'undefined') feather.replace();
+
+			const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+			const taxAmt = items.reduce((s, i) => s + (i.price * i.qty * i.tax / 100), 0);
+			updateTotals(subtotal, taxAmt, calcGrandTotal());
+		}
+
+		function updateTotals(subtotal, tax, grand) {
+			document.getElementById('cartSubtotal').textContent = '₹' + subtotal.toFixed(2);
+			document.getElementById('cartTax').textContent = '₹' + tax.toFixed(2);
+			document.getElementById('cartDiscountDisplay').textContent = extra.discount.toFixed(2);
+			document.getElementById('cartTotal').textContent = '₹' + grand.toFixed(2);
+			document.getElementById('payBtnTotal').textContent = '₹' + grand.toFixed(2);
+		}
+
+		/* Init */
+		renderCart();
+	</script>
+
+</body>
+
+</html>

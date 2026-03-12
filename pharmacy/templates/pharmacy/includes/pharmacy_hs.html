@@ -1,0 +1,638 @@
+{% load static %}
+
+<!-- Header -->
+		<div class="header">
+			<div class="main-header">
+
+				<!-- Logo -->
+				<div class="header-left active">
+					<a href="index.html" class="logo logo-normal">
+						<img src="{% static 'assets/img/logo.svg' %}" alt="Img">
+					</a>
+					<a href="index.html" class="logo logo-white">
+						<img src="{% static 'assets/img/logo-white.svg' %}" alt="Img">
+					</a>
+					<a href="index.html" class="logo-small">
+						<img src="{% static 'assets/img/logo-small.png' %}" alt="Img">
+					</a>
+					<a href="index.html" class="logo-small-white">
+						<img src="{% static 'assets/img/logo-small-white.png' %}" alt="Img">
+					</a>
+				</div>
+				<!-- /Logo -->
+
+				<a id="mobile_btn" class="mobile_btn" href="#sidebar">
+					<span class="bar-icon">
+						<span></span>
+						<span></span>
+						<span></span>
+					</span>
+				</a>
+
+				<!-- Header Menu -->
+				<ul class="nav user-menu">
+
+					<!-- Search -->
+					<li class="nav-item nav-searchinputs">
+						<div class="top-nav-search">
+							<a href="javascript:void(0);" class="responsive-search">
+								<i class="fa fa-search"></i>
+							</a>
+							<form action="#" class="dropdown">
+								<div class="searchinputs input-group dropdown-toggle" id="dropdownMenuClickable" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+									<input type="text" placeholder="Search">
+									<div class="search-addon">
+										<span><i class="ti ti-search"></i></span>
+									</div>
+									<span class="input-group-text">
+										<kbd class="d-flex align-items-center"><img src="{% static 'assets/img/icons/command.svg' %}" alt="img" class="me-1">K</kbd>
+									</span>
+								</div>
+								<div class="dropdown-menu search-dropdown" aria-labelledby="dropdownMenuClickable">
+									<div class="search-info">
+										<h6><span><i data-feather="search" class="feather-16"></i></span>Recent Searches
+										</h6>
+										<ul class="search-tags">
+											<li><a href="javascript:void(0);">Products</a></li>
+											<li><a href="javascript:void(0);">Sales</a></li>
+											<li><a href="javascript:void(0);">Applications</a></li>
+										</ul>
+									</div>
+									<div class="search-info">
+										<h6><span><i data-feather="help-circle" class="feather-16"></i></span>Help</h6>
+										<p>How to Change Product Volume from 0 to 200 on Inventory management</p>
+										<p>Change Product Name</p>
+									</div>
+									<div class="search-info">
+										<h6><span><i data-feather="user" class="feather-16"></i></span>Customers</h6>
+										<ul class="customers">
+											<li><a href="javascript:void(0);">Aron Varu<img src="{% static 'assets/img/profiles/avator1.jpg' %}" alt="Img" class="img-fluid"></a></li>
+											<li><a href="javascript:void(0);">Jonita<img src="{% static 'assets/img/profiles/avatar-01.jpg' %}" alt="Img" class="img-fluid"></a></li>
+											<li><a href="javascript:void(0);">Aaron<img src="{% static 'assets/img/profiles/avatar-10.jpg' %}" alt="Img" class="img-fluid"></a></li>
+										</ul>
+									</div>
+								</div>
+							</form>
+						</div>
+					</li>
+					<!-- /Search -->
+
+					<!-- Select Store -->
+					<li class="nav-item dropdown has-arrow main-drop select-store-dropdown">
+						<a href="javascript:void(0);" class="dropdown-toggle nav-link select-store"
+							data-bs-toggle="dropdown">
+							<span class="user-info">
+								<span class="user-letter">
+									<img src="{% static 'assets/img/store/store-01.png' %}" alt="Store Logo" class="img-fluid">
+								</span>
+								<span class="user-detail">
+									<span class="user-name">Freshmart</span>
+								</span>
+							</span>
+						</a>
+						<div class="dropdown-menu dropdown-menu-right">
+							<a href="javascript:void(0);" class="dropdown-item">
+								<img src="{% static 'assets/img/store/store-01.png' %}" alt="Store Logo" class="img-fluid">Freshmart
+							</a>
+							<a href="javascript:void(0);" class="dropdown-item">
+								<img src="{% static 'assets/img/store/store-02.png' %}" alt="Store Logo" class="img-fluid">Grocery Apex
+							</a>
+							<a href="javascript:void(0);" class="dropdown-item">
+								<img src="{% static 'assets/img/store/store-03.png' %}" alt="Store Logo" class="img-fluid">Grocery Bevy
+							</a>
+							<a href="javascript:void(0);" class="dropdown-item">
+								<img src="{% static 'assets/img/store/store-04.png' %}" alt="Store Logo" class="img-fluid">Grocery Eden
+							</a>
+						</div>
+					</li>
+					<!-- /Select Store -->
+
+					<li class="nav-item dropdown link-nav">
+						<a href="javascript:void(0);" class="btn btn-primary btn-md d-inline-flex align-items-center" data-bs-toggle="dropdown">
+							<i class="ti ti-circle-plus me-1"></i>Add New
+						</a>
+						<div class="dropdown-menu dropdown-xl dropdown-menu-center">
+							<div class="row g-2">
+								<div class="col-md-2">
+									<a href="category-list.html" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-brand-codepen"></i>
+										</span>
+										<p>Category</p>
+									</a>
+								</div>
+								<div class="col-md-2">
+									<a href="add-product.html" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-square-plus"></i>
+										</span>
+										<p>Product</p>
+									</a>
+								</div>
+								<div class="col-md-2">
+									<a href="{% url 'pharmacy:purchase_list' %}" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-shopping-bag"></i>
+										</span>
+										<p>Purchase</p>
+									</a>
+								</div>
+								<div class="col-md-2">
+									<a href="online-orders.html" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-shopping-cart"></i>
+										</span>
+										<p>Sale</p>
+									</a>
+								</div>
+								<div class="col-md-2">
+									<a href="expense-list.html" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-file-text"></i>
+										</span>
+										<p>Expense</p>
+									</a>
+								</div>
+								<div class="col-md-2">
+									<a href="quotation-list.html" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-device-floppy"></i>
+										</span>
+										<p>Quotation</p>
+									</a>
+								</div>
+								<div class="col-md-2">
+									<a href="sales-returns.html" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-copy"></i>
+										</span>
+										<p>Return</p>
+									</a>
+								</div>
+								<div class="col-md-2">
+									<a href="users.html" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-user"></i>
+										</span>
+										<p>User</p>
+									</a>
+								</div>
+								<div class="col-md-2">
+									<a href="customers.html" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-users"></i>
+										</span>
+										<p>Customer</p>
+									</a>
+								</div>
+								<div class="col-md-2">
+									<a href="sales-report.html" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-shield"></i>
+										</span>
+										<p>Biller</p>
+									</a>
+								</div>
+								<div class="col-md-2">
+									<a href="suppliers.html" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-user-check"></i>
+										</span>
+										<p>Supplier</p>
+									</a>
+								</div>
+								<div class="col-md-2">
+									<a href="stock-transfer.html" class="link-item">
+										<span class="link-icon">
+											<i class="ti ti-truck"></i>
+										</span>
+										<p>Transfer</p>
+									</a>
+								</div>
+							</div>
+						</div>
+					</li>
+					
+					<li class="nav-item pos-nav">
+						<a href="{% url 'pharmacy:pos' %}" class="btn btn-dark btn-md d-inline-flex align-items-center">
+							<i class="ti ti-device-laptop me-1"></i>POS
+						</a>
+					</li>
+
+					<!-- Flag -->
+					<li class="nav-item dropdown has-arrow flag-nav nav-item-box">
+						<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="javascript:void(0);"
+							role="button">
+							<img src="{% static 'assets/img/flags/us-flag.svg' %}" alt="Language" class="img-fluid">
+						</a>
+						<div class="dropdown-menu dropdown-menu-right">
+							<a href="javascript:void(0);" class="dropdown-item">
+								<img src="{% static 'assets/img/flags/english.svg' %}" alt="Img" height="16">English
+							</a>
+							<a href="javascript:void(0);" class="dropdown-item">
+								<img src="{% static 'assets/img/flags/arabic.svg' %}" alt="Img" height="16">Arabic
+							</a>
+						</div>
+					</li>
+					<!-- /Flag -->
+
+
+					<li class="nav-item nav-item-box">
+						<a href="javascript:void(0);" id="btnFullscreen">
+							<i class="ti ti-maximize"></i>
+						</a>
+					</li>
+					<li class="nav-item nav-item-box">
+						<a href="email.html">
+							<i class="ti ti-mail"></i>
+							<span class="badge rounded-pill">1</span>
+						</a>
+					</li>
+					<!-- Notifications -->
+					<li class="nav-item dropdown nav-item-box">
+						<a href="javascript:void(0);" class="dropdown-toggle nav-link" data-bs-toggle="dropdown">
+							<i class="ti ti-bell"></i>
+						</a>
+						<div class="dropdown-menu notifications">
+							<div class="topnav-dropdown-header">
+								<h5 class="notification-title">Notifications</h5>
+								<a href="javascript:void(0)" class="clear-noti">Mark all as read</a>
+							</div>
+							<div class="noti-content">
+								<ul class="notification-list">
+									<li class="notification-message">
+										<a href="activities.html">
+											<div class="media d-flex">
+												<span class="avatar flex-shrink-0">
+													<img alt="Img" src="{% static 'assets/img/profiles/avatar-13.jpg' %}">
+												</span>
+												<div class="flex-grow-1">
+													<p class="noti-details"><span class="noti-title">James Kirwin</span> confirmed his order.  Order No: #78901.Estimated delivery: 2 days</p>
+													<p class="noti-time">4 mins ago</p>
+												</div>
+											</div>
+										</a>
+									</li>
+									<li class="notification-message">
+										<a href="activities.html">
+											<div class="media d-flex">
+												<span class="avatar flex-shrink-0">
+													<img alt="Img" src="{% static 'assets/img/profiles/avatar-03.jpg' %}">
+												</span>
+												<div class="flex-grow-1">
+													<p class="noti-details"><span class="noti-title">Leo Kelly</span> cancelled his order scheduled for  17 Jan 2025</p>
+													<p class="noti-time">10 mins ago</p>
+												</div>
+											</div>
+										</a>
+									</li>
+									<li class="notification-message">
+										<a href="activities.html" class="recent-msg">
+											<div class="media d-flex">
+												<span class="avatar flex-shrink-0">
+													<img alt="Img" src="{% static 'assets/img/profiles/avatar-17.jpg' %}">
+												</span>
+												<div class="flex-grow-1">
+													<p class="noti-details">Payment of $50 received for Order #67890 from <span class="noti-title">Antonio Engle</span></p>
+													<p class="noti-time">05 mins ago</p>
+												</div>
+											</div>
+										</a>
+									</li>
+									<li class="notification-message">
+										<a href="activities.html" class="recent-msg">
+											<div class="media d-flex">
+												<span class="avatar flex-shrink-0">
+													<img alt="Img" src="{% static 'assets/img/profiles/avatar-02.jpg' %}">
+												</span>
+												<div class="flex-grow-1">
+													<p class="noti-details"><span class="noti-title">Andrea</span> confirmed his order.  Order No: #73401.Estimated delivery: 3 days</p>
+													<p class="noti-time">4 mins ago</p>
+												</div>
+											</div>
+										</a>
+									</li>
+								</ul>
+							</div>
+							<div class="topnav-dropdown-footer d-flex align-items-center gap-3">
+								<a href="#" class="btn btn-secondary btn-md w-100">Cancel</a>
+								<a href="activities.html" class="btn btn-primary btn-md w-100">View all</a>
+							</div>
+						</div>
+					</li>
+					<!-- /Notifications -->
+
+					<li class="nav-item nav-item-box">
+						<a href="general-settings.html"><i class="ti ti-settings"></i></a>
+					</li>
+
+					<li class="nav-item nav-item-box">
+                        <a class="topbar-link btn topbar-link" id="lightTheme" href="javascript:void(0);">
+                            <i class="ti ti-moon fs-16"></i>
+						</a>
+                    </li>
+					
+
+					<!-- Profile -->
+					<li class="nav-item dropdown has-arrow main-drop profile-nav">
+						<a href="javascript:void(0);" class="nav-link userset" data-bs-toggle="dropdown">
+							<span class="user-info p-0">
+								<span class="user-letter">
+									<img src="{% static 'assets/img/profiles/avator1.jpg' %}" alt="Img" class="img-fluid">
+								</span>
+							</span>
+						</a>
+						<div class="dropdown-menu menu-drop-user">
+							<div class="profileset d-flex align-items-center">
+								<span class="user-img me-2">
+									<img src="{% static 'assets/img/profiles/avator1.jpg' %}" alt="Img">
+								</span>
+								<div>
+									<h6 class="fw-medium">John Smilga</h6>
+									<p>Admin</p>
+								</div>
+							</div>
+							<a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="ti ti-user-circle me-2"></i>MyProfile</a>
+							<a class="dropdown-item" href="sales-report.html"><i class="ti ti-file-text me-2"></i>Reports</a>
+							<a class="dropdown-item" href="general-settings.html"><i class="ti ti-settings-2 me-2"></i>Settings</a>
+							<hr class="my-2">
+							<a class="dropdown-item logout" href="{% url 'accounts:logout' %}"><i class="ti ti-logout me-2"></i>Logout</a>
+						</div>
+					</li>
+				</ul>
+				<!-- /Header Menu -->
+
+				<!-- Mobile Menu -->
+				<div class="dropdown mobile-user-menu">
+					<a href="javascript:void(0);" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
+						aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+					<div class="dropdown-menu dropdown-menu-right">
+						<a class="dropdown-item" href="{% url 'accounts:profile' %}">My Profile</a>
+						<a class="dropdown-item" href="general-settings.html">Settings</a>
+						<a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a>
+					</div>
+				</div>
+				<!-- /Mobile Menu -->
+			</div>
+		</div>
+		<!-- /Header -->
+
+		<!-- Sidebar -->
+		<div class="sidebar" id="sidebar">
+			<!-- Logo -->
+			<div class="sidebar-logo">
+				<a href="index.html" class="logo logo-normal">
+					<img src="{% static 'assets/img/logo.svg' %}" alt="Img">
+				</a>
+				<a href="index.html" class="logo logo-white">
+					<img src="{% static 'assets/img/logo-white.svg' %}" alt="Img">
+				</a>
+				<a href="index.html" class="logo-small">
+					<img src="{% static 'assets/img/logo-small.png' %}" alt="Img">
+				</a>
+				<a href="index.html" class="logo-small-white">
+					<img src="{% static 'assets/img/logo-small-white.png' %}" alt="Img">
+				</a>
+				<a id="toggle_btn" href="javascript:void(0);">
+					<i data-feather="chevrons-left" class="feather-16"></i>
+				</a>
+			</div>
+			<!-- /Logo -->
+			<div class="modern-profile p-3 pb-0">
+				<div class="text-center rounded bg-light p-3 mb-4 user-profile">
+					<div class="avatar avatar-lg online mb-3">
+						<img src="{% static 'assets/img/customer/customer15.jpg' %}" alt="Img" class="img-fluid rounded-circle">
+					</div>
+					<h6 class="fs-14 fw-bold mb-1">Adrian Herman</h6>
+					<p class="fs-12 mb-0">System Admin</p>
+				</div>
+				<div class="sidebar-nav mb-3">
+					<ul class="nav nav-tabs nav-tabs-solid nav-tabs-rounded nav-justified bg-transparent" role="tablist">
+						<li class="nav-item"><a class="nav-link active border-0" href="#">Menu</a></li>
+						<li class="nav-item"><a class="nav-link border-0" href="chat.html">Chats</a></li>
+						<li class="nav-item"><a class="nav-link border-0" href="email.html">Inbox</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="sidebar-header p-3 pb-0 pt-2">
+				<div class="text-center rounded bg-light p-2 mb-4 sidebar-profile d-flex align-items-center">
+					<div class="avatar avatar-md onlin">
+						<img src="{% static 'assets/img/customer/customer15.jpg' %}" alt="Img" class="img-fluid rounded-circle">
+					</div>
+					<div class="text-start sidebar-profile-info ms-2">
+						<h6 class="fs-14 fw-bold mb-1">Adrian Herman</h6>
+						<p class="fs-12">System Admin</p>
+					</div>
+				</div>
+				<div class="d-flex align-items-center justify-content-between menu-item mb-3">
+					<div>
+						<a href="index.html" class="btn btn-sm btn-icon bg-light">
+							<i class="ti ti-layout-grid-remove"></i>
+						</a>
+					</div>
+					<div>
+						<a href="chat.html" class="btn btn-sm btn-icon bg-light">
+							<i class="ti ti-brand-hipchat"></i>
+						</a>
+					</div>
+					<div>
+						<a href="email.html" class="btn btn-sm btn-icon bg-light position-relative">
+							<i class="ti ti-message"></i>
+						</a>
+					</div>
+					<div class="notification-item">
+						<a href="activities.html" class="btn btn-sm btn-icon bg-light position-relative">
+							<i class="ti ti-bell"></i>
+							<span class="notification-status-dot"></span>
+						</a>
+					</div>
+					<div class="me-0">
+						<a href="general-settings.html" class="btn btn-sm btn-icon bg-light">
+							<i class="ti ti-settings"></i>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="sidebar-inner slimscroll">
+				<div id="sidebar-menu" class="sidebar-menu">
+					<ul>
+						{% if user.is_superuser %}
+						<li class="submenu-open">
+							<h6 class="submenu-hdr">Main</h6>
+							<ul>
+								<li class="submenu">
+									<a href="javascript:void(0);" class="subdrop active"><i class="ti ti-layout-grid fs-16 me-2"></i><span>Dashboard</span><span class="menu-arrow"></span></a>
+									<ul>
+										<li><a href="index.html">Admin Dashboard</a></li>
+										<li><a href="admin-dashboard.html" class="active">Admin Dashboard 2</a></li>
+										<li><a href="sales-dashboard.html">Sales Dashboard</a></li>
+									</ul>
+								</li>
+								<li class="submenu">
+									<a href="javascript:void(0);"><i class="ti ti-user-edit fs-16 me-2"></i><span>Super Admin</span><span class="menu-arrow"></span></a>
+									<ul>
+										<li><a href="{% url 'core:superadmin_dashboard' %}">Dashboard</a></li>
+										<li><a href="{% url 'core:companies' %}">Companies</a></li>
+                                        <li><a href="{% url 'core:business_types' %}">Business Types</a></li>
+										<li><a href="subscription.html">Subscriptions</a></li>
+										<li><a href="packages.html">Packages</a></li>
+										<li><a href="domain.html">Domain</a></li>
+										<li><a href="purchase-transaction.html">Purchase Transaction</a></li>
+									</ul>
+								</li>
+								<li class="submenu">
+									<a href="javascript:void(0);"><i class="ti ti-brand-apple-arcade fs-16 me-2"></i><span>Application</span><span class="menu-arrow"></span></a>
+									<ul>
+										<li><a href="chat.html">Chat</a></li>
+										<li class="submenu submenu-two"><a href="javascript:void(0);">Call<span class="menu-arrow inside-submenu"></span></a>
+											<ul>
+												<li><a href="video-call.html">Video Call</a></li>
+												<li><a href="audio-call.html">Audio Call</a></li>
+												<li><a href="call-history.html">Call History</a></li>
+											</ul>
+										</li>
+										<li><a href="calendar.html">Calendar</a></li>
+										<li><a href="contacts.html">Contacts</a></li>
+										<li><a href="email.html">Email</a></li>
+										<li><a href="todo.html">To Do</a></li>
+										<li><a href="notes.html">Notes</a></li>
+										<li><a href="file-manager.html">File Manager</a></li>
+										<li><a href="projects.html">Projects</a></li>
+										<li class="submenu submenu-two"><a href="javascript:void(0);">Ecommerce<span class="menu-arrow inside-submenu"></span></a>
+											<ul>
+												<li><a href="products.html">Products</a></li>
+												<li><a href="orders.html">Orders</a></li>
+												<li><a href="customers.html">Customers</a></li>
+												<li><a href="cart.html">Cart</a></li>
+												<li><a href="checkout.html">Checkout</a></li>
+												<li><a href="wishlist.html">Wishlist</a></li>
+												<li><a href="reviews.html">Reviews</a></li>
+											</ul>
+										</li>
+										<li><a href="social-feed.html">Social Feed</a></li>
+										<li><a href="search-list.html">Search List</a></li>
+									</ul>
+								</li>
+								<li class="submenu">
+									<a href="javascript:void(0);"><i class="ti ti-layout-sidebar-right-collapse fs-16 me-2"></i><span>Layouts</span><span class="menu-arrow"></span></a>
+									<ul>
+										<li><a href="layout-horizontal.html">Horizontal</a></li>
+										<li><a href="layout-detached.html">Detached</a></li>
+										<li><a href="layout-two-column.html">Two Column</a></li>
+										<li><a href="layout-hovered.html">Hovered</a></li>
+										<li><a href="layout-boxed.html">Boxed</a></li>
+										<li><a href="layout-rtl.html">RTL</a></li>
+										<li><a href="layout-dark.html">Dark</a></li>
+									</ul>
+								</li>
+							</ul>
+						</li>
+						{% endif %}
+						<li class="submenu-open">
+							<h6 class="submenu-hdr">Inventory</h6>
+							<ul>
+								<li><a href="{% url 'pharmacy:categories' %}"><i class="ti ti-list-details fs-16 me-2"></i><span>Categories</span></a></li>
+								<li><a href="{% url 'pharmacy:brands' %}"><i class="ti ti-triangles fs-16 me-2"></i><span>Brands</span></a></li>
+								<li><a href="{% url 'pharmacy:units' %}"><i class="ti ti-brand-unity fs-16 me-2"></i><span>Units</span></a></li>
+								<li><a href="{% url 'pharmacy:product_list' %}"><i class="ti ti-box fs-16 me-2"></i><span>Products</span></a></li>
+								<li><a href="expired-products.html"><i class="ti ti-progress-alert fs-16 me-2"></i><span>Expired Products</span></a></li>
+								<li><a href="low-stocks.html"><i class="ti ti-trending-up-2 fs-16 me-2"></i><span>Low Stocks</span></a></li>
+							</ul>
+						</li>
+						<li class="submenu-open">
+							<h6 class="submenu-hdr">Stock</h6>
+							<ul>
+								<li><a href="{% url 'pharmacy:manage_stock' %}"><i class="ti ti-stack-3 fs-16 me-2"></i><span>Manage Stock</span></a></li>
+								<li><a href="#"><i class="ti ti-stairs-up fs-16 me-2"></i><span>Stock Adjustment</span></a></li>
+								<li><a href="#"><i class="ti ti-stack-pop fs-16 me-2"></i><span>Stock Transfer</span></a></li>
+							</ul>
+						</li>
+						<li class="submenu-open">
+							<h6 class="submenu-hdr">Sales</h6>
+							<ul>
+								<li class="submenu">
+									<a href="javascript:void(0);"><i class="ti ti-layout-grid fs-16 me-2"></i><span>Sales</span><span class="menu-arrow"></span></a>
+									<ul>
+										<li><a href="online-orders.html">Online Orders</a></li>
+										<li><a href="{% url 'pharmacy:sale_list' %}">POS Orders</a></li>
+									</ul>
+								</li>
+								<li><a href="invoice.html"><i class="ti ti-file-invoice fs-16 me-2"></i><span>Invoices</span></a></li>
+								<li><a href="sales-returns.html"><i class="ti ti-receipt-refund fs-16 me-2"></i><span>Sales Return</span></a></li>
+								<li><a href="{% url 'pharmacy:pos' %}"><i class="ti ti-device-laptop fs-16 me-2"></i><span>POS</span></a></li>
+								
+							</ul>
+						</li>
+						<li class="submenu-open">
+							<h6 class="submenu-hdr">Purchases</h6>
+							<ul>
+								<li><a href="{% url 'pharmacy:purchase_list' %}"><i class="ti ti-shopping-bag fs-16 me-2"></i><span>Purchases</span></a></li>
+								<li><a href="purchase-order-report.html"><i class="ti ti-file-unknown fs-16 me-2"></i><span>Purchase Order</span></a></li>
+								<li><a href="purchase-returns.html"><i class="ti ti-file-upload fs-16 me-2"></i><span>Purchase Return</span></a></li>
+							</ul>
+						</li>
+						<li class="submenu-open">
+							<h6 class="submenu-hdr">Peoples</h6>
+							<ul>
+								<li><a href="{% url 'pharmacy:suppliers' %}"><i class="ti ti-user-dollar fs-16 me-2"></i><span>Suppliers</span></a></li>
+								<li><a href="{% url 'pharmacy:customers' %}"><i class="ti ti-users-group fs-16 me-2"></i><span>Customers</span></a></li>
+								<li><a href="billers.html"><i class="ti ti-user-up fs-16 me-2"></i><span>Billers</span></a></li>
+								<li><a href="store-list.html"><i class="ti ti-home-bolt fs-16 me-2"></i><span>Stores</span></a></li>
+								<li><a href="warehouse.html"><i class="ti ti-archive fs-16 me-2"></i><span>Warehouses</span></a>
+								</li>
+							</ul>
+						</li>
+						<li class="submenu-open">
+							<h6 class="submenu-hdr">Reports</h6>
+							<ul>
+								<li class="submenu">
+									<a href="javascript:void(0);"><i class="ti ti-chart-bar fs-16 me-2"></i><span>Sales Report</span><span class="menu-arrow"></span></a>
+									<ul>
+										<li><a href="sales-report.html">Sales Report</a></li>
+										<li><a href="best-seller.html">Best Seller</a></li>
+									</ul>
+								</li>
+								<li><a href="purchase-report.html"><i class="ti ti-chart-pie-2 fs-16 me-2"></i><span>Purchase report</span></a></li>
+								<li class="submenu">
+									<a href="javascript:void(0);"><i class="ti ti-triangle-inverted fs-16 me-2"></i><span>Inventory Report</span><span class="menu-arrow"></span></a>
+									<ul>
+										<li><a href="inventory-report.html">Inventory Report</a></li>
+										<li><a href="stock-history.html">Stock History</a></li>
+										<li><a href="sold-stock.html">Sold Stock</a></li>
+									</ul>
+								</li>
+								<li><a href="invoice-report.html"><i class="ti ti-businessplan fs-16 me-2"></i><span>Invoice Report</span></a></li>
+								<li class="submenu">
+									<a href="javascript:void(0);"><i class="ti ti-user-star fs-16 me-2"></i><span>Supplier Report</span><span class="menu-arrow"></span></a>
+									<ul>
+										<li><a href="supplier-report.html">Supplier Report</a></li>
+										<li><a href="supplier-due-report.html">Supplier Due Report</a></li>
+									</ul>
+								</li>
+								<li class="submenu">
+									<a href="javascript:void(0);"><i class="ti ti-report fs-16 me-2"></i><span>Customer Report</span><span class="menu-arrow"></span></a>
+									<ul>
+										<li><a href="customer-report.html">Customer Report</a></li>
+										<li><a href="customer-due-report.html">Customer Due Report</a></li>
+									</ul>
+								</li>
+								<li class="submenu">
+									<a href="javascript:void(0);"><i class="ti ti-report-analytics fs-16 me-2"></i><span>Product Report</span><span class="menu-arrow"></span></a>
+									<ul>
+										<li><a href="product-report.html">Product Report</a></li>
+										<li><a href="product-expiry-report.html">Product Expiry Report</a></li>
+										<li><a href="product-quantity-alert.html">Product Quantity Alert</a></li>
+									</ul>
+								</li>
+								<li><a href="expense-report.html"><i class="ti ti-file-vector fs-16 me-2"></i><span>Expense Report</span></a></li>
+								<li><a href="income-report.html"><i class="ti ti-chart-ppf fs-16 me-2"></i><span>Income Report</span></a></li>
+								<li><a href="tax-reports.html"><i class="ti ti-chart-dots-2 fs-16 me-2"></i><span>Tax Report</span></a></li>
+								<li><a href="profit-and-loss.html"><i class="ti ti-chart-donut fs-16 me-2"></i><span>Profit & Loss</span></a></li>
+								<li><a href="annual-report.html"><i class="ti ti-report-search fs-16 me-2"></i><span>Annual Report</span></a></li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<!-- /Sidebar -->

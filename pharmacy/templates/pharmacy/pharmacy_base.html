@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" data-layout-mode="light_mode">
+
+<!-- Mirrored from dreamspos.dreamstechnologies.com/html/template/admin-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 27 Feb 2026 07:22:37 GMT -->
+<head>
+
+	<!-- Meta Tags -->
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Dreams POS is a powerful Bootstrap based Inventory Management Admin Template designed for businesses, offering seamless invoicing, project tracking, and estimates.">
+	<meta name="keywords" content="inventory management, admin dashboard, bootstrap template, invoicing, estimates, business management, responsive admin, POS system">
+	<meta name="author" content="Dreams Technologies">
+	<meta name="robots" content="index, follow">
+	<title>M7 - Inventory Management & Admin Dashboard Template</title>
+
+	<script src="{% static 'assets/js/theme-script.js' %}" ></script>	
+
+	<!-- Favicon -->
+	<link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicon.png' %}">
+
+	<!-- Apple Touch Icon -->
+	<link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/img/apple-touch-icon.png' %}">
+
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+
+  <!-- Bootstrap Tagsinput CSS -->
+	<link rel="stylesheet" href="{% static 'assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css' %}">
+
+	<!-- Datetimepicker CSS -->
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap-datetimepicker.min.css' %}">
+
+  <!-- Datatable CSS -->
+	<link rel="stylesheet" href="{% static 'assets/css/dataTables.bootstrap5.min.css' %}">
+
+	<!-- animation CSS -->
+	<link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+
+  <!-- Feathericon CSS -->
+	<link rel="stylesheet" href="{% static 'assets/css/feather.css' %}">
+
+	<!-- Select2 CSS -->
+	<link rel="stylesheet" href="{% static 'assets/plugins/select2/css/select2.min.css' %}">
+
+  <!-- Quill CSS -->
+	<link rel="stylesheet" href="{% static 'assets/plugins/quill/quill.snow.css' %}">
+
+	<!-- Tabler Icon CSS -->
+	<link rel="stylesheet" href="{% static 'assets/plugins/tabler-icons/tabler-icons.min.css' %}">
+
+	<!-- Fontawesome CSS -->
+	<link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/fontawesome.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/fontawesome/css/all.min.css' %}">
+
+	<!-- Color Picker Css -->
+	<link rel="stylesheet" href="{% static 'assets/plugins/%40simonwep/pickr/themes/nano.min.css' %}">
+
+	<!-- Main CSS -->
+	<link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+
+	<!-- Owl Carousel CSS -->
+	<link rel="stylesheet" href="{% static 'stock/assets/css/owl.carousel.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/owlcarousel/owl.theme.default.min.css' %}">
+
+  <!-- Summernote CSS -->
+  <link rel="stylesheet" href="{% static 'stock/assets/plugins/summernote/summernote-bs4.min.css' %}">
+
+  <!-- Fontawesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  {% block css %}
+  {% endblock %}
+
+</head>
+
+<body>
+	<!-- <a href="https://dreamspos.dreamstechnologies.com/cdn-cgi/content?id=fw4Uo3XcZvc5Z1HitcGFKybF56bKoaU3gLKG6NBxLRE-1772176793.5328586-1.0.1.1-3in6LZSdlnR8lbuKNd2ouyyV4j_lkrIrRdABIGcPj9U" aria-hidden="true" rel="nofollow noopener" style="display: none !important; visibility: hidden !important"></a> -->
+	<!-- <div id="global-loader">
+		<div class="whirly-loader"> </div>
+	</div> -->
+	<!-- Main Wrapper -->
+	<div class="main-wrapper">
+
+		{% include 'pharmacy/includes/pharmacy_hs.html' %}
+
+
+		<div class="page-wrapper">
+			{% block content %}
+			{% endblock %}
+			<div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+				<p class="mb-0">&copy; InventoryHub</p>
+			</div>
+		</div>
+
+	</div>
+	<!-- /Main Wrapper -->
+
+  <!-- jQuery -->
+  <script data-cfasync="false" src="{% static 'assets/js/email-decode.min.js' %}"></script>
+  <script src="{% static 'assets/js/jquery-3.7.1.min.js' %}" ></script>
+
+  <!-- Slimscroll JS -->
+	<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}" ></script>
+
+  <!-- Datatable JS -->
+	<script src="{% static 'assets/js/jquery.dataTables.min.js' %}" ></script>
+
+  <!-- Masking JS -->
+	<script src="{% static 'assets/plugins/mask/jquery.mask.min.js' %}" ></script>
+
+	<!-- Bootstrap Core JS -->
+	<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}" ></script>
+
+	<!-- Feather Icon JS -->
+	<script src="{% static 'assets/js/feather.min.js' %}" ></script>
+
+	<!-- Datatable JS -->
+	<script src="{% static 'assets/js/dataTables.bootstrap5.min.js' %}" ></script>
+
+  <!-- Datetimepicker JS -->
+  <script src="{% static 'assets/js/moment.min.js' %}" ></script>
+  <script src="{% static 'assets/js/bootstrap-datetimepicker.min.js' %}" ></script>
+
+  <!-- Daterangepikcer JS -->
+  <script src="{% static 'assets/plugins/daterangepicker/daterangepicker.js' %}" ></script>
+
+  <!-- Select2 JS -->
+	<script src="{% static 'assets/plugins/select2/js/select2.min.js' %}" ></script>
+
+	<!-- Sticky-sidebar -->
+	<script src="{% static 'assets/plugins/theia-sticky-sidebar/ResizeSensor.js' %}" ></script>
+	<script src="{% static 'assets/plugins/theia-sticky-sidebar/theia-sticky-sidebar.js' %}" ></script>
+
+	<!-- Chart JS -->
+	<script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}" ></script>
+	<script src="{% static 'assets/plugins/apexchart/chart-data.js' %}" ></script>
+
+  <!-- Quill JS -->
+	<script src="{% static 'assets/plugins/quill/quill.min.js' %}" ></script>
+
+  <!-- Bootstrap Tagsinput JS -->
+	<script src="{% static 'assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js' %}" ></script>
+
+	<!-- Color Picker JS -->
+	<script src="{% static 'assets/plugins/%40simonwep/pickr/pickr.es5.min.js' %}" ></script>
+
+	<!-- Custom JS -->
+	<script src="{% static 'assets/js/theme-colorpicker.js' %}" ></script>
+	<script src="{% static 'assets/js/script.js' %}" ></script>
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css" />
+    
+  <script src="{% static 'assets/js/rocket-loader.min.js' %}" data-cf-settings="c37b31fdc432381c3a750dfe-|49" defer></script>
+
+  <!-- Owl Carousel JS -->
+  <script src="{% static 'stock/assets/js/owl.carousel.min.js' %}"></script>
+
+  <!-- Summernote JS -->
+  <script src="{% static 'stock/assets/plugins/summernote/summernote-bs4.min.js' %}"></script>
+
+  <!-- Custom JS -->
+  <script src="{% static 'stock/assets/js/script.js' %}"></script>
+
+  <!-- Alertify JS -->
+  <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+
+  {% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            alertify.set('notifier', 'position', 'top-right');
+            {% for message in messages %}
+                alertify.{{ message.tags }}('{{ message|escapejs }}');
+            {% endfor %}
+        });
+    </script>
+  {% endif %}
+
+  {% block js %}
+  {% endblock %}
+</body>
+
+
+
+<!-- Mirrored from dreamspos.dreamstechnologies.com/html/template/admin-dashboard.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 27 Feb 2026 07:22:39 GMT -->
+</html>

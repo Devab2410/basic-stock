@@ -1,0 +1,58 @@
+{% extends 'core/core_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>Inventory Report</h4>
+                    <h6>Current stock levels for all products</h6>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table datatable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Brand</th>
+                                <th>Unit</th>
+                                <th>Selling Price</th>
+                                <th>Current Stock</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in inventory %}
+                            <tr>
+                                <td>
+                                    <h6 class="fw-medium">{{ row.product }}</h6>
+                                </td>
+                                <td>{{ row.category|default:"-" }}</td>
+                                <td>{{ row.brand|default:"-" }}</td>
+                                <td>{{ row.unit|default:"-" }}</td>
+                                <td>₹{{ row.selling_price }}</td>
+                                <td>{{ row.total_qty|default:0 }}</td>
+                                <td>
+                                    {% if row.total_qty == 0 %}<span class="badge badge-danger badge-xs">Out of
+                                        Stock</span>
+                                    {% elif row.total_qty < 5 %}<span class="badge badge-warning badge-xs">Low</span>
+                                        {% else %}<span class="badge badge-success badge-xs">OK</span>{% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub. All Right Reserved</p>
+    </div>
+</div>
+{% endblock %}

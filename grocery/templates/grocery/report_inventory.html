@@ -1,0 +1,95 @@
+{% extends 'grocery/grocery_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>Inventory Report</h4>
+                    <h6>Current stock overview</h6>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="dash-widget w-100">
+                    <div class="dash-widgetcontent">
+                        <h5>{{ total_products }}</h5>
+                        <h6>Products</h6>
+                    </div>
+                    <div class="dash-widgetimg"><span class="dash-widget-icon bg-info-light"><i
+                                class="ti ti-box"></i></span></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="dash-widget w-100">
+                    <div class="dash-widgetcontent">
+                        <h5>{{ total_stock_qty }}</h5>
+                        <h6>Total Stock Qty</h6>
+                    </div>
+                    <div class="dash-widgetimg"><span class="dash-widget-icon bg-success-light"><i
+                                class="ti ti-stack-3"></i></span></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="dash-widget w-100">
+                    <div class="dash-widgetcontent">
+                        <h5>₹{{ total_stock_value|floatformat:2 }}</h5>
+                        <h6>Stock Value</h6>
+                    </div>
+                    <div class="dash-widgetimg"><span class="dash-widget-icon bg-primary-light"><i
+                                class="ti ti-currency-rupee"></i></span></div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 col-12 d-flex">
+                <div class="dash-widget dash-widget-danger w-100">
+                    <div class="dash-widgetcontent">
+                        <h5>{{ low_stock_count }}</h5>
+                        <h6>Low Stock</h6>
+                    </div>
+                    <div class="dash-widgetimg"><span class="dash-widget-icon bg-danger-light"><i
+                                class="ti ti-alert-triangle"></i></span></div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table datatable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>SKU</th>
+                                <th>Category</th>
+                                <th>Stock Qty</th>
+                                <th>Purchase Price</th>
+                                <th>Stock Value</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in products %}
+                            <tr>
+                                <td><a href="{% url 'grocery:product_detail' p.pk %}">{{ p.name }}</a></td>
+                                <td>{{ p.sku|default:"-" }}</td>
+                                <td>{{ p.category.name|default:"-" }}</td>
+                                <td>{{ p.current_stock }}</td>
+                                <td>₹{{ p.purchase_price|floatformat:2 }}</td>
+                                <td>₹{{ p.stock_value|floatformat:2 }}</td>
+                                <td>{% if p.current_stock <= 0 %}<span class="badge badge-danger badge-xs">Out</span>{%
+                                        elif p.current_stock <= 10 %}<span class="badge badge-warning badge-xs">
+                                            Low</span>{% else %}<span class="badge badge-success badge-xs">OK</span>{%
+                                            endif %}</td>
+                            </tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub</p>
+    </div>
+</div>
+{% endblock %}

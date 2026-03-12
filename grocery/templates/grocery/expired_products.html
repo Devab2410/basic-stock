@@ -1,0 +1,51 @@
+{% extends 'grocery/grocery_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>Expired Products</h4>
+                    <h6>Products past their expiry date</h6>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table datatable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Batch</th>
+                                <th>Quantity</th>
+                                <th>Expiry Date</th>
+                                <th>Days Ago</th>
+                                <th>Warehouse</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stock in expired %}
+                            <tr>
+                                <td>
+                                    <h6 class="fw-medium text-danger">{{ stock.product.name }}</h6>
+                                </td>
+                                <td>{{ stock.batch_no|default:"-" }}</td>
+                                <td><span class="badge badge-danger badge-xs">{{ stock.quantity }}</span></td>
+                                <td class="text-danger">{{ stock.expiry_date }}</td>
+                                <td>{% if stock.days_to_expiry != None %}{{ stock.days_to_expiry|floatformat:0 }}{% else
+                                    %}-{% endif %}</td>
+                                <td>{{ stock.warehouse|default:"-" }}</td>
+                            </tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub</p>
+    </div>
+</div>
+{% endblock %}

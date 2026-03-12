@@ -1,0 +1,30 @@
+from django.contrib.auth.backends import ModelBackend
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+
+User = get_user_model()
+
+
+class EmailOrUsernameBackend(ModelBackend):
+    """
+    Allows authentication using either username or email address.
+    Case-insensitive email lookup.
+    """
+
+    def authenticate(self, request, username=None, password=None, **kwargs):
+        try:
+            user = User.objects.get(
+                Q(username__iexact=username) | Q(email__iexact=username)
+            )
+        except User.DoesNotExist:
+            return None
+        except User.MultipleObjectsReturned:
+            # In case of duplicate emails, fall back to username
+            try:
+                user = User.objects.get(username__iexact=username)
+            except User.DoesNotExist:
+                return None
+
+        if user.check_password(password) and self.user_can_authenticate(user):
+            return user
+        return None

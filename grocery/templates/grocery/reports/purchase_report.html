@@ -1,0 +1,72 @@
+{% extends 'core/core_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>Purchases Report</h4>
+                    <h6>Grocery purchasing summary</h6>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" action="{% url 'grocery:report_purchases' %}" class="row g-3 align-items-end">
+                    <div class="col-md-3"><label class="form-label">From Date</label><input type="date" name="date_from"
+                            value="{{ date_from|default:'' }}" class="form-control"></div>
+                    <div class="col-md-3"><label class="form-label">To Date</label><input type="date" name="date_to"
+                            value="{{ date_to|default:'' }}" class="form-control"></div>
+                    <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Filter</button></div>
+                    <div class="col-md-2"><a href="{% url 'grocery:report_purchases' %}"
+                            class="btn btn-secondary w-100">Reset</a></div>
+                </form>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Spend</h6>
+                        <h4>₹{{ total_purchases|default:"0.00" }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table datatable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Purchase No</th>
+                                <th>Supplier</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in purchases %}
+                            <tr>
+                                <td><a href="{% url 'grocery:purchase_detail' pk=p.pk %}">{{ p.purchase_no }}</a></td>
+                                <td>{{ p.supplier.name }}</td>
+                                <td>{{ p.purchase_date|date:"d/m/Y" }}</td>
+                                <td>₹{{ p.total }}</td>
+                                <td>{% if p.status == 'received' %}<span
+                                        class="badge badge-success badge-xs">Received</span>{% else %}<span
+                                        class="badge badge-warning badge-xs">Pending</span>{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub. All Right Reserved</p>
+    </div>
+</div>
+{% endblock %}

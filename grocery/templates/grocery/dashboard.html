@@ -1,0 +1,166 @@
+{% extends 'grocery/grocery_base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+	<div class="content">
+		<div class="page-header">
+			<div class="add-item d-flex">
+				<div class="page-title">
+					<h4>Grocery Dashboard</h4>
+					<h6>Overview of your grocery store</h6>
+				</div>
+			</div>
+		</div>
+
+		<!-- Stats Cards -->
+		<div class="row">
+			<div class="col-xl-3 col-sm-6 col-12 d-flex">
+				<div class="dash-widget w-100">
+					<div class="dash-widgetcontent">
+						<h5>₹{{ today_sales_total|floatformat:2 }}</h5>
+						<h6>Today's Sales</h6>
+					</div>
+					<div class="dash-widgetimg">
+						<span class="dash-widget-icon bg-success-light"><i class="ti ti-currency-rupee"></i></span>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-3 col-sm-6 col-12 d-flex">
+				<div class="dash-widget w-100">
+					<div class="dash-widgetcontent">
+						<h5>{{ total_products }}</h5>
+						<h6>Total Products</h6>
+					</div>
+					<div class="dash-widgetimg">
+						<span class="dash-widget-icon bg-info-light"><i class="ti ti-box"></i></span>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-3 col-sm-6 col-12 d-flex">
+				<div class="dash-widget dash-widget-danger w-100">
+					<div class="dash-widgetcontent">
+						<h5>{{ low_stock_count }}</h5>
+						<h6>Low Stocks</h6>
+					</div>
+					<div class="dash-widgetimg">
+						<span class="dash-widget-icon bg-danger-light"><i class="ti ti-trending-down"></i></span>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-3 col-sm-6 col-12 d-flex">
+				<div class="dash-widget dash-widget-warning w-100">
+					<div class="dash-widgetcontent">
+						<h5>{{ expired_count }}</h5>
+						<h6>Expired</h6>
+					</div>
+					<div class="dash-widgetimg">
+						<span class="dash-widget-icon bg-warning-light"><i class="ti ti-alert-triangle"></i></span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-xl-3 col-sm-6 col-12 d-flex">
+				<div class="dash-widget w-100">
+					<div class="dash-widgetcontent">
+						<h5>{{ today_sales_count }}</h5>
+						<h6>Today's Orders</h6>
+					</div>
+					<div class="dash-widgetimg">
+						<span class="dash-widget-icon bg-primary-light"><i class="ti ti-shopping-cart"></i></span>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-3 col-sm-6 col-12 d-flex">
+				<div class="dash-widget w-100">
+					<div class="dash-widgetcontent">
+						<h5>₹{{ month_sales_total|floatformat:2 }}</h5>
+						<h6>Monthly Sales</h6>
+					</div>
+					<div class="dash-widgetimg">
+						<span class="dash-widget-icon bg-success-light"><i class="ti ti-chart-line"></i></span>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-3 col-sm-6 col-12 d-flex">
+				<div class="dash-widget w-100">
+					<div class="dash-widgetcontent">
+						<h5>{{ near_expiry_count }}</h5>
+						<h6>Near Expiry</h6>
+					</div>
+					<div class="dash-widgetimg">
+						<span class="dash-widget-icon bg-warning-light"><i class="ti ti-clock"></i></span>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-3 col-sm-6 col-12 d-flex">
+				<div class="dash-widget w-100">
+					<div class="dash-widgetcontent">
+						<h5>{{ active_offers }}</h5>
+						<h6>Active Offers</h6>
+					</div>
+					<div class="dash-widgetimg">
+						<span class="dash-widget-icon bg-info-light"><i class="ti ti-ticket"></i></span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Quick Links -->
+		<div class="row">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<h5 class="card-title">Quick Actions</h5>
+					</div>
+					<div class="card-body">
+						<div class="row g-3">
+							<div class="col-md-2 col-sm-4 col-6">
+								<a href="{% url 'grocery:pos' %}"
+									class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-3">
+									<i class="ti ti-device-laptop"></i> POS
+								</a>
+							</div>
+							<div class="col-md-2 col-sm-4 col-6">
+								<a href="{% url 'grocery:product_create' %}"
+									class="btn btn-info w-100 d-flex align-items-center justify-content-center gap-2 py-3">
+									<i class="ti ti-plus"></i> Add Product
+								</a>
+							</div>
+							<div class="col-md-2 col-sm-4 col-6">
+								<a href="{% url 'grocery:purchase_create' %}"
+									class="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2 py-3">
+									<i class="ti ti-shopping-bag"></i> New Purchase
+								</a>
+							</div>
+							<div class="col-md-2 col-sm-4 col-6">
+								<a href="{% url 'grocery:manage_stock' %}"
+									class="btn btn-warning w-100 d-flex align-items-center justify-content-center gap-2 py-3">
+									<i class="ti ti-stack-3"></i> Stock
+								</a>
+							</div>
+							<div class="col-md-2 col-sm-4 col-6">
+								<a href="{% url 'grocery:report_sales' %}"
+									class="btn btn-dark w-100 d-flex align-items-center justify-content-center gap-2 py-3">
+									<i class="ti ti-chart-bar"></i> Reports
+								</a>
+							</div>
+							<div class="col-md-2 col-sm-4 col-6">
+								<a href="{% url 'grocery:low_stocks' %}"
+									class="btn btn-danger w-100 d-flex align-items-center justify-content-center gap-2 py-3">
+									<i class="ti ti-alert-circle"></i> Low Stock
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+		<p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub</p>
+	</div>
+</div>
+{% endblock %}

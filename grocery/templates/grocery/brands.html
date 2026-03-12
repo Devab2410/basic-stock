@@ -1,0 +1,140 @@
+{% extends 'grocery/grocery_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>Brands</h4>
+                    <h6>Manage your grocery brands</h6>
+                </div>
+            </div>
+            <div class="page-btn"><a href="#" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#add_brand"><i class="ti ti-circle-plus me-1"></i>Add Brand</a></div>
+        </div>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table datatable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="no-sort">
+                                    <div class="form-check form-check-md"><input class="form-check-input"
+                                            type="checkbox" id="select-all"></div>
+                                </th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th class="no-sort">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for brand in brands %}
+                            <tr>
+                                <td>
+                                    <div class="form-check form-check-md"><input class="form-check-input"
+                                            type="checkbox"></div>
+                                </td>
+                                <td>
+                                    <h6 class="fw-medium">{{ brand.name }}</h6>
+                                </td>
+                                <td>{% if brand.is_active %}<span
+                                        class="badge badge-success d-inline-flex align-items-center badge-xs"><i
+                                            class="ti ti-point-filled me-1"></i>Active</span>{% else %}<span
+                                        class="badge badge-danger d-inline-flex align-items-center badge-xs"><i
+                                            class="ti ti-point-filled me-1"></i>Inactive</span>{% endif %}</td>
+                                <td>
+                                    <div class="action-icon d-inline-flex align-items-center">
+                                        <a href="#" class="p-2 d-flex align-items-center border rounded me-2 edit-btn"
+                                            data-bs-toggle="modal" data-bs-target="#edit_brand" data-id="{{ brand.id }}"
+                                            data-name="{{ brand.name }}" data-active="{{ brand.is_active }}"><i
+                                                class="ti ti-edit"></i></a>
+                                        <a href="#" class="p-2 d-flex align-items-center border rounded"
+                                            data-bs-toggle="modal" data-bs-target="#delete_modal"
+                                            onclick="setDeleteId('{{ brand.id }}')"><i class="ti ti-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub</p>
+    </div>
+</div>
+
+<div class="modal fade" id="add_brand">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Brand</h4><button type="button" class="btn-close custom-btn-close p-0"
+                    data-bs-dismiss="modal"><i class="ti ti-x"></i></button>
+            </div>
+            <form action="{% url 'grocery:brands' %}" method="post">{% csrf_token %}<input type="hidden" name="action"
+                    value="create">
+                <div class="modal-body pb-0">
+                    <div class="mb-3"><label class="form-label">Brand Name <span
+                                class="text-danger">*</span></label><input type="text" name="name" class="form-control"
+                            placeholder="Brand Name" required></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary me-2"
+                        data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Add
+                        Brand</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="edit_brand">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Edit Brand</h4><button type="button" class="btn-close custom-btn-close p-0"
+                    data-bs-dismiss="modal"><i class="ti ti-x"></i></button>
+            </div>
+            <form action="{% url 'grocery:brands' %}" method="post">{% csrf_token %}<input type="hidden" name="id"
+                    id="edit_id"><input type="hidden" name="action" value="update">
+                <div class="modal-body pb-0">
+                    <div class="mb-3"><label class="form-label">Brand Name <span
+                                class="text-danger">*</span></label><input type="text" name="name" id="edit_name"
+                            class="form-control" required></div>
+                    <div class="mb-3 status-toggle modal-status d-flex justify-content-between align-items-center"><span
+                            class="status-label">Status</span><input type="checkbox" name="is_active"
+                            id="edit_is_active" class="check"><label for="edit_is_active" class="checktoggle"></label>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary me-2"
+                        data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save
+                        Changes</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="delete_modal">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-body text-center"><span
+                    class="avatar avatar-xl bg-danger-transparent rounded-circle text-danger mb-3"><i
+                        class="ti ti-trash-x fs-36"></i></span>
+                <h4 class="mb-1">Confirm Delete</h4>
+                <p class="mb-3">Delete this brand?</p>
+                <div class="d-flex justify-content-center">
+                    <form method="post" action="{% url 'grocery:brands' %}">{% csrf_token %}<input type="hidden"
+                            name="id" id="delete_id"><input type="hidden" name="action" value="delete"><button
+                            type="submit" class="btn btn-primary">Yes, Delete</button></form><a
+                        href="javascript:void(0);" class="btn btn-secondary ms-3" data-bs-dismiss="modal">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setDeleteId(id) { document.getElementById("delete_id").value = id; }
+    document.addEventListener("DOMContentLoaded", function () { document.querySelectorAll(".edit-btn").forEach(btn => { btn.addEventListener("click", function () { document.getElementById("edit_id").value = this.dataset.id; document.getElementById("edit_name").value = this.dataset.name; document.getElementById("edit_is_active").checked = (this.dataset.active === "True"); }); }); });
+</script>
+{% endblock %}

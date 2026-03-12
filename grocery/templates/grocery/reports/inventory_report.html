@@ -1,0 +1,61 @@
+{% extends 'core/core_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>Inventory Report</h4>
+                    <h6>Current stock levels for all products</h6>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table datatable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Product</th>
+                                <th>Batch No</th>
+                                <th>Location</th>
+                                <th>Quantity</th>
+                                <th>Expiry</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stock in stocks %}
+                            <tr>
+                                <td>
+                                    <h6 class="fw-medium">{{ stock.product.name }}</h6><small class="text-muted">{{
+                                        stock.product.category.name|default:"-" }}</small>
+                                </td>
+                                <td>{{ stock.batch_no|default:"-" }}</td>
+                                <td>{{ stock.rack_location|default:"-" }}</td>
+                                <td>
+                                    {% if stock.is_low_stock %}<span class="text-danger fw-bold">{{ stock.quantity
+                                        }}</span>
+                                    {% else %}{{ stock.quantity }}{% endif %}
+                                </td>
+                                <td>{{ stock.expiry_date|date:"d/m/Y"|default:"-" }}</td>
+                                <td>
+                                    {% if stock.is_expired %}<span class="badge badge-danger badge-xs">Expired</span>
+                                    {% elif stock.is_low_stock %}<span class="badge badge-warning badge-xs">Low
+                                        Stock</span>
+                                    {% else %}<span class="badge badge-success badge-xs">OK</span>{% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub. All Right Reserved</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'grocery/grocery_base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="content">
+        <div class="page-header">
+            <div class="add-item d-flex">
+                <div class="page-title">
+                    <h4>{{ product.name }}</h4>
+                    <h6>Product Details</h6>
+                </div>
+            </div>
+            <div class="page-btn">
+                <a href="{% url 'grocery:product_edit' product.pk %}" class="btn btn-primary me-2"><i
+                        class="ti ti-edit me-1"></i>Edit</a>
+                <a href="{% url 'grocery:product_list' %}" class="btn btn-secondary"><i
+                        class="ti ti-arrow-left me-1"></i>Back</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>SKU:</strong> {{ product.sku|default:"-" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Barcode:</strong> {{ product.barcode|default:"-" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Category:</strong> {{ product.category.name|default:"-" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Brand:</strong> {{ product.brand.name|default:"-" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Unit:</strong> {{ product.unit|default:"-" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>HSN Code:</strong> {{ product.hsn_code|default:"-" }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Purchase Price:</strong> ₹{{ product.purchase_price|floatformat:2 }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Selling Price:</strong> ₹{{ product.selling_price|floatformat:2 }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Tax Rate:</strong> {{ product.tax_rate }}%</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Weight:</strong> {{ product.weight }} {{ product.unit.short_name|default:""
+                                    }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Perishable:</strong> {% if product.is_perishable %}<span
+                                        class="badge badge-warning">Yes</span>{% else %}No{% endif %}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p><strong>Shelf Life:</strong> {{ product.shelf_life_days|default:"N/A" }} days</p>
+                            </div>
+                            <div class="col-12">
+                                <p><strong>Description:</strong> {{ product.description|default:"No description" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Stock Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="text-center mb-3">
+                            <span
+                                class="badge {% if product.current_stock <= 0 %}bg-danger{% elif product.current_stock <= 10 %}bg-warning{% else %}bg-success{% endif %} fs-20 px-4 py-2">
+                                {{ product.current_stock }} units
+                            </span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if stocks %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Stock Batches</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Batch</th>
+                                <th>Qty</th>
+                                <th>Mfg Date</th>
+                                <th>Expiry</th>
+                                <th>Days Left</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in stocks %}
+                            <tr>
+                                <td>{{ s.batch_no|default:"-" }}</td>
+                                <td>{{ s.quantity }}</td>
+                                <td>{{ s.manufacturing_date|default:"-" }}</td>
+                                <td>{{ s.expiry_date|default:"-" }}</td>
+                                <td>{% if s.days_to_expiry != None %}{{ s.days_to_expiry }}{% else %}-{% endif %}</td>
+                                <td>{% if s.is_expired %}<span class="badge badge-danger badge-xs">Expired</span>{% elif
+                                    s.is_low_stock %}<span class="badge badge-warning badge-xs">Low</span>{% else
+                                    %}<span class="badge badge-success badge-xs">OK</span>{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div class="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+        <p class="mb-0 text-gray-9">2014 - 2025 &copy; InventoryHub</p>
+    </div>
+</div>
+{% endblock %}

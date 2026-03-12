@@ -1,0 +1,506 @@
+{% extends 'pharmacy/pharmacy_base.html' %}
+{% load static %}
+
+{% block css %}
+<!-- ✅ Print-only styles: hides everything except the bill -->
+<style>
+	@media print {
+		body * {
+			visibility: hidden !important;
+		}
+
+		#purchase-print-area,
+		#purchase-print-area * {
+			visibility: visible !important;
+		}
+
+		#purchase-print-area {
+			position: fixed !important;
+			top: 0;
+			left: 0;
+			width: 100%;
+			padding: 20px;
+			background: #fff;
+			z-index: 99999;
+		}
+
+		.modal-footer {
+			display: none !important;
+		}
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+	<div class="content">
+		<div class="page-header">
+			<div class="add-item d-flex">
+				<div class="page-title">
+					<h4>Purchases</h4>
+					<h6>Manage pharmacy purchase orders</h6>
+				</div>
+			</div>
+			<ul class="table-top-head">
+				<li><a data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh"><i
+							class="ti ti-refresh"></i></a></li>
+				<li><a data-bs-toggle="tooltip" data-bs-placement="top" title="Collapse" id="collapse-header"><i
+							class="ti ti-chevron-up"></i></a></li>
+			</ul>
+			<div class="page-btn">
+				<a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-purchase"><i
+						data-feather="plus-circle" class="me-1"></i>Add Purchase</a>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+				<div class="search-set hidden!">
+					<div class="search-input hidden!">
+						<span class="btn-searchset"><i class="ti ti-search fs-14 feather-search"></i></span>
+					</div>
+				</div>
+			</div>
+			<div class="card-body p-0">
+				<div class="table-responsive">
+					<table class="table datatable">
+						<thead class="thead-light">
+							<tr>
+								<th>Purchase No.</th>
+								<th>Supplier</th>
+								<th>Date</th>
+								<th>Subtotal</th>
+								<th>Tax</th>
+								<th>Discount</th>
+								<th>Total</th>
+								<th>Status</th>
+								<th class="no-sort">Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for p in purchases %}
+							<tr>
+								<td><a href="{% url 'pharmacy:purchase_detail' p.pk %}"
+										class="text-primary fw-medium">{{ p.purchase_no }}</a></td>
+								<td>{{ p.supplier.name }}</td>
+								<td>{{ p.purchase_date }}</td>
+								<td>₹{{ p.subtotal }}</td>
+								<td>₹{{ p.tax_amount }}</td>
+								<td>₹{{ p.discount }}</td>
+								<td class="fw-bold">₹{{ p.total }}</td>
+								<td>
+									{% if p.status == 'received' %}
+									<span class="badge badge-success badge-xs">Received</span>
+									{% elif p.status == 'partial' %}
+									<span class="badge badge-warning badge-xs">Partial Received</span>
+									{% elif p.status == "draft" %}
+									<span class="badge badge-info badge-xs">Draft</span>
+									{% elif p.status == "cancelled" %}
+									<span class="badge badge-danger badge-xs">Cancelled</span>
+									{% else %}
+									<span class="badge badge-info badge-xs">{{ p.status|title }}</span>
+									{% endif %}
+								</td>
+								<td>
+									<a href="{% url 'pharmacy:purchase_detail' p.pk %}"
+										class="p-2 d-flex align-items-center border rounded me-2 d-inline-flex">
+										<i class="ti ti-eye"></i>
+									</a>
+									<a class="p-2 d-flex align-items-center border rounded me-2 d-inline-flex"
+										data-bs-toggle="modal" data-bs-target="#receive-purchase" data-pk="{{ p.pk }}">
+										<i class="ti ti-pencil"></i>
+									</a>
+									<a class="p-2 d-flex align-items-center border rounded me-2 d-inline-flex"
+										data-bs-toggle="modal" data-bs-target="#delete-purchase" data-pk="{{ p.pk }}">
+										<i class="ti ti-trash"></i>
+									</a>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+<!-- Add Purchase -->
+<div class="modal fade" id="add-purchase">
+	<div class="modal-dialog purchase modal-dialog-centered modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="page-title">
+					<h4>Add Purchase</h4>
+				</div>
+				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form method="POST" action="{% url 'pharmacy:purchase_create' %}">
+				{% csrf_token %}
+				<div class="modal-body">
+					<div class="row">
+						<!-- Supplier -->
+						<div class="col-lg-4 col-md-6 col-sm-12">
+							<div class="mb-3 add-product">
+								<label class="form-label">Supplier Name <span class="text-danger ms-1">*</span></label>
+								<select class="form-control" name="supplier" required>
+									<option value="">Select Supplier</option>
+									{% for supplier in suppliers %}
+									<option value="{{ supplier.id }}">{{ supplier.name }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+
+						<!-- Purchase Date -->
+						<div class="col-lg-4 col-md-6 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">Purchase Date<span class="text-danger ms-1">*</span></label>
+
+								<div class="input-groupicon calender-input">
+									<i data-feather="calendar" class="info-img"></i>
+									<input type="text" class="datetimepicker form-control p-2" name="purchase_date"
+										placeholder="dd/mm/yyyy">
+								</div>
+							</div>
+						</div>
+
+						<!-- Supplier Invoice No -->
+						<div class="col-lg-4 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">Supplier Invoice No</label>
+								<input type="text" class="form-control" name="supplier_invoice_no"
+									placeholder="e.g. INV-2024-001">
+							</div>
+						</div>
+					</div>
+
+					<!-- Items Table -->
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="mb-3 d-flex align-items-center justify-content-between">
+								<label class="form-label mb-0">Products <span class="text-danger ms-1">*</span></label>
+								<button type="button" class="btn btn-sm btn-outline-primary" id="add-purchase-row">
+									<i data-feather="plus"></i> Add Row
+								</button>
+							</div>
+							<div class="col-lg-12">
+								<div class="modal-body-table mt-3">
+									<div class="table-responsive">
+										<table class="table table-bordered rounded-1" id="purchase-items-table">
+											<thead>
+												<tr>
+													<th class="bg-secondary-transparent p-2">Product <span
+															class="text-danger">*</span></th>
+													<th class="bg-secondary-transparent p-2">Qty <span
+															class="text-danger">*</span></th>
+													<th class="bg-secondary-transparent p-2">Unit Price (₹) <span
+															class="text-danger">*</span></th>
+													<th class="bg-secondary-transparent p-2">Tax (%)</th>
+													<th class="bg-secondary-transparent p-2">Tax Amt</th>
+													<th class="bg-secondary-transparent p-2">Subtotal</th>
+													<th class="bg-secondary-transparent p-2">Batch No</th>
+													<th class="bg-secondary-transparent p-2">Expiry Date</th>
+													<th class="bg-secondary-transparent p-2"></th>
+												</tr>
+											</thead>
+											<tbody id="purchase-rows">
+												<!-- Row template (1 default row) -->
+												<tr class="purchase-item-row">
+													<td>
+														<select class="form-control form-control-sm product-select"
+															name="product_id" required>
+															<option value="">Select Product</option>
+															{% for product in products %}
+															<option value="{{ product.id }}">{{ product.name }}
+																{% if product.unit %} ({{ product.unit }}){% endif %}
+															</option>
+															{% endfor %}
+														</select>
+													</td>
+													<td><input type="number"
+															class="form-control form-control-sm row-qty" name="quantity"
+															min="1" value="1" required></td>
+													<td><input type="number"
+															class="form-control form-control-sm row-price"
+															name="unit_price" min="0" step="0.01" value="0.00" required>
+													</td>
+													<td><input type="number"
+															class="form-control form-control-sm row-tax"
+															name="item_tax_rate" min="0" max="100" step="0.01"
+															value="0"></td>
+													<td><input type="text"
+															class="form-control form-control-sm row-tax-amt" readonly
+															placeholder="0.00"></td>
+													<td><input type="text"
+															class="form-control form-control-sm row-subtotal" readonly
+															placeholder="0.00"></td>
+													<td><input type="text" class="form-control form-control-sm"
+															name="batch_no" placeholder="Batch #"></td>
+													<td><input type="date" class="form-control form-control-sm"
+															name="expiry_date"></td>
+													<td>
+														<button type="button" class="btn btn-sm btn-danger remove-row">
+															<i data-feather="trash-2"></i>
+														</button>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Totals Row -->
+					<div class="row mt-3">
+						<div class="col-lg-4 col-md-6 col-sm-12">
+							<div class="mb-3">
+								<label class="form-label">Discount (₹)</label>
+								<input type="number" class="form-control" name="discount" id="purchase-discount" min="0"
+									step="0.01" value="0">
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Status</label>
+								<select class="form-control" name="status">
+									{% for s in status %}
+									<option value="{{ s.0 }}">{{ s.1 }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+						<div class="col-lg-4 col-md-6 col-sm-12 offset-lg-4 text-end">
+							<table class="table table-sm table-borderless">
+								<tr>
+									<th>Subtotal:</th>
+									<td id="summary-subtotal">₹0.00</td>
+								</tr>
+								<tr>
+									<th>Tax:</th>
+									<td id="summary-tax">₹0.00</td>
+								</tr>
+								<tr>
+									<th>Discount:</th>
+									<td id="summary-discount">₹0.00</td>
+								</tr>
+								<tr class="fw-bold border-top">
+									<th>Grand Total:</th>
+									<td id="summary-total">₹0.00</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+
+					<!-- Notes -->
+					<div class="col-lg-12">
+						<div class="mb-3">
+							<label class="form-label">Notes</label>
+							<textarea class="form-control" name="notes" rows="2"
+								placeholder="Optional notes..."></textarea>
+						</div>
+					</div>
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Create Purchase</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<!-- /Add Purchase -->
+
+<!-- Edit Purchase functionality is handled via purchase_detail page -->
+
+
+<!-- Receive Purchase -->
+<div class="modal fade" id="receive-purchase">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="page-title">
+					<h4>Receive Purchase</h4>
+				</div>
+				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form action="{% url 'pharmacy:purchase_receive'  %}" method="post">
+				{% csrf_token %}
+				<input type="hidden" name="pk" id="receive-purchase-pk">
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="mb-3">
+								<label class="form-label">Status<span class="text-danger ms-1">*</span></label>
+								<select class="select" name="status">
+									{% for s in status %}
+									<option value="{{ s.0 }}">{{ s.1 }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Save Changes </button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<!-- /Receive Purchase -->
+
+<!-- Delete Purchase -->
+<div class="modal fade" id="delete-purchase">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="page-title">
+					<h4>Delete Purchase</h4>
+				</div>
+				<button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form action="{% url 'pharmacy:purchase_delete'  %}" method="post">
+				{% csrf_token %}
+				<input type="hidden" name="pk" id="delete-purchase-pk">
+				<div class="modal-body">
+					<p>Are you sure you want to delete this purchase?</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn me-2 btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Delete</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<!-- /Delete Purchase -->
+
+{% endblock %}
+
+{% block js %}
+
+
+<script>
+	// ── Receive Purchase Modal ──────────────────────────────────────────────
+	const receiveModal = document.getElementById('receive-purchase');
+	receiveModal.addEventListener('show.bs.modal', function (event) {
+		const button = event.relatedTarget; // Button that triggered the modal
+		const pk = button.getAttribute('data-pk'); // Extract info from data-bs-* attributes
+
+		// Update the modal's content. We use a hidden input to pass the ID to the form
+		const modalPkInput = receiveModal.querySelector('#receive-purchase-pk');
+		modalPkInput.value = pk;
+	});
+</script>
+
+<script>
+	// ── Delete Purchase Modal ──────────────────────────────────────────────
+	const deleteModal = document.getElementById('delete-purchase');
+	deleteModal.addEventListener('show.bs.modal', function (event) {
+		const button = event.relatedTarget; // Button that triggered the modal
+		const pk = button.getAttribute('data-pk'); // Extract info from data-bs-* attributes
+
+		// Update the modal's content. We use a hidden input to pass the ID to the form
+		const modalPkInput = deleteModal.querySelector('#delete-purchase-pk');
+		modalPkInput.value = pk;
+	});
+</script>
+
+<script>
+	(function () {
+		// ── Row template ──────────────────────────────────────────────
+		function getProductOptions() {
+			// Clone options from an existing select so we don't need server-side re-render
+			return document.querySelector('#purchase-items-table .product-select').innerHTML;
+		}
+
+		function newRow() {
+			const tr = document.createElement('tr');
+			tr.className = 'purchase-item-row';
+			tr.innerHTML = `
+            <td><select class="form-control form-control-sm product-select" name="product_id" required>${getProductOptions()}</select></td>
+            <td><input type="number" class="form-control form-control-sm row-qty" name="quantity" min="1" value="1" required></td>
+            <td><input type="number" class="form-control form-control-sm row-price" name="unit_price" min="0" step="0.01" value="0.00" required></td>
+            <td><input type="number" class="form-control form-control-sm row-tax" name="item_tax_rate" min="0" max="100" step="0.01" value="0"></td>
+            <td><input type="text" class="form-control form-control-sm row-tax-amt" readonly placeholder="0.00"></td>
+            <td><input type="text" class="form-control form-control-sm row-subtotal" readonly placeholder="0.00"></td>
+            <td><input type="text" class="form-control form-control-sm" name="batch_no" placeholder="Batch #"></td>
+            <td><input type="date" class="form-control form-control-sm" name="expiry_date"></td>
+            <td><button type="button" class="btn btn-sm btn-danger remove-row"><i data-feather="trash-2"></i></button></td>
+        `;
+			return tr;
+		}
+
+		// ── Recalculate a single row ──────────────────────────────────
+		function calcRow(row) {
+			const qty = parseFloat(row.querySelector('.row-qty').value) || 0;
+			const price = parseFloat(row.querySelector('.row-price').value) || 0;
+			const taxRate = parseFloat(row.querySelector('.row-tax').value) || 0;
+			const subtotal = qty * price;
+			const taxAmt = (subtotal * taxRate) / 100;
+			row.querySelector('.row-subtotal').value = subtotal.toFixed(2);
+			row.querySelector('.row-tax-amt').value = taxAmt.toFixed(2);
+			return { subtotal, taxAmt };
+		}
+
+		// ── Recalculate grand totals ──────────────────────────────────
+		function calcTotals() {
+			let totalSubtotal = 0, totalTax = 0;
+			document.querySelectorAll('#purchase-rows .purchase-item-row').forEach(row => {
+				const { subtotal, taxAmt } = calcRow(row);
+				totalSubtotal += subtotal;
+				totalTax += taxAmt;
+			});
+			const discount = parseFloat(document.getElementById('purchase-discount').value) || 0;
+			const grandTotal = totalSubtotal + totalTax - discount;
+
+			document.getElementById('summary-subtotal').textContent = '₹' + totalSubtotal.toFixed(2);
+			document.getElementById('summary-tax').textContent = '₹' + totalTax.toFixed(2);
+			document.getElementById('summary-discount').textContent = '₹' + discount.toFixed(2);
+			document.getElementById('summary-total').textContent = '₹' + grandTotal.toFixed(2);
+		}
+
+		// ── Event delegation ─────────────────────────────────────────
+		const tbody = document.getElementById('purchase-rows');
+
+		tbody.addEventListener('input', function (e) {
+			const row = e.target.closest('.purchase-item-row');
+			if (row) calcTotals();
+		});
+
+		tbody.addEventListener('click', function (e) {
+			if (e.target.closest('.remove-row')) {
+				const rows = tbody.querySelectorAll('.purchase-item-row');
+				if (rows.length > 1) {
+					e.target.closest('.purchase-item-row').remove();
+					calcTotals();
+					if (typeof feather !== 'undefined') feather.replace();
+				}
+			}
+		});
+
+		document.getElementById('add-purchase-row').addEventListener('click', function () {
+			tbody.appendChild(newRow());
+			if (typeof feather !== 'undefined') feather.replace();
+		});
+
+		document.getElementById('purchase-discount').addEventListener('input', calcTotals);
+
+		// Init on modal open
+		document.getElementById('add-purchase').addEventListener('shown.bs.modal', function () {
+			calcTotals();
+			if (typeof feather !== 'undefined') feather.replace();
+		});
+	})();
+</script>
+{% endblock %}
