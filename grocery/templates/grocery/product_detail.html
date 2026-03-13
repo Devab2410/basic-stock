@@ -50,8 +50,8 @@
                                 <p><strong>Tax Rate:</strong> {{ product.tax_rate }}%</p>
                             </div>
                             <div class="col-md-4">
-                                <p><strong>Weight:</strong> {{ product.weight }} {{ product.unit.short_name|default:""
-                                    }}</p>
+                                <p><strong>Weight:</strong> {{ product.weight }} 
+                                    {{ product.unit.short_name|default:"" }}</p>
                             </div>
                             <div class="col-md-4">
                                 <p><strong>Perishable:</strong> {% if product.is_perishable %}<span
@@ -110,9 +110,9 @@
                                 <td>{{ s.manufacturing_date|default:"-" }}</td>
                                 <td>{{ s.expiry_date|default:"-" }}</td>
                                 <td>{% if s.days_to_expiry != None %}{{ s.days_to_expiry }}{% else %}-{% endif %}</td>
-                                <td>{% if s.is_expired %}<span class="badge badge-danger badge-xs">Expired</span>{% elif
-                                    s.is_low_stock %}<span class="badge badge-warning badge-xs">Low</span>{% else
-                                    %}<span class="badge badge-success badge-xs">OK</span>{% endif %}</td>
+                                <td>{% if s.is_expired %}<span class="badge badge-danger badge-xs">Expired</span>
+                                    {% elif s.is_low_stock %}<span class="badge badge-warning badge-xs">Low</span>
+                                    {% else %}<span class="badge badge-success badge-xs">OK</span>{% endif %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

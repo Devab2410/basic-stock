@@ -34,6 +34,13 @@
             </div>
         </div>
         <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+                <div class="search-set">
+                    <div class="search-input">
+                        <span class="btn-searchset"><i class="ti ti-search fs-14 feather-search"></i></span>
+                    </div>
+                </div>
+            </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table datatable">
@@ -49,16 +56,16 @@
                         <tbody>
                             {% for purchase in purchases %}
                             <tr>
-                                <td><a href="{% url 'grocery:purchase_detail' purchase.pk %}">{{ purchase.purchase_no
-                                        }}</a></td>
+                                <td><a href="{% url 'grocery:purchase_detail' purchase.pk %}">
+                                    {{ purchase.purchase_no }}</a></td>
                                 <td>{{ purchase.supplier.name }}</td>
                                 <td>{{ purchase.purchase_date|date:"d M Y" }}</td>
                                 <td>₹{{ purchase.total|floatformat:2 }}</td>
                                 <td>{% if purchase.status == 'received' %}<span
-                                        class="badge badge-success badge-xs">Received</span>{% elif purchase.status ==
-                                    'cancelled' %}<span class="badge badge-danger badge-xs">Cancelled</span>{% else
-                                    %}<span class="badge badge-warning badge-xs">{{ purchase.status|title }}</span>{%
-                                    endif %}</td>
+                                        class="badge badge-success badge-xs">Received</span>
+                                        {% elif purchase.status == 'cancelled' %}<span class="badge badge-danger badge-xs">Cancelled</span>
+                                        {% else %}<span class="badge badge-warning badge-xs">{{ purchase.status|title }}</span>
+                                        {% endif %}</td>
                             </tr>{% endfor %}
                         </tbody>
                     </table>

@@ -33,6 +33,13 @@
 		</div>
 
 		<div class="card">
+			<div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+				<div class="search-set">
+					<div class="search-input">
+						<span class="btn-searchset"><i class="ti ti-search fs-14 feather-search"></i></span>
+					</div>
+				</div>
+			</div>
 			<div class="card-body p-0">
 				<div class="table-responsive">
 					<table class="table datatable">
@@ -60,8 +67,8 @@
 											type="checkbox"></div>
 								</td>
 								<td>
-									<h6 class="fw-medium"><a href="{% url 'grocery:product_detail' product.pk %}">{{
-											product.name }}</a></h6>
+									<h6 class="fw-medium"><a href="{% url 'grocery:product_detail' product.pk %}">
+										{{ product.name }}</a></h6>
 								</td>
 								<td>{{ product.sku|default:"-" }}</td>
 								<td>{{ product.category.name|default:"-" }}</td>
@@ -69,8 +76,8 @@
 								<td>₹{{ product.purchase_price|floatformat:2 }}</td>
 								<td>₹{{ product.selling_price|floatformat:2 }}</td>
 								<td><span
-										class="badge {% if product.current_stock <= 0 %}badge-danger{% elif product.current_stock <= 10 %}badge-warning{% else %}badge-success{% endif %} badge-xs">{{
-										product.current_stock }}</span></td>
+										class="badge {% if product.current_stock <= 0 %}badge-danger{% elif product.current_stock <= 10 %}badge-warning{% else %}badge-success{% endif %} badge-xs">
+										{{ product.current_stock }}</span></td>
 								<td>
 									<div class="action-icon d-inline-flex align-items-center">
 										<a href="{% url 'grocery:product_detail' product.pk %}"
@@ -105,8 +112,8 @@
 						href="?page={{ num }}{% if q %}&q={{ q }}{% endif %}">{{ num }}</a></li>
 				{% endfor %}
 				{% if page_obj.has_next %}<li class="page-item"><a class="page-link"
-						href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}">&raquo;</a></li>{%
-				endif %}
+						href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}">&raquo;</a></li>
+				{% endif %}
 			</ul>
 		</nav>
 		{% endif %}
