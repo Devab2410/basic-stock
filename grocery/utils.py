@@ -28,10 +28,10 @@ def generate_purchase_no(store):
 
 
 def generate_sale_no(store):
-    """Generate sequential sale number: GRO-SALE-{store_code}-{year}-{seq:05d}"""
+    """Generate sequential sale number: SALE-{store_code}-{year}-{seq:05d}"""
     from .models import GrocerySale
     year = date.today().year
-    prefix = f"GRO-{store.store_code}-{year}-"
+    prefix = f"SALE-{store.store_code}-{year}-"
     last = (
         GrocerySale.objects.filter(sale_no__startswith=prefix)
         .order_by('-sale_no')

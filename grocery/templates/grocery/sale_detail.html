@@ -51,14 +51,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for item in items %}
+                                    {% for item in sale.items.all %}
                                     <tr>
                                         <td>{{ item.product.name }}</td>
                                         <td>{{ item.quantity }}</td>
-                                        <td>₹{{ item.price|floatformat:2 }}</td>
+                                        <td>₹{{ item.unit_price|floatformat:2 }}</td>
                                         <td>{{ item.tax_rate|default:"0" }}%</td>
                                         <td>₹{{ item.discount|floatformat:2 }}</td>
-                                        <td>₹{{ item.total|floatformat:2 }}</td>
+                                        <td>₹{{ item.subtotal|floatformat:2 }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

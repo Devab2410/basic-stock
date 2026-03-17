@@ -14,6 +14,13 @@
                         class="ti ti-circle-plus me-1"></i>New Purchase</a></div>
         </div>
         <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+                <div class="search-set">
+                    <div class="search-input">
+                        <span class="btn-searchset"><i class="ti ti-search fs-14 feather-search"></i></span>
+                    </div>
+                </div>
+            </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table datatable">
@@ -32,8 +39,8 @@
                             {% for purchase in purchases %}
                             <tr>
                                 <td>
-                                    <h6 class="fw-medium"><a href="{% url 'grocery:purchase_detail' purchase.pk %}">{{
-                                            purchase.purchase_no }}</a></h6>
+                                    <h6 class="fw-medium"><a href="{% url 'grocery:purchase_detail' purchase.pk %}">
+                                        {{ purchase.purchase_no }}</a></h6>
                                 </td>
                                 <td>{{ purchase.supplier.name }}</td>
                                 <td>{{ purchase.supplier_invoice_no|default:"-" }}</td>

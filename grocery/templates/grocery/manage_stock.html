@@ -39,15 +39,15 @@
                                 </td>
                                 <td>{{ stock.batch_no|default:"-" }}</td>
                                 <td><span
-                                        class="badge {% if stock.is_low_stock %}badge-warning{% elif stock.quantity <= 0 %}badge-danger{% else %}badge-success{% endif %} badge-xs">{{
-                                        stock.quantity }}</span></td>
+                                        class="badge {% if stock.is_low_stock %}badge-warning{% elif stock.quantity <= 0 %}badge-danger{% else %}badge-success{% endif %} badge-xs">
+                                        {{ stock.quantity }}</span></td>
                                 <td>{{ stock.warehouse|default:"-" }}</td>
                                 <td>{{ stock.rack_location|default:"-" }}</td>
                                 <td>{{ stock.manufacturing_date|default:"-" }}</td>
                                 <td>{{ stock.expiry_date|default:"-" }}</td>
                                 <td>{% if stock.days_to_expiry != None %}<span
-                                        class="{% if stock.days_to_expiry <= 5 %}text-danger fw-bold{% elif stock.days_to_expiry <= 15 %}text-warning{% endif %}">{{
-                                        stock.days_to_expiry }}</span>{% else %}-{% endif %}</td>
+                                        class="{% if stock.days_to_expiry <= 5 %}text-danger fw-bold{% elif stock.days_to_expiry <= 15 %}text-warning{% endif %}">
+                                        {{ stock.days_to_expiry }}</span>{% else %}-{% endif %}</td>
                                 <td>
                                     {% if stock.is_expired %}<span class="badge badge-danger badge-xs">Expired</span>
                                     {% elif stock.is_low_stock %}<span class="badge badge-warning badge-xs">Low</span>

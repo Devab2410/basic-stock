@@ -82,8 +82,8 @@
                     <h5 class="mb-2"><i class="ti ti-shopping-cart me-2"></i>Cart</h5>
                     <select id="customerSelect" class="form-select form-select-sm">
                         <option value="">Walk-in Customer</option>
-                        {% for c in customers %}<option value="{{ c.id }}">{{ c.name|default:c.phone }}</option>{%
-                        endfor %}
+                        {% for c in customers %}<option value="{{ c.id }}">{{ c.name|default:c.phone }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="cart-items p-3" id="cartItems">
@@ -112,7 +112,7 @@
                     </div>
                     <form method="post" id="posForm">
                         {% csrf_token %}
-                        <input type="hidden" name="cart_data" id="cartData">
+                        <div id="cartFields"></div>
                         <input type="hidden" name="customer" id="custInput">
                         <input type="hidden" name="payment_method" id="payInput">
                         <input type="hidden" name="discount" id="discInput">
@@ -203,8 +203,17 @@
     document.getElementById('discountInput').addEventListener('input', updateTotals);
 
     document.getElementById('posForm').addEventListener('submit', function (e) {
-        const items = Object.values(cart).map(item => ({ product_id: item.id, quantity: item.qty, price: item.price, tax_rate: item.tax }));
-        document.getElementById('cartData').value = JSON.stringify(items);
+        const items = Object.values(cart);
+        if (!items.length) { e.preventDefault(); alertify.error('Add at least one item.'); return; }
+        const fields = document.getElementById('cartFields');
+        fields.innerHTML = '';
+        items.forEach(item => {
+            fields.insertAdjacentHTML('beforeend',
+                `<input type="hidden" name="product_id" value="${item.id}">` +
+                `<input type="hidden" name="sale_qty" value="${item.qty}">` +
+                `<input type="hidden" name="sale_price" value="${item.price}">`
+            );
+        });
         document.getElementById('custInput').value = document.getElementById('customerSelect').value;
         document.getElementById('payInput').value = document.getElementById('paymentMethod').value;
         document.getElementById('discInput').value = document.getElementById('discountInput').value || '0';

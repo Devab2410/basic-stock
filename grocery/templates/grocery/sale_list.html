@@ -14,6 +14,13 @@
                         class="ti ti-device-laptop me-1"></i>New Sale (POS)</a></div>
         </div>
         <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+                <div class="search-set">
+                    <div class="search-input">
+                        <span class="btn-searchset"><i class="ti ti-search fs-14 feather-search"></i></span>
+                    </div>
+                </div>
+            </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table datatable">
@@ -32,19 +39,21 @@
                             {% for sale in sales %}
                             <tr>
                                 <td>
-                                    <h6 class="fw-medium"><a href="{% url 'grocery:sale_detail' sale.pk %}">{{
-                                            sale.sale_no }}</a></h6>
+                                    <h6 class="fw-medium"><a href="{% url 'grocery:sale_detail' sale.pk %}">
+                                        {{ sale.sale_no }}</a></h6>
                                 </td>
                                 <td>{{ sale.customer.name|default:"Walk-in" }}</td>
                                 <td>{{ sale.sale_date|date:"d M Y H:i" }}</td>
                                 <td>₹{{ sale.total|floatformat:2 }}</td>
-                                <td><span class="badge badge-primary badge-xs">{{ sale.get_payment_method_display
-                                        }}</span></td>
-                                <td>{% if sale.status == 'completed' %}<span
-                                        class="badge badge-success badge-xs">Completed</span>{% elif sale.status ==
-                                    'refunded' %}<span class="badge badge-danger badge-xs">Refunded</span>{% else
-                                    %}<span class="badge badge-warning badge-xs">{{ sale.status|title }}</span>{% endif
-                                    %}</td>
+                                <td><span class="badge badge-primary badge-xs">
+                                    {{ sale.get_payment_method_display }}</span></td>
+                                <td>{% if sale.status == 'paid' %}<span
+                                        class="badge badge-success badge-xs">Paid</span>
+                                    {% elif sale.status == 'returned' %}<span class="badge badge-danger badge-xs">Returned</span>
+                                    {% elif sale.status == 'partial' %}<span class="badge badge-warning badge-xs">Partial</span>
+                                    {% else %}<span class="badge badge-secondary badge-xs">{{ sale.status|title }}</span>
+                                    {% endif %}
+                                </td>
                                 <td><a href="{% url 'grocery:sale_detail' sale.pk %}"
                                         class="p-2 d-flex align-items-center border rounded"><i
                                             class="ti ti-eye"></i></a></td>

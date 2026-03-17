@@ -60,7 +60,7 @@ urlpatterns = [
 
     # ── AJAX ─────────────────────────────────────────────────────
     path('api/products/search/', views.product_search_api, name='api_product_search'),
-    path('api/stock/check/', views.stock_check_api, name='api_stock_check'),
+    path('api/stock/check/ ', views.stock_check_api, name='api_stock_check'),
 
     # ── Reports ──────────────────────────────────────────────────
     path('reports/sales/', views.report_sales, name='report_sales'),

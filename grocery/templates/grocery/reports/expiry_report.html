@@ -13,11 +13,11 @@
             <ul class="table-top-head">
                 <form method="get" action="{% url 'grocery:report_expiry' %}" class="d-flex gap-2 align-items-center">
                     <select name="days" class="form-select form-select-sm" style="width:120px">
-                        <option value="7" {% if days==7 %}selected{% endif %}>7 days</option>
-                        <option value="14" {% if days==14 %}selected{% endif %}>14 days</option>
-                        <option value="30" {% if days==30 %}selected{% endif %}>30 days</option>
-                        <option value="60" {% if days==60 %}selected{% endif %}>60 days</option>
-                        <option value="90" {% if days==90 %}selected{% endif %}>90 days</option>
+                        <option value="7" {% if days == 7 %}selected{% endif %}>7 days</option>
+                        <option value="14" {% if days == 14 %}selected{% endif %}>14 days</option>
+                        <option value="30" {% if days == 30 %}selected{% endif %}>30 days</option>
+                        <option value="60" {% if days == 60 %}selected{% endif %}>60 days</option>
+                        <option value="90" {% if days == 90 %}selected{% endif %}>90 days</option>
                     </select>
                     <button type="submit" class="btn btn-sm btn-primary">Filter</button>
                 </form>
@@ -48,8 +48,8 @@
                                 <td>
                                     {% if stock.days_to_expiry is not None %}
                                     <span
-                                        class="badge {% if stock.days_to_expiry <= 3 %}badge-danger{% else %}badge-warning{% endif %} badge-xs">{{
-                                        stock.days_to_expiry }} days</span>
+                                        class="badge {% if stock.days_to_expiry <= 3 %}badge-danger{% else %}badge-warning{% endif %} badge-xs">
+                                        {{ stock.days_to_expiry }} days</span>
                                     {% else %}-{% endif %}
                                 </td>
                             </tr>

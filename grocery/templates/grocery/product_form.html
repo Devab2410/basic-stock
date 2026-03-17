@@ -35,23 +35,23 @@
 							<div class="mb-3"><label class="form-label">Category</label><select name="category"
 									class="form-select select">
 									<option value="">-- Select --</option>{% for cat in categories %}<option
-										value="{{ cat.id }}" {% if product.category_id==cat.id %}selected{% endif %}>{{
-										cat.name }}</option>{% endfor %}
+										value="{{ cat.id }}" {% if product.category_id == cat.id %}selected{% endif %}>
+										{{ cat.name }}</option>{% endfor %}
 								</select></div>
 						</div>
 						<div class="col-md-4">
 							<div class="mb-3"><label class="form-label">Brand</label><select name="brand"
 									class="form-select select">
 									<option value="">-- Select --</option>{% for b in brands %}<option
-										value="{{ b.id }}" {% if product.brand_id==b.id %}selected{% endif %}>{{ b.name
-										}}</option>{% endfor %}
+										value="{{ b.id }}" {% if product.brand_id == b.id %} selected {% endif %}>
+										{{ b.name }}</option>{% endfor %}
 								</select></div>
 						</div>
 						<div class="col-md-4">
 							<div class="mb-3"><label class="form-label">Unit</label><select name="unit"
 									class="form-select select">
 									<option value="">-- Select --</option>{% for u in units %}<option value="{{ u.id }}"
-										{% if product.unit_id==u.id %}selected{% endif %}>{{ u }}</option>{% endfor %}
+										{% if product.unit_id == u.id %} selected {% endif %}>{{ u }}</option>{% endfor %}
 								</select></div>
 						</div>
 						<div class="col-md-3">
@@ -87,8 +87,8 @@
 							<div
 								class="mb-3 status-toggle modal-status d-flex justify-content-between align-items-center">
 								<span class="status-label">Perishable</span><input type="checkbox" name="is_perishable"
-									id="is_perishable" class="check" {% if product.is_perishable %}checked{% endif
-									%}><label for="is_perishable" class="checktoggle"></label></div>
+									id="is_perishable" class="check" {% if product.is_perishable %}checked
+									{% endif %}><label for="is_perishable" class="checktoggle"></label></div>
 						</div>
 						<div class="col-12">
 							<div class="mb-3"><label class="form-label">Description</label><textarea name="description"

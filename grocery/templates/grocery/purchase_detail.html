@@ -113,13 +113,13 @@
                             {% csrf_token %}
                             <div class="mb-3">
                                 <select name="status" class="form-select">
-                                    <option value="draft" {% if purchase.status=='draft' %}selected{% endif %}>Draft
+                                    <option value="draft" {% if purchase.status == 'draft' %}selected{% endif %}>Draft
                                     </option>
-                                    <option value="partial" {% if purchase.status=='partial' %}selected{% endif %}>
+                                    <option value="partial" {% if purchase.status == 'partial' %}selected{% endif %}>
                                         Partially Received</option>
-                                    <option value="received" {% if purchase.status=='received' %}selected{% endif %}>
+                                    <option value="received" {% if purchase.status == 'received' %}selected{% endif %}>
                                         Fully Received</option>
-                                    <option value="cancelled" {% if purchase.status=='cancelled' %}selected{% endif %}>
+                                    <option value="cancelled" {% if purchase.status == 'cancelled' %}selected{% endif %}>
                                         Cancelled</option>
                                 </select>
                             </div>

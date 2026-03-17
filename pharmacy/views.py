@@ -13,10 +13,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import Q, Sum, Prefetch
+from django.db.models import Q, Sum, Prefetch, Count, F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
+from datetime import date, timedelta
 
 from .models import (
     PharmacyBrand,
@@ -80,10 +81,268 @@ def _to_int(val, default=0):
 # DASHBOARD
 # ──────────────────────────────────────────────────────────────────
 
+def get_dashboard_stats1(store):
+    today = date.today()
+    month_start = today.replace(day=1)
+    last_month_start = (month_start - timedelta(days=1)).replace(day=1)
+    last_month_end = month_start - timedelta(days=1)
+    thirty_days_ago = today - timedelta(days=30)
+
+    # ── Sales totals ─────────────────────────────────────────
+    sales_qs = PharmacySale.objects.filter(store=store)
+
+    total_sales = sales_qs.filter(
+        status__in=['paid', 'partial']
+    ).aggregate(total=Sum('total'))['total'] or 0
+
+    this_month_sales = sales_qs.filter(
+        sale_date__date__gte=month_start,
+        status__in=['paid', 'partial']
+    ).aggregate(total=Sum('total'))['total'] or 0
+
+    last_month_sales = sales_qs.filter(
+        sale_date__date__gte=last_month_start,
+        sale_date__date__lte=last_month_end,
+        status__in=['paid', 'partial']
+    ).aggregate(total=Sum('total'))['total'] or 0
+
+    sales_change = 0
+    if last_month_sales:
+        sales_change = round(
+            ((this_month_sales - last_month_sales) / last_month_sales) * 100, 1
+        )
+
+    today_sales = sales_qs.filter(
+        sale_date__date=today
+    ).aggregate(total=Sum('total'))['total'] or 0
+
+    today_order_count = sales_qs.filter(sale_date__date=today).count()
+
+    # ── Sale Returns ─────────────────────────────────────────
+    from .models import PharmacySaleReturn
+    total_sale_returns = PharmacySaleReturn.objects.filter(
+        sale__store=store
+    ).aggregate(total=Sum('total_refund'))['total'] or 0
+
+    # ── Purchase totals ───────────────────────────────────────
+    purchase_qs = PharmacyPurchase.objects.filter(store=store)
+
+    total_purchase = purchase_qs.filter(
+        status__in=['received', 'partial']
+    ).aggregate(total=Sum('total'))['total'] or 0
+
+    this_month_purchase = purchase_qs.filter(
+        purchase_date__gte=month_start,
+        status__in=['received', 'partial']
+    ).aggregate(total=Sum('total'))['total'] or 0
+
+    last_month_purchase = purchase_qs.filter(
+        purchase_date__gte=last_month_start,
+        purchase_date__lte=last_month_end,
+        status__in=['received', 'partial']
+    ).aggregate(total=Sum('total'))['total'] or 0
+
+    purchase_change = 0
+    if last_month_purchase:
+        purchase_change = round(
+            ((this_month_purchase - last_month_purchase) / last_month_purchase) * 100, 1
+        )
+
+    # ── Profit ────────────────────────────────────────────────
+    # Approximate profit: sales revenue - purchase cost for sold items
+    sold_items = PharmacySaleItem.objects.filter(
+        sale__store=store,
+        sale__status__in=['paid', 'partial'],
+        sale__sale_date__date__gte=month_start,
+    ).select_related('product')
+
+    revenue = sum(item.subtotal for item in sold_items)
+    cogs = sum(
+        item.product.purchase_price * item.quantity for item in sold_items
+    )
+    profit = float(revenue) - float(cogs)
+
+    # ── Counts ────────────────────────────────────────────────
+    total_customers = PharmacyCustomer.objects.filter(store=store, is_active=True).count()
+    total_suppliers = PharmacySupplier.objects.filter(store=store, is_active=True).count()
+    total_products = PharmacyProduct.objects.filter(store=store, is_active=True).count()
+    total_categories = PharmacyCategory.objects.filter(store=store, is_active=True).count()
+
+    # ── Low stock ─────────────────────────────────────────────
+    low_stock_items = (
+        PharmacyStock.objects
+        .for_store(store)
+        .low_stock()
+        .select_related('product', 'product__category')
+        .order_by('quantity')[:10]
+    )
+
+    # ── Near-expiry & expired ─────────────────────────────────
+    near_expiry_items = (
+        PharmacyStock.objects
+        .for_store(store)
+        .near_expiry(days=30)
+        .select_related('product')
+        .order_by('expiry_date')[:10]
+    )
+
+    expired_count = PharmacyStock.objects.for_store(store).expired().count()
+
+    # ── Recent sales ──────────────────────────────────────────
+    recent_sales = (
+        sales_qs
+        .select_related('customer', 'biller')
+        .prefetch_related('items__product')
+        .order_by('-sale_date')[:10]
+    )
+
+    # ── Recent purchases ──────────────────────────────────────
+    recent_purchases = (
+        purchase_qs
+        .select_related('supplier', 'created_by')
+        .order_by('-purchase_date')[:10]
+    )
+
+    # ── Top selling products (last 30 days) ───────────────────
+    top_products = (
+        PharmacySaleItem.objects
+        .filter(
+            sale__store=store,
+            sale__sale_date__date__gte=thirty_days_ago,
+        )
+        .values('product__id', 'product__name')
+        .annotate(
+            total_qty=Sum('quantity'),
+            total_revenue=Sum('subtotal'),
+        )
+        .order_by('-total_qty')[:5]
+    )
+
+    # ── Top customers (last 30 days) ──────────────────────────
+    top_customers = (
+        sales_qs
+        .filter(
+            sale_date__date__gte=thirty_days_ago,
+            customer__isnull=False,
+            status__in=['paid', 'partial'],
+        )
+        .values('customer__id', 'customer__name', 'customer__phone')
+        .annotate(
+            order_count=Count('id'),
+            total_spent=Sum('total'),
+        )
+        .order_by('-total_spent')[:5]
+    )
+
+    # ── Monthly sales chart data (last 6 months) ──────────────
+    monthly_sales = []
+    monthly_purchases = []
+    month_labels = []
+
+    for i in range(5, -1, -1):
+        # Calculate month boundaries
+        first_of_current = today.replace(day=1)
+        target_month = first_of_current - timedelta(days=i * 30)
+        m_start = target_month.replace(day=1)
+        if m_start.month == 12:
+            m_end = m_start.replace(year=m_start.year + 1, month=1, day=1) - timedelta(days=1)
+        else:
+            m_end = m_start.replace(month=m_start.month + 1, day=1) - timedelta(days=1)
+
+        sale_total = sales_qs.filter(
+            sale_date__date__gte=m_start,
+            sale_date__date__lte=m_end,
+            status__in=['paid', 'partial'],
+        ).aggregate(total=Sum('total'))['total'] or 0
+
+        purch_total = purchase_qs.filter(
+            purchase_date__gte=m_start,
+            purchase_date__lte=m_end,
+            status__in=['received', 'partial'],
+        ).aggregate(total=Sum('total'))['total'] or 0
+
+        monthly_sales.append(float(sale_total))
+        monthly_purchases.append(float(purch_total))
+        month_labels.append(m_start.strftime('%b %Y'))
+
+    # ── Top categories ────────────────────────────────────────
+    top_categories = (
+        PharmacySaleItem.objects
+        .filter(
+            sale__store=store,
+            sale__sale_date__date__gte=thirty_days_ago,
+            product__category__isnull=False,
+        )
+        .values('product__category__id', 'product__category__name')
+        .annotate(
+            total_qty=Sum('quantity'),
+            total_revenue=Sum('subtotal'),
+        )
+        .order_by('-total_qty')[:5]
+    )
+
+    # ── Invoice dues (sales with pending/partial status) ──────
+    invoice_due = sales_qs.filter(
+        status__in=['pending', 'partial']
+    ).aggregate(
+        total_due=Sum(F('total') - F('amount_paid'))
+    )['total_due'] or 0
+
+    # ── Today's order count for alert ─────────────────────────
+    alert_low_stock = (
+        PharmacyStock.objects
+        .for_store(store)
+        .low_stock()
+        .select_related('product')
+        .first()
+    )
+
+    return {
+        # Summary cards
+        'total_sales': total_sales,
+        'total_sale_returns': total_sale_returns,
+        'total_purchase': total_purchase,
+        'invoice_due': invoice_due,
+        'profit': profit,
+        'sales_change': sales_change,
+        'purchase_change': purchase_change,
+
+        # Today
+        'today_sales': today_sales,
+        'today_order_count': today_order_count,
+
+        # Counts
+        'total_customers': total_customers,
+        'total_suppliers': total_suppliers,
+        'total_products': total_products,
+        'total_categories': total_categories,
+
+        # Stock alerts
+        'low_stock_items': low_stock_items,
+        'near_expiry_items': near_expiry_items,
+        'expired_count': expired_count,
+        'alert_low_stock': alert_low_stock,  # For the top alert banner
+
+        # Lists
+        'recent_sales': recent_sales,
+        'recent_purchases': recent_purchases,
+        'top_products': top_products,
+        'top_customers': top_customers,
+        'top_categories': top_categories,
+
+        # Chart data (JSON-serializable)
+        'chart_month_labels': month_labels,
+        'chart_monthly_sales': monthly_sales,
+        'chart_monthly_purchases': monthly_purchases,
+    }
+
+
+
+
 @_require_store
 def dashboard(request):
     store = _get_store(request)
-    ctx = get_dashboard_stats(store)
+    ctx = get_dashboard_stats1(store)
     return render(request, 'pharmacy/dashboard.html', ctx)
 
 
