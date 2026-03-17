@@ -1,2 +1,10 @@
 /template1
 venv/
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+.vscode/
+*.log
+*.env
+.venv

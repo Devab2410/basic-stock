@@ -427,7 +427,165 @@ def product_detail(request, pk):
             "images": images,
         })
 
-    return JsonResponse({"error": "Invalid request"}, status=400)
+    return render(request, 'pharmacy/product_detail.html', {'product': product})
+
+
+@_require_store
+def pharmacy_customer_shop(request):
+    """Customer-facing pharmacy product catalog — search, browse by category."""
+    store = _get_store(request)
+
+    categories = PharmacyCategory.objects.filter(
+        store=store, is_active=True
+    ).order_by('name')
+
+    q = request.GET.get('q', '').strip()
+    cat_id = request.GET.get('category', '').strip()
+
+    products_qs = (
+        PharmacyProduct.objects
+        .filter(store=store, is_active=True)
+        .select_related('category', 'brand', 'unit')
+        .prefetch_related('images')
+        .order_by('name')
+    )
+
+    if q:
+        products_qs = products_qs.filter(
+            Q(name__icontains=q) |
+            Q(brand__name__icontains=q) |
+            Q(description__icontains=q)
+        )
+    if cat_id:
+        products_qs = products_qs.filter(category_id=cat_id)
+
+    selected_category = None
+    if cat_id:
+        selected_category = PharmacyCategory.objects.filter(pk=cat_id, store=store).first()
+
+    total_count = products_qs.count()
+    paginator = Paginator(products_qs, 12)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    # Build per-product display data (MRP, discount, stock)
+    product_data = []
+    for p in page_obj:
+        sp = p.selling_price or Decimal('0')
+        tax = p.tax_rate or Decimal('0')
+        if tax > 0:
+            mrp = (sp * (Decimal('1') + tax / Decimal('100'))).quantize(Decimal('0.01'))
+            disc = int(((mrp - sp) / mrp) * 100)
+        else:
+            mrp = (sp * Decimal('1.12')).quantize(Decimal('0.01'))
+            disc = 12
+        stock_qty = p.current_stock
+        # primary image
+        primary_img = None
+        for img in p.images.all():
+            if img.is_primary:
+                primary_img = img
+                break
+        if not primary_img:
+            imgs = list(p.images.all())
+            primary_img = imgs[0] if imgs else None
+        product_data.append({
+            'product': p,
+            'mrp': mrp,
+            'discount_pct': disc,
+            'in_stock': stock_qty > 0,
+            'stock_qty': stock_qty,
+            'primary_img': primary_img,
+        })
+
+    context = {
+        'categories': categories,
+        'page_obj': page_obj,
+        'product_data': product_data,
+        'q': q,
+        'cat_id': cat_id,
+        'selected_category': selected_category,
+        'total_count': total_count,
+    }
+    return render(request, 'pharmacy/shop.html', context)
+
+
+@_require_store
+def product_detail_modern(request, pk):
+    """Customer-facing product detail page with full dynamic data."""
+    from datetime import date as today_date
+    store = _get_store(request)
+    product = get_object_or_404(
+        PharmacyProduct.objects.select_related('category', 'brand', 'unit'),
+        pk=pk,
+        store=store
+    )
+
+    # ── Stock batches ──────────────────────────────────────────
+    stock_batches = PharmacyStock.objects.filter(
+        product=product, store=store
+    ).order_by('expiry_date')
+    total_stock = stock_batches.aggregate(total=Sum('quantity'))['total'] or 0
+    nearest_expiry_batch = stock_batches.filter(
+        quantity__gt=0, expiry_date__isnull=False
+    ).order_by('expiry_date').first()
+
+    # ── Related products (same category) ──────────────────────
+    related_products = []
+    if product.category:
+        related_products = list(
+            PharmacyProduct.objects.filter(
+                store=store, category=product.category, is_active=True
+            ).exclude(pk=pk).select_related('brand')[:6]
+        )
+
+    # ── Sales history for this product ────────────────────────
+    recent_sale_items = (
+        PharmacySaleItem.objects
+        .filter(product=product, sale__store=store)
+        .select_related('sale', 'sale__customer')
+        .order_by('-sale__sale_date')[:10]
+    )
+    total_units_sold = (
+        PharmacySaleItem.objects
+        .filter(product=product, sale__store=store)
+        .aggregate(total=Sum('quantity'))['total'] or 0
+    )
+
+    # ── MRP & discount (dynamic via tax rate) ─────────────────
+    sp = product.selling_price or Decimal('0')
+    tax_rate = product.tax_rate or Decimal('0')
+    if tax_rate > 0:
+        mrp = (sp * (Decimal('1') + tax_rate / Decimal('100'))).quantize(Decimal('0.01'))
+        discount_pct = int(((mrp - sp) / mrp) * 100)
+    else:
+        mrp = (sp * Decimal('1.12')).quantize(Decimal('0.01'))
+        discount_pct = 12
+
+    # ── Breadcrumbs ───────────────────────────────────────────
+    breadcrumbs = [
+        {'name': 'Home', 'url': '/'},
+        {'name': 'Pharmacy', 'url': '/pharmacy/'},
+    ]
+    if product.category:
+        breadcrumbs.append({'name': product.category.name, 'url': '#'})
+    breadcrumbs.append({'name': product.name, 'url': '#'})
+
+    context = {
+        'product': product,
+        'breadcrumbs': breadcrumbs,
+        'images': product.images.all(),
+        'stock_batches': stock_batches,
+        'total_stock': total_stock,
+        'in_stock': total_stock > 0,
+        'nearest_expiry_batch': nearest_expiry_batch,
+        'related_products': related_products,
+        'recent_sale_items': recent_sale_items,
+        'total_units_sold': total_units_sold,
+        'mrp': mrp,
+        'discount_pct': discount_pct,
+        'today': today_date.today(),
+    }
+    return render(request, 'pharmacy/product_detail_modern.html', context)
 
 @_require_store
 def product_create(request):
@@ -902,6 +1060,35 @@ def sale_detail(request, pk):
         PharmacySale.objects.select_related('customer', 'biller').prefetch_related('items__product'),
         pk=pk, store=store
     )
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        items_data = [
+            {
+                'name': item.product.name,
+                'price': float(item.unit_price),
+                'qty': item.quantity,
+                'tax': float(item.tax_rate),
+                'total': float(item.subtotal + item.tax_amount)
+            }
+            for item in sale.items.all()
+        ]
+        return JsonResponse({
+            'success': True,
+            'sale': {
+                'id': sale.id,
+                'sale_no': sale.sale_no,
+                'customer': sale.customer.name if sale.customer else 'Walk-in Customer',
+                'date': sale.sale_date.strftime("%d-%m-%Y %H:%M"),
+                'subtotal': float(sale.subtotal),
+                'discount': float(sale.discount),
+                'tax_amount': float(sale.tax_amount),
+                'total': float(sale.total),
+                'amount_paid': float(sale.amount_paid),
+                'balance_due': float(sale.balance_due),
+                'items': items_data
+            }
+        })
+
     return render(request, 'pharmacy/sale_detail.html', {'sale': sale})
 
 

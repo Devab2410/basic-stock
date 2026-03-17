@@ -33,8 +33,7 @@ from .utils import generate_purchase_no, generate_sale_no, get_dashboard_stats
 # ──────────────────────────────────────────────────────────────────
 
 def _get_store(request):
-    profile = getattr(request.user, 'profile', None)
-    return profile.store if profile else None
+    return request.user.active_store
 
 
 def _require_store(view_fn):

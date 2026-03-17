@@ -1,0 +1,865 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ product.name }} — PharmaCare</title>
+<meta name="description" content="{{ product.description|truncatechars:150|default:product.name }}">
+<link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/plugins/tabler-icons/tabler-icons.min.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#24aeb1;--teal-d:#1a8c8f;--teal-xl:#e6f7f7;--teal-xs:#f0fbfb;
+  --red:#e53935;--orange:#f57c00;--green:#2e7d32;--green-bg:#e8f5e9;
+  --text:#212121;--muted:#757575;--border:#e0e0e0;
+  --card:#fff;--bg:#f5f5f5;--r:14px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);margin:0;font-size:14px;}
+a{text-decoration:none;}
+
+/* ── HEADER ── */
+.hdr{background:var(--teal);position:sticky;top:0;z-index:1030;box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.hdr .i{display:flex;align-items:center;gap:14px;padding:10px 20px;max-width:1320px;margin:0 auto;}
+.logo{display:flex;align-items:center;gap:8px;color:#fff;font-size:20px;font-weight:800;flex-shrink:0;letter-spacing:-.4px;}
+.logo-box{background:rgba(255,255,255,.2);width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.hdr-search{flex:1;max-width:600px;position:relative;}
+.hdr-search input{width:100%;padding:9px 44px 9px 16px;border-radius:8px;border:none;outline:none;font-size:13.5px;}
+.hdr-search .sb{position:absolute;right:0;top:0;bottom:0;width:44px;background:rgba(255,255,255,.15);border:none;border-radius:0 8px 8px 0;color:#fff;cursor:pointer;font-size:16px;}
+.hdr-cart{display:flex;flex-direction:column;align-items:center;color:rgba(255,255,255,.9);font-size:11px;gap:2px;padding:6px 10px;border-radius:8px;cursor:pointer;position:relative;transition:background .2s;}
+.hdr-cart:hover{background:rgba(255,255,255,.15);}
+.hdr-cart i{font-size:20px;}
+.cart-badge{position:absolute;top:2px;right:6px;background:var(--red);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+.ham{background:rgba(255,255,255,.15);border:none;color:#fff;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;}
+
+/* ── CAT BAR ── */
+.cbar{background:var(--teal-d);overflow-x:auto;scrollbar-width:none;}
+.cbar::-webkit-scrollbar{display:none;}
+.cbar .i{display:flex;max-width:1320px;margin:0 auto;padding:0 20px;}
+.cbar a{color:rgba(255,255,255,.85);font-size:12.5px;font-weight:500;padding:8px 16px;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;}
+.cbar a:hover{color:#fff;border-bottom-color:#fff;}
+
+/* ── OFFCANVAS ── */
+.offcanvas-header{background:var(--teal);color:#fff;}
+.offcanvas-header .btn-close{filter:invert(1);}
+.oc-nav a{display:flex;align-items:center;gap:12px;padding:11px 16px;color:var(--text);font-weight:500;border-bottom:1px solid var(--border);}
+.oc-nav a:hover{background:var(--teal-xs);color:var(--teal);}
+.oc-nav a i{color:var(--teal);font-size:17px;}
+.oc-hdr{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:13px 16px 5px;}
+
+/* ── BREADCRUMB ── */
+.bc{background:var(--card);border-bottom:1px solid var(--border);}
+.bc .i{max-width:1320px;margin:0 auto;padding:9px 20px;font-size:12.5px;display:flex;align-items:center;flex-wrap:wrap;gap:2px;}
+.bc a{color:var(--teal);}
+.bc a:hover{text-decoration:underline;}
+.bc .sep{color:#bdbdbd;margin:0 5px;}
+.bc .cur{color:var(--muted);}
+
+/* ── PAGE ── */
+.page{max-width:1320px;margin:0 auto;padding:22px 16px 48px;}
+
+/* ── CARD ── */
+.ph-card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+
+/* ── GALLERY ── */
+.gal-col{border-right:1px solid var(--border);padding:24px 20px;}
+.gal-layout{display:flex;gap:12px;align-items:flex-start;}
+.thumb-list{display:flex;flex-direction:column;gap:8px;width:72px;flex-shrink:0;max-height:400px;overflow-y:auto;scrollbar-width:thin;}
+.thumb-item{width:68px;height:68px;border-radius:8px;border:2px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .2s;display:flex;align-items:center;justify-content:center;background:#fafafa;flex-shrink:0;}
+.thumb-item.active,.thumb-item:hover{border-color:var(--teal);}
+.thumb-item img{width:100%;height:100%;object-fit:contain;}
+.main-img-wrap{flex:1;min-height:320px;display:flex;align-items:center;justify-content:center;background:#fafafa;border-radius:10px;overflow:hidden;position:relative;}
+.main-img-wrap img{max-height:380px;max-width:100%;object-fit:contain;display:none;}
+.main-img-wrap img.active{display:block;}
+.no-img{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;color:#bdbdbd;gap:8px;}
+.no-img i{font-size:60px;}
+.img-ctrls{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px;}
+.img-arr{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all .2s;}
+.img-arr:hover{border-color:var(--teal);color:var(--teal);}
+.img-ctr{font-size:12px;color:var(--muted);min-width:48px;text-align:center;}
+
+/* ── PRODUCT INFO ── */
+.p-info{padding:28px 24px;}
+.p-brand{font-size:11.5px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.6px;}
+.p-name{font-size:22px;font-weight:800;line-height:1.3;margin:6px 0 14px;}
+.badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px;}
+.bd{display:inline-flex;align-items:center;gap:4px;padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:600;}
+.bd-otc{background:#e3f2fd;color:#1565c0;}
+.bd-rx{background:#ffebee;color:#c62828;}
+.bd-h{background:#fff8e1;color:#e65100;}
+.bd-x{background:#fce4ec;color:#880e4f;}
+.bd-cat{background:#e8f5e9;color:#2e7d32;}
+.bd-in{background:#e8f5e9;color:#1b5e20;}
+.bd-out{background:#ffebee;color:#b71c1c;}
+.bd-low{background:#fff3e0;color:#e65100;}
+
+/* ── PRICE BOX ── */
+.price-box{background:linear-gradient(135deg,var(--teal-xs) 0%,var(--teal-xl) 100%);border-left:4px solid var(--teal);border-radius:10px;padding:16px 18px;margin-bottom:18px;}
+.p-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700;margin-bottom:8px;}
+.p-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px;}
+.p-main{font-size:34px;font-weight:800;color:var(--teal);line-height:1;}
+.p-mrp{font-size:15px;color:var(--muted);text-decoration:line-through;}
+.p-off{font-size:12.5px;font-weight:700;color:var(--red);background:#ffebee;padding:2px 8px;border-radius:20px;}
+.p-note{font-size:11.5px;color:var(--muted);margin-top:6px;}
+
+/* ── INFO PILLS ── */
+.i-pills{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+.i-pill{background:#fff;border:1px solid var(--border);border-radius:10px;padding:11px 12px;display:flex;align-items:center;gap:9px;}
+.i-pill i{font-size:20px;flex-shrink:0;}
+.pl{font-size:10.5px;color:var(--muted);line-height:1;}
+.pv{font-size:13px;font-weight:700;line-height:1.4;}
+.g i{color:var(--green);}
+.o i{color:var(--orange);}
+.b i{color:#1565c0;}
+.r i{color:var(--red);}
+
+/* ── CTA BUTTONS ── */
+.btn-buy{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--teal);color:#fff;border:none;border-radius:10px;padding:15px 20px;font-size:15px;font-weight:700;width:100%;cursor:pointer;transition:all .25s;margin-bottom:8px;}
+.btn-buy:hover{background:var(--teal-d);transform:translateY(-1px);box-shadow:0 6px 20px rgba(36,174,177,.35);}
+.btn-buy:disabled{background:#bdbdbd;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-cart-out{display:flex;align-items:center;justify-content:center;gap:8px;background:#f5f5f5;color:#bdbdbd;border:2px solid var(--border);border-radius:10px;padding:14px 20px;font-size:15px;font-weight:700;width:100%;cursor:not-allowed;margin-bottom:8px;}
+.btn-outline-shop{display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;color:var(--teal);border:2px solid var(--teal);border-radius:10px;padding:11px 20px;font-size:14px;font-weight:600;width:100%;cursor:pointer;transition:all .2s;}
+.btn-outline-shop:hover{background:var(--teal-xs);}
+
+/* ── TRUST STRIP ── */
+.trust-strip{display:flex;border-top:1px solid var(--border);margin-top:20px;}
+.t-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:13px 6px;font-size:11px;font-weight:600;color:var(--muted);border-right:1px solid var(--border);text-align:center;}
+.t-item:last-child{border-right:none;}
+.t-item i{font-size:22px;color:var(--teal);}
+
+/* ── TABS ── */
+.tab-nav{display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:2px solid var(--border);}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{padding:12px 22px;font-size:13.5px;font-weight:600;color:var(--muted);background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal);}
+.tab-pane{display:none;padding:22px 0 4px;}
+.tab-pane.active{display:block;}
+
+/* ── SPEC TABLE ── */
+.spec-t{width:100%;border-collapse:collapse;}
+.spec-t tr{border-bottom:1px solid var(--border);}
+.spec-t tr:last-child{border-bottom:none;}
+.spec-t td{padding:11px 8px;font-size:13.5px;vertical-align:top;}
+.spec-t td:first-child{color:var(--muted);width:45%;font-weight:500;}
+.spec-t td:last-child{font-weight:600;}
+
+/* ── STAT MINI ── */
+.stat-m{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.sv{font-size:24px;font-weight:800;line-height:1;}
+.sl{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:500;}
+
+/* ── RELATED ── */
+.rel-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;height:100%;transition:box-shadow .2s,transform .2s;}
+.rel-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.1);transform:translateY(-3px);}
+.rel-img{height:130px;display:flex;align-items:center;justify-content:center;background:#fafafa;border-bottom:1px solid var(--border);}
+.rel-img img{max-height:110px;max-width:90%;object-fit:contain;}
+.rel-body{padding:12px;}
+.rb{font-size:10px;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:.4px;}
+.rn{font-size:13px;font-weight:600;margin:3px 0 6px;line-height:1.3;}
+.rf{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.rp{font-size:14px;font-weight:800;color:var(--teal);}
+.rs{font-size:11px;color:var(--muted);}
+.rb-in{font-size:10.5px;font-weight:600;color:var(--green);background:#e8f5e9;padding:2px 8px;border-radius:20px;}
+.rb-out{font-size:10.5px;font-weight:600;color:var(--red);background:#ffebee;padding:2px 8px;border-radius:20px;}
+.btn-rel-add{width:100%;margin-top:8px;padding:7px;border-radius:7px;border:none;background:var(--teal);color:#fff;font-size:12px;font-weight:700;cursor:pointer;}
+.btn-rel-add:hover{background:var(--teal-d);}
+.btn-rel-oos{width:100%;margin-top:8px;padding:7px;border-radius:7px;border:1px solid var(--border);background:#f5f5f5;color:#bdbdbd;font-size:12px;font-weight:600;cursor:not-allowed;}
+
+/* ── SEC HEADING ── */
+.sec-h{font-size:16px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sec-h::before{content:'';display:block;width:4px;height:20px;background:var(--teal);border-radius:2px;}
+
+/* ── CART MODAL ── */
+.cart-empty-msg{text-align:center;padding:30px 0;color:var(--muted);}
+.cart-empty-msg i{font-size:48px;display:block;margin-bottom:10px;opacity:.3;}
+.cart-item-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.cart-item-row:last-child{border-bottom:none;}
+.ci-img{width:52px;height:52px;border-radius:8px;background:#f5f5f5;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+.ci-img img{max-width:44px;max-height:44px;object-fit:contain;}
+.ci-name{font-size:13px;font-weight:600;}
+.ci-price{font-size:13px;font-weight:700;color:var(--teal);}
+.ci-rm{background:none;border:none;color:#bdbdbd;cursor:pointer;font-size:18px;padding:0;}
+.ci-rm:hover{color:var(--red);}
+.cart-total-row{background:#f5f5f5;border-radius:8px;padding:14px;margin-top:16px;display:flex;justify-content:space-between;align-items:center;}
+.cart-total-row span{font-size:13px;color:var(--muted);}
+.cart-total-row strong{font-size:18px;font-weight:800;color:var(--teal);}
+
+/* ── FOOTER ── */
+.footer{background:#212121;color:rgba(255,255,255,.7);padding:40px 20px 20px;margin-top:40px;}
+.footer .i{max-width:1320px;margin:0 auto;}
+.f-brand{font-size:19px;font-weight:800;color:#fff;margin-bottom:6px;}
+.f-desc{font-size:12.5px;line-height:1.7;max-width:300px;}
+.f-lnk h6{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.45);font-weight:700;margin-bottom:12px;}
+.f-lnk ul{list-style:none;padding:0;margin:0;}
+.f-lnk li{margin-bottom:8px;}
+.f-lnk a{color:rgba(255,255,255,.65);font-size:12.5px;}
+.f-lnk a:hover{color:var(--teal);}
+.f-btm{border-top:1px solid rgba(255,255,255,.1);margin-top:24px;padding-top:16px;font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+/* ── BACK TOP ── */
+#bt{position:fixed;bottom:22px;right:22px;width:42px;height:42px;border-radius:50%;background:var(--teal);color:#fff;border:none;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(36,174,177,.4);opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;}
+#bt.show{opacity:1;pointer-events:auto;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:991px){
+  .gal-col{border-right:none;border-bottom:1px solid var(--border);}
+  .p-name{font-size:19px;}
+  .p-main{font-size:28px;}
+  .i-pills{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:575px){
+  .hdr .i{padding:8px 12px;gap:8px;}
+  .hdr-search{display:none;}
+  .page{padding:14px 10px 36px;}
+  .gal-col{padding:16px 14px;}
+  .p-info{padding:18px 14px;}
+  .gal-layout{flex-direction:column;}
+  .thumb-list{flex-direction:row;width:100%;max-height:none;overflow-x:auto;}
+  .thumb-item{width:60px;height:60px;min-width:60px;}
+  .p-name{font-size:17px;}
+  .p-main{font-size:26px;}
+  .i-pills{grid-template-columns:1fr 1fr;}
+  .trust-strip{flex-wrap:wrap;}
+  .t-item{min-width:50%;border-right:none;border-bottom:1px solid var(--border);}
+  .t-item:nth-child(odd){border-right:1px solid var(--border);}
+  .tab-btn{padding:10px 14px;font-size:12.5px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════ -->
+<header class="hdr">
+  <div class="i">
+    <button class="ham d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobMenu"><i class="ti ti-menu-2"></i></button>
+    <a href="{% url 'pharmacy:shop' %}" class="logo">
+      <div class="logo-box"><i class="ti ti-pill"></i></div>
+      <span class="d-none d-sm-inline">PharmaCare</span>
+    </a>
+    <form class="hdr-search" action="{% url 'pharmacy:shop' %}" method="get">
+      <input type="text" name="q" placeholder="Search medicines, brands…" autocomplete="off">
+      <button type="submit" class="sb"><i class="ti ti-search"></i></button>
+    </form>
+    <a class="hdr-cart" onclick="openCart()" style="text-decoration:none;">
+      <i class="ti ti-shopping-cart"></i>
+      <span class="d-none d-sm-inline">Cart</span>
+      <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+    </a>
+  </div>
+</header>
+
+<!-- Cat bar -->
+<div class="cbar d-none d-md-block">
+  <div class="i">
+    <a href="{% url 'pharmacy:shop' %}"><i class="ti ti-home me-1 fs-12"></i>Home</a>
+    <a href="{% url 'pharmacy:shop' %}">All Products</a>
+    {% if product.category %}
+    <a href="{% url 'pharmacy:shop' %}?category={{ product.category.pk }}">{{ product.category.name }}</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ══ MOBILE MENU ══════════════════════════════════════ -->
+<div class="offcanvas offcanvas-start" id="mobMenu" tabindex="-1">
+  <div class="offcanvas-header">
+    <div class="d-flex align-items-center gap-2">
+      <i class="ti ti-pill fs-20"></i><span style="font-weight:800;font-size:17px;">PharmaCare</span>
+    </div>
+    <button class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body p-0">
+    <div class="p-3 border-bottom">
+      <form action="{% url 'pharmacy:shop' %}" method="get" class="d-flex gap-2">
+        <input class="form-control" name="q" placeholder="Search medicines…">
+        <button class="btn btn-outline-secondary"><i class="ti ti-search"></i></button>
+      </form>
+    </div>
+    <nav class="oc-nav">
+      <div class="oc-hdr">Browse</div>
+      <a href="{% url 'pharmacy:shop' %}"><i class="ti ti-home"></i>Home / All Products</a>
+      {% if product.category %}
+      <a href="{% url 'pharmacy:shop' %}?category={{ product.category.pk }}"><i class="ti ti-tag"></i>{{ product.category.name }}</a>
+      {% endif %}
+      <a href="{% url 'pharmacy:shop' %}?q=vitamins"><i class="ti ti-leaf"></i>Vitamins & Supplements</a>
+      <a href="{% url 'pharmacy:shop' %}?q=otc"><i class="ti ti-shield-check"></i>OTC Products</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ══ BREADCRUMB ══════════════════════════════════════ -->
+<div class="bc">
+  <div class="i">
+    <a href="{% url 'pharmacy:shop' %}">Home</a>
+    <span class="sep">›</span>
+    {% if product.category %}
+    <a href="{% url 'pharmacy:shop' %}?category={{ product.category.pk }}">{{ product.category.name }}</a>
+    <span class="sep">›</span>
+    {% endif %}
+    <span class="cur">{{ product.name|truncatechars:45 }}</span>
+  </div>
+</div>
+
+<!-- ══ MAIN PAGE ══════════════════════════════════════ -->
+<div class="page">
+
+  <!-- ── SECTION 1: Product Hero Card ── -->
+  <div class="ph-card mb-4">
+    <div class="row g-0">
+
+      <!-- Gallery -->
+      <div class="col-lg-5 gal-col">
+        {% with imgs=product.images.all %}
+        {% if imgs %}
+          <div class="gal-layout">
+            <div class="thumb-list" id="thumbList">
+              {% for img in imgs %}
+              <div class="thumb-item {% if forloop.first %}active{% endif %}"
+                   data-idx="{{ forloop.counter0 }}"
+                   onclick="switchImg({{ forloop.counter0 }}, this)">
+                <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}">
+              </div>
+              {% endfor %}
+            </div>
+            <div class="main-img-wrap" id="mainWrap">
+              {% for img in imgs %}
+              <img src="{{ img.image.url }}" alt="{{ product.name }}"
+                   id="mimg-{{ forloop.counter0 }}"
+                   class="{% if forloop.first %}active{% endif %}">
+              {% endfor %}
+            </div>
+          </div>
+          <div class="img-ctrls">
+            <button class="img-arr" onclick="prevImg()"><i class="ti ti-chevron-left"></i></button>
+            <span class="img-ctr" id="imgCtr">1 / {{ imgs.count }}</span>
+            <button class="img-arr" onclick="nextImg()"><i class="ti ti-chevron-right"></i></button>
+          </div>
+        {% else %}
+          <div class="no-img"><i class="ti ti-photo-off"></i><span style="font-size:13px;">No image available</span></div>
+        {% endif %}
+        {% endwith %}
+      </div>
+
+      <!-- Product Info -->
+      <div class="col-lg-7 p-info">
+        <div class="p-brand">{{ product.brand.name|default:"Generic / Unbranded" }}</div>
+        <h1 class="p-name">{{ product.name }}</h1>
+
+        <!-- Badges -->
+        <div class="badges">
+          {% if product.schedule_type == 'OTC' %}
+            <span class="bd bd-otc"><i class="ti ti-shield-check fs-12"></i>Over the Counter (OTC)</span>
+          {% elif product.schedule_type == 'H' %}
+            <span class="bd bd-h"><i class="ti ti-alert-triangle fs-12"></i>Schedule H</span>
+          {% elif product.schedule_type == 'H1' %}
+            <span class="bd bd-h"><i class="ti ti-alert-triangle fs-12"></i>Schedule H1</span>
+          {% elif product.schedule_type == 'X' %}
+            <span class="bd bd-x"><i class="ti ti-lock fs-12"></i>Schedule X</span>
+          {% endif %}
+          {% if product.requires_prescription %}
+            <span class="bd bd-rx"><i class="ti ti-file-certificate fs-12"></i>Prescription Required</span>
+          {% endif %}
+          {% if product.category %}
+            <span class="bd bd-cat"><i class="ti ti-tag fs-12"></i>{{ product.category.name }}</span>
+          {% endif %}
+          {% if in_stock %}
+            {% if total_stock <= 10 %}
+              <span class="bd bd-low"><i class="ti ti-alert-triangle fs-12"></i>Only {{ total_stock }} left</span>
+            {% else %}
+              <span class="bd bd-in"><i class="ti ti-circle-check fs-12"></i>In Stock</span>
+            {% endif %}
+          {% else %}
+            <span class="bd bd-out"><i class="ti ti-circle-x fs-12"></i>Out of Stock</span>
+          {% endif %}
+        </div>
+
+        <!-- Price Box -->
+        <div class="price-box">
+          <div class="p-label">Best Price</div>
+          <div class="p-row">
+            <span class="p-main">₹{{ product.selling_price|floatformat:2 }}</span>
+            <span class="p-mrp">₹{{ mrp|floatformat:2 }}</span>
+            <span class="p-off">{{ discount_pct }}% OFF</span>
+          </div>
+          <div class="p-note">
+            {% if product.tax_rate > 0 %}
+              Inclusive of GST ({{ product.tax_rate }}%)
+            {% else %}
+              Inclusive of all taxes
+            {% endif %}
+            {% if product.unit %}&nbsp;|&nbsp; Pack: {{ product.unit }}{% endif %}
+          </div>
+        </div>
+
+        <!-- Info Pills -->
+        <div class="i-pills">
+          <div class="i-pill {% if in_stock %}g{% else %}r{% endif %}">
+            <i class="ti {% if in_stock %}ti-package-check{% else %}ti-package-off{% endif %}"></i>
+            <div>
+              <div class="pl">Availability</div>
+              <div class="pv">{% if in_stock %}{{ total_stock }} In Stock{% else %}Out of Stock{% endif %}</div>
+            </div>
+          </div>
+          {% if nearest_expiry_batch %}
+          <div class="i-pill {% if nearest_expiry_batch.days_to_expiry < 30 %}o{% else %}b{% endif %}">
+            <i class="ti ti-calendar-event"></i>
+            <div>
+              <div class="pl">Expiry (Nearest)</div>
+              <div class="pv">{{ nearest_expiry_batch.expiry_date|date:"M Y" }}</div>
+            </div>
+          </div>
+          {% endif %}
+          <div class="i-pill b">
+            <i class="ti ti-truck"></i>
+            <div>
+              <div class="pl">Availability</div>
+              <div class="pv">At Counter</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        {% if in_stock %}
+        <button class="btn-buy"
+          onclick="addToCart({{ product.pk }},'{{ product.name|escapejs }}',{{ product.selling_price }},'{% with fi=product.images.all %}{% if fi %}{{ fi.0.image.url }}{% endif %}{% endwith %}')">
+          <i class="ti ti-shopping-cart-plus fs-18"></i> Add to Cart
+        </button>
+        {% else %}
+        <div class="btn-cart-out">
+          <i class="ti ti-ban fs-16"></i> Out of Stock — Unavailable
+        </div>
+        {% endif %}
+        <a href="{% url 'pharmacy:shop' %}{% if product.category %}?category={{ product.category.pk }}{% endif %}" class="btn-outline-shop">
+          <i class="ti ti-arrow-left fs-15"></i> Continue Shopping
+        </a>
+
+        <!-- Trust strip -->
+        <div class="trust-strip mt-3">
+          <div class="t-item"><i class="ti ti-shield-check"></i><span>100% Authentic</span></div>
+          <div class="t-item"><i class="ti ti-refresh"></i><span>Easy Returns</span></div>
+          <div class="t-item"><i class="ti ti-certificate"></i><span>Quality Checked</span></div>
+          <div class="t-item"><i class="ti ti-clock-hour-9"></i><span>Fast Billing</span></div>
+        </div>
+      </div><!-- /col -->
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: Tabs ── -->
+  <div class="ph-card mb-4">
+    <div style="padding:0 20px;">
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="desc">
+          <i class="ti ti-file-text me-1 fs-14"></i>Description
+        </button>
+        <button class="tab-btn" data-tab="specs">
+          <i class="ti ti-list-details me-1 fs-14"></i>Specifications
+        </button>
+        {% if product.requires_prescription %}
+        <button class="tab-btn" data-tab="rx">
+          <i class="ti ti-file-certificate me-1 fs-14"></i>Prescription Info
+        </button>
+        {% endif %}
+        <button class="tab-btn" data-tab="delivery">
+          <i class="ti ti-truck me-1 fs-14"></i>Availability
+        </button>
+      </div>
+    </div>
+    <div style="padding:0 20px 24px;">
+
+      <!-- Description -->
+      <div class="tab-pane active" id="tab-desc">
+        {% if product.description %}
+          <p style="font-size:14px;line-height:1.85;color:#424242;">{{ product.description }}</p>
+        {% else %}
+          <div style="text-align:center;padding:36px 20px;color:var(--muted);">
+            <i class="ti ti-file-off" style="font-size:48px;display:block;margin-bottom:10px;opacity:.3;"></i>
+            <p style="margin:0;font-size:13.5px;">No description available for this product.</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Specifications -->
+      <div class="tab-pane" id="tab-specs">
+        <div class="row">
+          <div class="col-md-6">
+            <table class="spec-t">
+              <tr><td>Product Name</td><td>{{ product.name }}</td></tr>
+              <tr><td>Brand</td><td>{{ product.brand.name|default:"Generic" }}</td></tr>
+              <tr><td>Category</td><td>{{ product.category.name|default:"—" }}</td></tr>
+              <tr><td>Pack / Unit</td><td>{{ product.unit|default:"—" }}</td></tr>
+              <tr><td>Schedule Type</td><td>{{ product.get_schedule_type_display }}</td></tr>
+              <tr><td>Prescription</td>
+                <td>{% if product.requires_prescription %}<span style="color:var(--red);font-weight:700;">Required</span>{% else %}<span style="color:var(--green);font-weight:700;">Not Required</span>{% endif %}</td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-md-6">
+            <table class="spec-t" style="border-left:1px solid var(--border);">
+              <tr><td style="padding-left:16px;">Selling Price</td><td style="color:var(--teal);">₹{{ product.selling_price|floatformat:2 }}</td></tr>
+              <tr><td style="padding-left:16px;">MRP</td><td>₹{{ mrp|floatformat:2 }}</td></tr>
+              <tr><td style="padding-left:16px;">Discount</td><td style="color:var(--red);">{{ discount_pct }}% OFF</td></tr>
+              <tr><td style="padding-left:16px;">Tax / GST</td><td>{{ product.tax_rate }}%</td></tr>
+              <tr><td style="padding-left:16px;">HSN Code</td><td>{{ product.hsn_code|default:"—" }}</td></tr>
+              <tr><td style="padding-left:16px;">Availability</td>
+                <td>{% if in_stock %}<span style="color:var(--green);font-weight:700;">In Stock</span>{% else %}<span style="color:var(--red);font-weight:700;">Out of Stock</span>{% endif %}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prescription Info -->
+      {% if product.requires_prescription %}
+      <div class="tab-pane" id="tab-rx">
+        <div style="background:#fff3e0;border-left:4px solid var(--orange);border-radius:8px;padding:16px 18px;">
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <i class="ti ti-alert-triangle" style="font-size:24px;color:var(--orange);flex-shrink:0;margin-top:2px;"></i>
+            <div>
+              <h6 style="font-weight:700;color:#e65100;margin-bottom:6px;">Prescription Required</h6>
+              <p style="font-size:13.5px;color:#424242;line-height:1.7;margin:0;">
+                This medicine is a <strong>{{ product.get_schedule_type_display }}</strong> drug and requires a valid prescription from a registered medical practitioner.
+                Please bring your prescription to our pharmacy counter when purchasing this product.
+              </p>
+              <ul style="font-size:13px;color:#616161;margin-top:10px;padding-left:18px;">
+                <li>Original prescription required at the time of purchase</li>
+                <li>Prescription validity as per doctor's advice</li>
+                <li>We reserve the right to verify the prescription</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Delivery / Availability -->
+      <div class="tab-pane" id="tab-delivery">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div style="background:var(--teal-xs);border:1px solid var(--teal-xl);border-radius:10px;padding:16px;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <i class="ti ti-store" style="font-size:22px;color:var(--teal);"></i>
+                <strong style="font-size:14px;">Available at Counter</strong>
+              </div>
+              <p style="font-size:13px;color:#424242;margin:0;line-height:1.7;">
+                This product is available at our pharmacy counter.
+                {% if in_stock %}
+                  <strong style="color:var(--green);">Currently in stock ({{ total_stock }} units).</strong>
+                {% else %}
+                  <strong style="color:var(--red);">Currently out of stock.</strong> Please check back later or ask our staff.
+                {% endif %}
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div style="background:#f3e5f5;border:1px solid #e1bee7;border-radius:10px;padding:16px;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <i class="ti ti-clock-hour-4" style="font-size:22px;color:#7b1fa2;"></i>
+                <strong style="font-size:14px;">Store Hours</strong>
+              </div>
+              <p style="font-size:13px;color:#424242;margin:0;line-height:1.7;">
+                Mon – Sat: <strong>8:00 AM – 9:00 PM</strong><br>
+                Sunday: <strong>9:00 AM – 6:00 PM</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: Stats ── -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-m">
+        <div style="width:40px;height:40px;border-radius:10px;background:var(--teal-xl);display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+          <i class="ti ti-currency-rupee" style="color:var(--teal);font-size:20px;"></i>
+        </div>
+        <div class="sv" style="color:var(--teal);">₹{{ product.selling_price|floatformat:0 }}</div>
+        <div class="sl">Best Price</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-m">
+        <div style="width:40px;height:40px;border-radius:10px;background:#ffebee;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+          <i class="ti ti-discount" style="color:var(--red);font-size:20px;"></i>
+        </div>
+        <div class="sv" style="color:var(--red);">{{ discount_pct }}% OFF</div>
+        <div class="sl">Discount on MRP</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-m">
+        <div style="width:40px;height:40px;border-radius:10px;background:{% if in_stock %}var(--green-bg){% else %}#ffebee{% endif %};display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+          <i class="ti {% if in_stock %}ti-package-check{% else %}ti-package-off{% endif %}" style="color:{% if in_stock %}var(--green){% else %}var(--red){% endif %};font-size:20px;"></i>
+        </div>
+        <div class="sv" style="color:{% if in_stock %}var(--green){% else %}var(--red){% endif %};">{% if in_stock %}{{ total_stock }}{% else %}0{% endif %}</div>
+        <div class="sl">Units Available</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-m">
+        <div style="width:40px;height:40px;border-radius:10px;background:#e3f2fd;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+          <i class="ti ti-tag" style="color:#1565c0;font-size:20px;"></i>
+        </div>
+        <div class="sv" style="color:#1565c0;font-size:16px;">{{ product.get_schedule_type_display }}</div>
+        <div class="sl">Drug Category</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: Related Products ── -->
+  {% if related_products %}
+  <div class="mb-2">
+    <h2 class="sec-h">You Might Also Need — {{ product.category.name }}</h2>
+    <div class="row g-3">
+      {% for rp in related_products %}
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="rel-card">
+          <div class="rel-img">
+            {% with rpimg=rp.images.first %}
+            {% if rpimg %}
+              <img src="{{ rpimg.image.url }}" alt="{{ rp.name }}" loading="lazy">
+            {% else %}
+              <i class="ti ti-photo-off" style="font-size:32px;color:#e0e0e0;"></i>
+            {% endif %}
+            {% endwith %}
+          </div>
+          <div class="rel-body">
+            <div class="rb">{{ rp.brand.name|default:"Generic" }}</div>
+            <div class="rn">{{ rp.name|truncatechars:40 }}</div>
+            <div class="rf">
+              <span class="rp">₹{{ rp.selling_price|floatformat:2 }}</span>
+              {% if rp.current_stock > 0 %}
+                <span class="rb-in">In Stock</span>
+              {% else %}
+                <span class="rb-out">Out of Stock</span>
+              {% endif %}
+            </div>
+            {% if rp.current_stock > 0 %}
+            <button class="btn-rel-add"
+              onclick="addToCart({{ rp.pk }},'{{ rp.name|escapejs }}',{{ rp.selling_price }},'{% with rim=rp.images.first %}{% if rim %}{{ rim.image.url }}{% endif %}{% endwith %}');event.preventDefault();">
+              <i class="ti ti-shopping-cart-plus me-1 fs-12"></i>Add to Cart
+            </button>
+            {% else %}
+            <button class="btn-rel-oos" disabled><i class="ti ti-ban me-1 fs-12"></i>Out of Stock</button>
+            {% endif %}
+            <a href="{% url 'pharmacy:product_detail_modern' rp.pk %}"
+               style="display:block;text-align:center;font-size:11.5px;color:var(--teal);margin-top:5px;font-weight:600;">
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div><!-- /page -->
+
+<!-- ══ CART MODAL ══════════════════════════════════════ -->
+<div class="modal fade" id="cartModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-scrollable" style="max-width:480px;margin-left:auto;margin-right:0;min-height:100vh;">
+    <div class="modal-content" style="min-height:100vh;border-radius:0;">
+      <div class="modal-header" style="background:var(--teal);color:#fff;">
+        <h5 class="modal-title d-flex align-items-center gap-2">
+          <i class="ti ti-shopping-cart fs-20"></i>My Cart
+          <span id="cartCountLabel" class="badge" style="background:rgba(255,255,255,.25);font-size:12px;">0 items</span>
+        </h5>
+        <button class="btn-close" style="filter:invert(1);" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="cartBody">
+        <div class="cart-empty-msg"><i class="ti ti-shopping-cart-off"></i><p>Your cart is empty.</p></div>
+      </div>
+      <div class="modal-footer flex-column gap-2" id="cartFooter" style="display:none!important;">
+        <div class="cart-total-row w-100">
+          <span>Total</span><strong id="cartTotalAmt">₹0.00</strong>
+        </div>
+        <button class="btn btn-outline-danger w-100" onclick="clearCart()"><i class="ti ti-trash me-1"></i>Clear Cart</button>
+        <button class="btn w-100" style="background:var(--teal);color:#fff;font-weight:700;font-size:15px;" onclick="printCart()">
+          <i class="ti ti-printer me-1"></i>Print Shopping List
+        </button>
+        <p style="font-size:11px;color:var(--muted);text-align:center;margin:0;">Bring this list to our pharmacy counter to complete your purchase.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ═════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="i">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="f-brand"><i class="ti ti-pill me-2"></i>PharmaCare</div>
+        <p class="f-desc">Your trusted pharmacy for genuine medicines. Quality checked, authentic, and affordable prices.</p>
+      </div>
+      <div class="col-6 col-md-2 f-lnk">
+        <h6>Shop</h6>
+        <ul>
+          <li><a href="{% url 'pharmacy:shop' %}">All Products</a></li>
+          {% if product.category %}
+          <li><a href="{% url 'pharmacy:shop' %}?category={{ product.category.pk }}">{{ product.category.name }}</a></li>
+          {% endif %}
+          <li><a href="{% url 'pharmacy:shop' %}?q=vitamins">Vitamins</a></li>
+          <li><a href="{% url 'pharmacy:shop' %}?q=otc">OTC Products</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-md-2 f-lnk">
+        <h6>Info</h6>
+        <ul>
+          <li><i class="ti ti-map-pin me-1 fs-12"></i>In-store only</li>
+          <li><i class="ti ti-clock me-1 fs-12"></i>Mon–Sat 8AM–9PM</li>
+          <li><i class="ti ti-clock me-1 fs-12"></i>Sun 9AM–6PM</li>
+        </ul>
+      </div>
+      <div class="col-md-4 f-lnk">
+        <h6>Note</h6>
+        <ul>
+          <li style="font-size:11.5px;color:rgba(255,255,255,.5);">Prices inclusive of all taxes. Products available at counter only. Prescription medicines require a valid Rx.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="f-btm">
+      <span>© 2026 PharmaCare — All rights reserved.</span>
+      <a href="{% url 'pharmacy:shop' %}" style="color:var(--teal);">Back to Shop</a>
+    </div>
+  </div>
+</footer>
+
+<button id="bt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="ti ti-chevron-up"></i></button>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════ -->
+<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+/* ── Image gallery ──────────────────────────────── */
+let cur = 0;
+const imgs   = document.querySelectorAll('.main-img-wrap img');
+const thumbs = document.querySelectorAll('.thumb-item');
+const total  = imgs.length;
+
+function switchImg(idx, el) {
+  imgs.forEach(i => i.classList.remove('active'));
+  thumbs.forEach(t => t.classList.remove('active'));
+  if (imgs[idx]) imgs[idx].classList.add('active');
+  if (el) el.classList.add('active');
+  else if (thumbs[idx]) thumbs[idx].classList.add('active');
+  cur = idx;
+  const c = document.getElementById('imgCtr');
+  if (c) c.textContent = (cur+1) + ' / ' + total;
+  thumbs[idx] && thumbs[idx].scrollIntoView({block:'nearest',inline:'nearest'});
+}
+function prevImg(){ switchImg((cur-1+total)%total, null); }
+function nextImg(){ switchImg((cur+1)%total, null); }
+document.addEventListener('keydown', e => {
+  if (total > 1) { if(e.key==='ArrowLeft') prevImg(); if(e.key==='ArrowRight') nextImg(); }
+});
+
+/* ── Tab switching ──────────────────────────────── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + t).classList.add('active');
+  });
+});
+
+/* ── Cart (localStorage) ────────────────────────── */
+const CART_KEY = 'pharmacare_cart';
+function getCart(){ try{ return JSON.parse(localStorage.getItem(CART_KEY))||[]; }catch(e){ return []; } }
+function saveCart(cart){ localStorage.setItem(CART_KEY, JSON.stringify(cart)); updateCartUI(); }
+
+function addToCart(id, name, price, img) {
+  let cart = getCart();
+  const idx = cart.findIndex(i => i.id === id);
+  if (idx >= 0) cart[idx].qty += 1;
+  else cart.push({ id, name, price: parseFloat(price), img, qty: 1 });
+  saveCart(cart);
+  showToast(name + ' added to cart!');
+}
+function removeFromCart(id){ saveCart(getCart().filter(i => i.id !== id)); renderCartBody(); }
+function clearCart(){ saveCart([]); renderCartBody(); }
+
+function updateCartUI() {
+  const cart = getCart();
+  const total = cart.reduce((s,i) => s + i.qty, 0);
+  const b = document.getElementById('cartBadge');
+  if (b){ b.textContent = total; b.style.display = total > 0 ? 'flex' : 'none'; }
+  const l = document.getElementById('cartCountLabel');
+  if (l) l.textContent = total + ' item' + (total !== 1 ? 's' : '');
+}
+
+function renderCartBody() {
+  const cart = getCart();
+  const body = document.getElementById('cartBody');
+  const footer = document.getElementById('cartFooter');
+  if (!body) return;
+  if (!cart.length) {
+    body.innerHTML = '<div class="cart-empty-msg"><i class="ti ti-shopping-cart-off"></i><p>Your cart is empty.</p></div>';
+    if (footer) footer.style.display = 'none'; return;
+  }
+  if (footer) footer.style.removeProperty('display');
+  let html = '', total = 0;
+  cart.forEach(item => {
+    total += item.price * item.qty;
+    html += `<div class="cart-item-row">
+      <div class="ci-img">${item.img?`<img src="${item.img}" alt="">`:'<i class="ti ti-photo-off" style="font-size:20px;color:#ccc;"></i>'}</div>
+      <div style="flex:1"><div class="ci-name">${item.name}</div><div style="font-size:12px;color:#888;">₹${item.price.toFixed(2)} × ${item.qty}</div></div>
+      <div class="ci-price">₹${(item.price*item.qty).toFixed(2)}</div>
+      <button class="ci-rm" onclick="removeFromCart(${item.id})"><i class="ti ti-x"></i></button>
+    </div>`;
+  });
+  body.innerHTML = html;
+  const ta = document.getElementById('cartTotalAmt');
+  if (ta) ta.textContent = '₹' + total.toFixed(2);
+}
+
+function openCart() {
+  renderCartBody();
+  new bootstrap.Modal(document.getElementById('cartModal')).show();
+}
+
+function printCart() {
+  const cart = getCart();
+  if (!cart.length) return;
+  let rows = cart.map(i => `<tr><td>${i.name}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">₹${(i.price*i.qty).toFixed(2)}</td></tr>`).join('');
+  let total = cart.reduce((s,i) => s+i.price*i.qty, 0);
+  const w = window.open('','_blank');
+  w.document.write(`<html><head><title>Shopping List — PharmaCare</title>
+  <style>body{font-family:sans-serif;padding:24px;}h2{color:#24aeb1;}table{width:100%;border-collapse:collapse;margin-top:16px;}th,td{border:1px solid #ddd;padding:8px 12px;}th{background:#f5f5f5;}tfoot td{font-weight:bold;background:#e6f7f7;}p{color:#666;font-size:12px;}</style>
+  </head><body><h2>🏥 PharmaCare — Shopping List</h2>
+  <p>Date: ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</p>
+  <p>Please bring this list to our pharmacy counter.</p>
+  <table><thead><tr><th>Medicine</th><th>Qty</th><th>Price</th></tr></thead><tbody>${rows}</tbody>
+  <tfoot><tr><td colspan="2">Total</td><td style="text-align:right">₹${total.toFixed(2)}</td></tr></tfoot></table>
+  <p style="margin-top:24px;">* Prescription medicines require a valid doctor's prescription.</p>
+  </body></html>`);
+  w.document.close(); w.print();
+}
+
+function showToast(msg) {
+  let t = document.getElementById('cartToast');
+  if (!t) {
+    t = document.createElement('div'); t.id = 'cartToast';
+    t.style.cssText = 'position:fixed;bottom:72px;right:20px;background:#212121;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.3);transition:opacity .3s;';
+    document.body.appendChild(t);
+  }
+  t.innerHTML = '<i class="ti ti-check" style="color:#4caf50;font-size:16px;"></i>' + msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2200);
+}
+
+/* ── Back to top ────────────────────────────────── */
+window.addEventListener('scroll', () => { document.getElementById('bt').classList.toggle('show', scrollY > 300); });
+
+/* ── Init ───────────────────────────────────────── */
+updateCartUI();
+</script>
+</body>
+</html>

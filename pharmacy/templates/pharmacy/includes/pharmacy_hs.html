@@ -531,10 +531,10 @@
 						<li class="submenu-open">
 							<h6 class="submenu-hdr">Inventory</h6>
 							<ul>
-								<li><a href="{% url 'pharmacy:categories' %}"><i class="ti ti-list-details fs-16 me-2"></i><span>Categories</span></a></li>
-								<li><a href="{% url 'pharmacy:brands' %}"><i class="ti ti-triangles fs-16 me-2"></i><span>Brands</span></a></li>
-								<li><a href="{% url 'pharmacy:units' %}"><i class="ti ti-brand-unity fs-16 me-2"></i><span>Units</span></a></li>
-								<li><a href="{% url 'pharmacy:product_list' %}"><i class="ti ti-box fs-16 me-2"></i><span>Products</span></a></li>
+								<li class="{% if request.resolver_match.url_name == 'categories' %}active{% endif %}" ><a href="{% url 'pharmacy:categories' %}"><i class="ti ti-list-details fs-16 me-2"></i><span>Categories</span></a></li>
+								<li class="{% if request.resolver_match.url_name == 'brands' %}active{% endif %}"><a href="{% url 'pharmacy:brands' %}" ><i class="ti ti-triangles fs-16 me-2"></i><span>Brands</span></a></li>
+								<li class="{% if request.resolver_match.url_name == 'units' %}active{% endif %}"><a href="{% url 'pharmacy:units' %}" ><i class="ti ti-brand-unity fs-16 me-2"></i><span>Units</span></a></li>
+								<li class="{% if request.resolver_match.url_name == 'product_list' %}active{% endif %}"><a href="{% url 'pharmacy:product_list' %}" ><i class="ti ti-box fs-16 me-2"></i><span>Products</span></a></li>
 								<li><a href="expired-products.html"><i class="ti ti-progress-alert fs-16 me-2"></i><span>Expired Products</span></a></li>
 								<li><a href="low-stocks.html"><i class="ti ti-trending-up-2 fs-16 me-2"></i><span>Low Stocks</span></a></li>
 							</ul>
@@ -542,7 +542,7 @@
 						<li class="submenu-open">
 							<h6 class="submenu-hdr">Stock</h6>
 							<ul>
-								<li><a href="{% url 'pharmacy:manage_stock' %}"><i class="ti ti-stack-3 fs-16 me-2"></i><span>Manage Stock</span></a></li>
+								<li class="{% if request.resolver_match.url_name == 'manage_stock' %}active{% endif %}"><a href="{% url 'pharmacy:manage_stock' %}"><i class="ti ti-stack-3 fs-16 me-2"></i><span>Manage Stock</span></a></li>
 								<li><a href="#"><i class="ti ti-stairs-up fs-16 me-2"></i><span>Stock Adjustment</span></a></li>
 								<li><a href="#"><i class="ti ti-stack-pop fs-16 me-2"></i><span>Stock Transfer</span></a></li>
 							</ul>
@@ -554,19 +554,19 @@
 									<a href="javascript:void(0);"><i class="ti ti-layout-grid fs-16 me-2"></i><span>Sales</span><span class="menu-arrow"></span></a>
 									<ul>
 										<li><a href="online-orders.html">Online Orders</a></li>
-										<li><a href="{% url 'pharmacy:sale_list' %}">POS Orders</a></li>
+										<li class="{% if request.resolver_match.url_name == 'sale_list' %}active{% endif %}"><a href="{% url 'pharmacy:sale_list' %}">POS Orders</a></li>
 									</ul>
 								</li>
 								<li><a href="invoice.html"><i class="ti ti-file-invoice fs-16 me-2"></i><span>Invoices</span></a></li>
 								<li><a href="sales-returns.html"><i class="ti ti-receipt-refund fs-16 me-2"></i><span>Sales Return</span></a></li>
-								<li><a href="{% url 'pharmacy:pos' %}"><i class="ti ti-device-laptop fs-16 me-2"></i><span>POS</span></a></li>
+								<li class="{% if request.resolver_match.url_name == 'pos' %}active{% endif %}"><a href="{% url 'pharmacy:pos' %}"><i class="ti ti-device-laptop fs-16 me-2"></i><span>POS</span></a></li>
 								
 							</ul>
 						</li>
 						<li class="submenu-open">
 							<h6 class="submenu-hdr">Purchases</h6>
 							<ul>
-								<li><a href="{% url 'pharmacy:purchase_list' %}"><i class="ti ti-shopping-bag fs-16 me-2"></i><span>Purchases</span></a></li>
+								<li class="{% if request.resolver_match.url_name == 'purchase_list' %}active{% endif %}"><a href="{% url 'pharmacy:purchase_list' %}" ><i class="ti ti-shopping-bag fs-16 me-2"></i><span>Purchases</span></a></li>
 								<li><a href="purchase-order-report.html"><i class="ti ti-file-unknown fs-16 me-2"></i><span>Purchase Order</span></a></li>
 								<li><a href="purchase-returns.html"><i class="ti ti-file-upload fs-16 me-2"></i><span>Purchase Return</span></a></li>
 							</ul>
@@ -574,8 +574,8 @@
 						<li class="submenu-open">
 							<h6 class="submenu-hdr">Peoples</h6>
 							<ul>
-								<li><a href="{% url 'pharmacy:suppliers' %}"><i class="ti ti-user-dollar fs-16 me-2"></i><span>Suppliers</span></a></li>
-								<li><a href="{% url 'pharmacy:customers' %}"><i class="ti ti-users-group fs-16 me-2"></i><span>Customers</span></a></li>
+								<li class="{% if request.resolver_match.url_name == 'suppliers' %}active{% endif %}"><a href="{% url 'pharmacy:suppliers' %}" ><i class="ti ti-user-dollar fs-16 me-2"></i><span>Suppliers</span></a></li>
+								<li class="{% if request.resolver_match.url_name == 'customers' %}active{% endif %}"><a href="{% url 'pharmacy:customers' %}" ><i class="ti ti-users-group fs-16 me-2"></i><span>Customers</span></a></li>
 								<li><a href="billers.html"><i class="ti ti-user-up fs-16 me-2"></i><span>Billers</span></a></li>
 								<li><a href="store-list.html"><i class="ti ti-home-bolt fs-16 me-2"></i><span>Stores</span></a></li>
 								<li><a href="warehouse.html"><i class="ti ti-archive fs-16 me-2"></i><span>Warehouses</span></a>

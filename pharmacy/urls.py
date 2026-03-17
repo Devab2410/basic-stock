@@ -7,10 +7,14 @@ urlpatterns = [
     # ── Dashboard ────────────────────────────────────────────────
     path('', views.dashboard, name='dashboard'),
 
+    # ── Customer Shop ─────────────────────────────────────────────
+    path('shop/', views.pharmacy_customer_shop, name='shop'),
+
     # ── Products ─────────────────────────────────────────────────
     path('products/', views.product_list, name='product_list'),
     path('products/create/', views.product_create, name='product_create'),
     path('products/<int:pk>/', views.product_detail, name='product_detail'),
+    path('products/<int:pk>/view/', views.product_detail_modern, name='product_detail_modern'),
     path('products/edit/', views.product_edit, name='product_edit'),
     path('products/<int:pk>/delete/', views.product_delete, name='product_delete'),
     path('product-image-delete/<int:pk>/', views.product_image_delete, name='product_image_delete'),
