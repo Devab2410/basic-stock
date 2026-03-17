@@ -100,7 +100,7 @@
 									<div class="col-md-4">
 										<div class="mb-3">
 											<label class="form-label">Store</label>
-											<select class="select">
+											<select class="form-select select">
 												<option>All</option>
 												<option>Electro Mart</option>
 												<option>Quantum Gadgets</option>
@@ -111,7 +111,7 @@
 									<div class="col-md-4">
 										<div class="mb-3">
 											<label class="form-label">Products</label>
-											<select class="select">
+											<select class="form-select select">
 												<option>All</option>
 												<option>Lenovo IdeaPad 3</option>
 												<option>Nike Jordan</option>
@@ -158,39 +158,48 @@
 									<th>Customer</th>
 									<th>Mobile</th>
 									<th>Date</th>
-									<th>Total Amount</th>
-									<th>Total Quantity</th>
+									<th class="text-end">Total Items</th>
+									<th class="text-end">Total Amount</th>
+									<th class="text-end">Paid Amount</th>
+									<th class="text-center">Action</th>
 								</tr>
 							</thead>
 							<tbody>
 								{% for sale in sales %}
 								<tr>
-									
 									<td>
-										<a>{{sale.invoice_no}}</a>
+										<a href="{% url 'pharmacy:sale_detail' sale.pk %}">{{sale.sale_no}}</a>
 									</td>
 									<td>
 										<div class="d-flex align-items-center">
-											<a  class="avatar avatar-md"><img src="{% static 'assets/img/products/laptop.png' %}" class="img-fluid" alt="img"></a>
 											<div class="ms-2">
-												<p class="text-dark mb-0"><a>{{sale.customer.name}}</a></p>
+												<p class="text-dark mb-0"><a>{{sale.customer.name|default:"Walk-in Customer"}}</a></p>
 											</div>
 										</div>
 									</td>
 									<td>
-										{{sale.customer.mobile}}
+										{{sale.customer.phone|default:"N/A"}}
 									</td>
 									<td>
-										{{sale.date}}
+										{{sale.sale_date|date:"d-m-Y H:i"}}
 									</td>
-									<td></td>
-									<td>
-										{{sale.total_amount}}
+									<td class="text-end">{{sale.items.count}}</td>
+									<td class="text-end">
+										₹{{sale.total}}
 									</td>
-									<td>
-										{{sale.total_quantity}}
+									<td class="text-end">
+										₹{{sale.amount_paid}}
 									</td>
-									
+									<td class="action-table-data text-center">
+										<div class="edit-delete-action">
+											<a class="me-2 p-2" href="{% url 'pharmacy:sale_detail' sale.pk %}">
+												<i class="ti ti-eye text-primary"></i>
+											</a>
+											<a class="p-2" href="javascript:void(0);" onclick="printSaleReceipt('{{ sale.id }}')">
+												<i class="ti ti-printer text-info"></i>
+											</a>
+										</div>
+									</td>
 								</tr>
 								{% endfor %}
 							</tbody>
@@ -200,6 +209,151 @@
 			</div>
 			<!-- /product list -->
 		</div>
+
+		<!-- Receipt Modal -->
+		<div class="modal fade modal-default" id="print-receipt" aria-labelledby="print-receipt" aria-modal="true" role="dialog">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div id="receipt-content">
+							<div class="icon-head text-center mb-2">
+								<a href="javascript:void(0);">
+									<img src="{% static 'assets/img/logo.svg' %}" width="100" height="30" alt="Receipt Logo">
+								</a>
+							</div>
+							<div class="text-center info mb-3">
+								<h6 class="fw-bold">{{ store.name }}</h6>
+								<p class="mb-0">Phone: {{ store.phone|default:'' }}</p>
+								<p class="mb-0">Email: {{ store.email|default:'' }}</p>
+							</div>
+							<div class="tax-invoice border-top border-bottom py-2 mb-3">
+								<h6 class="text-center fw-bold text-uppercase">Tax Invoice</h6>
+								<div class="row">
+									<div class="col-6">
+										<div class="invoice-user-name"><span>Name: </span><span id="rCustomer"></span></div>
+										<div class="invoice-user-name"><span>Invoice No: </span><span id="rInvoiceNo"></span></div>
+									</div>
+									<div class="col-6 text-end">
+										<div class="invoice-user-name"><span>Date: </span><span id="rDate"></span></div>
+									</div>
+								</div>
+							</div>
+							<table class="table table-borderless w-100 mb-3">
+								<thead>
+									<tr class="border-bottom">
+										<th class="py-1"># Item</th>
+										<th class="py-1">Price</th>
+										<th class="py-1">Qty</th>
+										<th class="text-end py-1">Total</th>
+									</tr>
+								</thead>
+								<tbody id="rItems">
+									<!-- Items injected here -->
+								</tbody>
+								<tfoot>
+									<tr class="border-top">
+										<td colspan="3" class="fw-bold py-1">Sub Total :</td>
+										<td class="text-end py-1" id="rSubtotal">₹0.00</td>
+									</tr>
+									<tr>
+										<td colspan="3" class="fw-bold py-1">Discount :</td>
+										<td class="text-end py-1 text-danger" id="rDiscount">-₹0.00</td>
+									</tr>
+									<tr>
+										<td colspan="3" class="fw-bold py-1">Tax :</td>
+										<td class="text-end py-1" id="rTax">₹0.00</td>
+									</tr>
+									<tr class="border-top">
+										<td colspan="3" class="fw-bold py-1 fs-16">Total Bill :</td>
+										<td class="text-end py-1 fw-bold fs-16" id="rTotal">₹0.00</td>
+									</tr>
+									<tr>
+										<td colspan="3" class="fw-bold py-1">Paid Amount :</td>
+										<td class="text-end py-1" id="rPaid">₹0.00</td>
+									</tr>
+									<tr>
+										<td colspan="3" class="fw-bold py-1">Due :</td>
+										<td class="text-end py-1" id="rDue">₹0.00</td>
+									</tr>
+								</tfoot>
+							</table>
+							<div class="text-center invoice-bar mt-4">
+								<p class="small">**Thank you for your business!</p>
+								<div class="mb-2">
+									<img src="{% static 'assets/img/barcode/barcode-03.jpg' %}" alt="Barcode" style="max-width: 150px;">
+								</div>
+								<p class="text-dark fw-bold mb-0" id="rSaleNo"></p>
+								<p>Please Come Again</p>
+							</div>
+						</div>
+						<div class="text-center mt-3 no-print-btn">
+							<a href="javascript:void(0);" class="btn btn-primary" onclick="window.print()">Print Receipt</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<style>
+			@media print {
+				body * { visibility: hidden; }
+				#print-receipt, #print-receipt * { visibility: visible; }
+				#print-receipt { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
+				.no-print-btn, .modal-header, .close { display: none !important; }
+				.modal { position: static; display: block !important; opacity: 1 !important; }
+				.modal-dialog { margin: 0; width: 100%; max-width: 100%; }
+				.modal-content { border: none; box-shadow: none; }
+			}
+		</style>
+
+		<script>
+		function printSaleReceipt(saleId) {
+			fetch(`/pharmacy/sales/${saleId}/`)
+				.then(response => {
+					// We need a JSON response for the modal, but the view currently returns HTML.
+					// Let's assume we'll update the view to handle AJAX or we extract from HTML.
+					// For now, I'll update the view to handle AJAX.
+					return response.json();
+				})
+				.then(data => {
+					if (data.success === false) {
+						alert(data.error);
+						return;
+					}
+					const sale = data.sale;
+					document.getElementById('rCustomer').innerText = sale.customer || 'Walk-in Customer';
+					document.getElementById('rInvoiceNo').innerText = sale.sale_no;
+					document.getElementById('rDate').innerText = sale.date;
+					document.getElementById('rSaleNo').innerText = 'Sale ' + sale.sale_no;
+					
+					let itemsHtml = '';
+					sale.items.forEach((item, index) => {
+						itemsHtml += `
+							<tr>
+								<td>${index + 1}. ${item.name}</td>
+								<td>₹${item.price}</td>
+								<td>${item.qty}</td>
+								<td class="text-end">₹${item.total}</td>
+							</tr>
+						`;
+					});
+					document.getElementById('rItems').innerHTML = itemsHtml;
+					document.getElementById('rSubtotal').innerText = '₹' + sale.subtotal;
+					document.getElementById('rDiscount').innerText = '-₹' + sale.discount;
+					document.getElementById('rTax').innerText = '₹' + sale.tax_amount;
+					document.getElementById('rTotal').innerText = '₹' + sale.total;
+					document.getElementById('rPaid').innerText = '₹' + sale.amount_paid;
+					document.getElementById('rDue').innerText = '₹' + sale.balance_due;
+
+					var myModal = new bootstrap.Modal(document.getElementById('print-receipt'));
+					myModal.show();
+				})
+				.catch(error => {
+					console.error('Error fetching sale details:', error);
+					alert('Failed to load sale details.');
+				});
+		}
+		</script>
 <!-- /Main Wrapper -->
 
 {% endblock %}

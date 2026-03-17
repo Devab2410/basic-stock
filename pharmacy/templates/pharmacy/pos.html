@@ -147,9 +147,26 @@
 			animation: cartFlash .45s ease-out;
 		}
 
-		/* ── Live clock ───────────────────────────── */
-		#liveClock {
-			font-variant-numeric: tabular-nums;
+		/* ── View Link on Card ────────────────────── */
+		.view-product-link {
+			position: absolute;
+			top: 6px;
+			right: 6px;
+			z-index: 10;
+			background: rgb(255, 255, 255);
+			width: 28px;
+			height: 28px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 4px;
+			color: #0d9488;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+			transition: all 0.2s;
+		}
+		.view-product-link:hover {
+			background: #0d9488;
+			color: #fff;
 		}
 	</style>
 </head>
@@ -351,6 +368,11 @@
 													<span class="rx-badge otc">OTC</span>
 													{% endif %}
 
+													<!-- View product link -->
+													<a href="{% url 'pharmacy:product_detail_modern' product.id %}" target="_blank" class="view-product-link" onclick="event.stopPropagation();" title="View Product">
+														<i class="ti ti-eye"></i>
+													</a>
+
 													<!-- Product image -->
 													<a href="javascript:void(0);" class="product-image">
 														{% if product.images.first %}
@@ -440,6 +462,11 @@
 													{% else %}
 													<span class="rx-badge otc">OTC</span>
 													{% endif %}
+
+													<!-- View product link -->
+													<a href="{% url 'pharmacy:product_detail_modern' product.id %}" target="_blank" class="view-product-link" onclick="event.stopPropagation();" title="View Product">
+														<i class="ti ti-eye"></i>
+													</a>
 
 													<a href="javascript:void(0);" class="product-image">
 														{% if product.images.first %}
@@ -717,144 +744,7 @@
 
 	<!-- ══════════════════════════════════════════════
      MODALS
-══════════════════════════════════════════════ -->
-
-	<!-- product detail modal -->
-	 <div class="modal fade show" id="items_details" aria-modal="true" role="dialog" style="display: block;">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-
-                    <div class="modal-body p-4">
-
-                        <!-- start row -->
-                        <div class="row g-4">
-                            <div class="col-lg-6">
-                                <div class="items-img p-3 border rounded bg-light">
-                                    <img src="assets/img/food/food-img-1.png" alt="food" class="img-fluid img-1">
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="items-content">
-                                    <h4 class="mb-2">Chicken Taco</h4>
-                                    <p class="mb-3">Tender grilled chicken wrapped in soft tortillas, topped with fresh lettuce, salsa, and creamy sauce.</p>
-                                    <div class="items-info mb-4 pb-4 border-bottom">
-                                        <h6 class="fw-semibold mb-3">Sizes</h6>
-                                        <div class="d-flex align-items-center flex-wrap gap-2 size-group">
-                                            <div class="size-tab">
-                                                <button class="tag d-flex align-items-center justify-content-between gap-3">Small <span>$28</span> </button> 
-                                            </div>
-                                            <div class="size-tab">
-                                                <button class="tag d-flex align-items-center justify-content-between gap-3">Medium <span>$28</span></button>
-                                            </div>
-                                            <div class="size-tab">  
-                                                <button class="tag d-flex align-items-center justify-content-between gap-3">Regular <span>$28</span></button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-4 pb-4 border-bottom">
-                                        <h6 class="fw-semibold mb-3">Add-ons &amp; Upgrades</h6>
-                                        <div class="upgrade-slider slick-initialized slick-slider"><div class="slick-list draggable"><div class="slick-track" style="opacity: 1; width: 1520px; transform: translate3d(-380px, 0px, 0px);"><div class="slick-slide slick-cloned" data-slick-index="-2" id="" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
-                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
-                                                    <div class="avatar rounded-circle border">
-                                                        <img src="assets/img/food/food-2.png" alt="food" class="img-fluid img-1">
-                                                    </div>
-                                                    <div>
-                                                        <p class="fw-medium mb-1 text-dark">Grilled Chicken</p>
-                                                        <p class="mb-0 fw-medium">$8</p>
-                                                    </div>
-                                                </div>
-                                            </div></div></div><div class="slick-slide slick-cloned" data-slick-index="-1" id="" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
-                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
-                                                    <div class="avatar rounded-circle border">
-                                                        <img src="assets/img/food/food-3.png" alt="food" class="img-fluid img-1">
-                                                    </div>
-                                                    <div>
-                                                        <p class="fw-medium mb-1 text-dark">Chicken Soup</p>
-                                                        <p class="mb-0 fw-medium">$2</p>
-                                                    </div>
-                                                </div>
-                                            </div></div></div><div class="slick-slide slick-current slick-active" data-slick-index="0" aria-hidden="false" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
-                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
-                                                    <div class="avatar rounded-circle border">
-                                                        <img src="assets/img/food/food-1.png" alt="food" class="img-fluid img-1">
-                                                    </div>
-                                                    <div>
-                                                        <p class="fw-medium mb-1 text-dark">Extra Chicken</p>
-                                                        <p class="mb-0 fw-medium">$2</p>
-                                                    </div>
-                                                </div>
-                                            </div></div></div><div class="slick-slide slick-active" data-slick-index="1" aria-hidden="false" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
-                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
-                                                    <div class="avatar rounded-circle border">
-                                                        <img src="assets/img/food/food-2.png" alt="food" class="img-fluid img-1">
-                                                    </div>
-                                                    <div>
-                                                        <p class="fw-medium mb-1 text-dark">Grilled Chicken</p>
-                                                        <p class="mb-0 fw-medium">$8</p>
-                                                    </div>
-                                                </div>
-                                            </div></div></div><div class="slick-slide" data-slick-index="2" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
-                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
-                                                    <div class="avatar rounded-circle border">
-                                                        <img src="assets/img/food/food-3.png" alt="food" class="img-fluid img-1">
-                                                    </div>
-                                                    <div>
-                                                        <p class="fw-medium mb-1 text-dark">Chicken Soup</p>
-                                                        <p class="mb-0 fw-medium">$2</p>
-                                                    </div>
-                                                </div>
-                                            </div></div></div><div class="slick-slide slick-cloned" data-slick-index="3" id="" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
-                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
-                                                    <div class="avatar rounded-circle border">
-                                                        <img src="assets/img/food/food-1.png" alt="food" class="img-fluid img-1">
-                                                    </div>
-                                                    <div>
-                                                        <p class="fw-medium mb-1 text-dark">Extra Chicken</p>
-                                                        <p class="mb-0 fw-medium">$2</p>
-                                                    </div>
-                                                </div>
-                                            </div></div></div><div class="slick-slide slick-cloned" data-slick-index="4" id="" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
-                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
-                                                    <div class="avatar rounded-circle border">
-                                                        <img src="assets/img/food/food-2.png" alt="food" class="img-fluid img-1">
-                                                    </div>
-                                                    <div>
-                                                        <p class="fw-medium mb-1 text-dark">Grilled Chicken</p>
-                                                        <p class="mb-0 fw-medium">$8</p>
-                                                    </div>
-                                                </div>
-                                            </div></div></div><div class="slick-slide slick-cloned" data-slick-index="5" id="" aria-hidden="true" tabindex="-1" style="width: 190px;"><div><div class="slider-item" style="width: 100%; display: inline-block;">
-                                                <div class="d-flex align-items-center gap-2 border p-2 rounded addon-item">
-                                                    <div class="avatar rounded-circle border">
-                                                        <img src="assets/img/food/food-3.png" alt="food" class="img-fluid img-1">
-                                                    </div>
-                                                    <div>
-                                                        <p class="fw-medium mb-1 text-dark">Chicken Soup</p>
-                                                        <p class="mb-0 fw-medium">$2</p>
-                                                    </div>
-                                                </div>
-                                            </div></div></div></div></div></div>
-                                    </div>
-                                    <div>
-                                        <h5 class="mb-4 d-flex align-items-center justify-content-between">Total <span>$274</span></h5>
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div class="quantity-control">
-                                                <button type="button" class="minus-btn"><i class="icon-minus"></i></button>
-                                                <input type="text" class="quantity-input" value="1" aria-label="Quantity">
-                                                <button type="button" class="add-btn"><i class="icon-plus"></i></button>
-                                            </div>
-                                            <a href="#" data-bs-toggle="modal" data-bs-target="#item_view" class="btn btn-primary w-100 d-flex align-items-center gap-2"> <i class="icon-shopping-bag"></i> Add to Cart</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>  
-                        </div>
-                        <!-- end row -->
-                    </div>
-                </div>
-            </div>
-        </div>
+	══════════════════════════════════════════════ -->
 
 	<!-- Finalize Sale (payment modal) -->
 	<div class="modal fade modal-default" id="payment-modal">
@@ -1216,9 +1106,105 @@
 	</div>
 
 
+	<!-- Receipt Modal -->
+	<div class="modal fade modal-default" id="print-receipt" aria-labelledby="print-receipt" aria-modal="true" role="dialog">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div id="receipt-content">
+						<div class="icon-head text-center mb-2">
+							<a href="javascript:void(0);">
+								<img src="{% static 'assets/img/logo.svg' %}" width="100" height="30" alt="Receipt Logo">
+							</a>
+						</div>
+						<div class="text-center info mb-3">
+							<h6 class="fw-bold">{{ store.name }}</h6>
+							<p class="mb-0">Phone: {{ store.phone|default:'' }}</p>
+							<p class="mb-0">Email: {{ store.email|default:'' }}</p>
+						</div>
+						<div class="tax-invoice border-top border-bottom py-2 mb-3">
+							<h6 class="text-center fw-bold text-uppercase">Tax Invoice</h6>
+							<div class="row">
+								<div class="col-6">
+									<div class="invoice-user-name"><span>Name: </span><span id="rCustomer"></span></div>
+									<div class="invoice-user-name"><span>Invoice No: </span><span id="rInvoiceNo"></span></div>
+								</div>
+								<div class="col-6 text-end">
+									<div class="invoice-user-name"><span>Date: </span><span id="rDate"></span></div>
+								</div>
+							</div>
+						</div>
+						<table class="table table-borderless w-100 mb-3">
+							<thead>
+								<tr class="border-bottom">
+									<th class="py-1"># Item</th>
+									<th class="py-1">Price</th>
+									<th class="py-1">Qty</th>
+									<th class="text-end py-1">Total</th>
+								</tr>
+							</thead>
+							<tbody id="rItems">
+								<!-- Items injected here -->
+							</tbody>
+							<tfoot>
+								<tr class="border-top">
+									<td colspan="3" class="fw-bold py-1">Sub Total :</td>
+									<td class="text-end py-1" id="rSubtotal">₹0.00</td>
+								</tr>
+								<tr>
+									<td colspan="3" class="fw-bold py-1">Discount :</td>
+									<td class="text-end py-1 text-danger" id="rDiscount">-₹0.00</td>
+								</tr>
+								<tr>
+									<td colspan="3" class="fw-bold py-1">Tax :</td>
+									<td class="text-end py-1" id="rTax">₹0.00</td>
+								</tr>
+								<tr class="border-top">
+									<td colspan="3" class="fw-bold py-1 fs-16">Total Bill :</td>
+									<td class="text-end py-1 fw-bold fs-16" id="rTotal">₹0.00</td>
+								</tr>
+								<tr>
+									<td colspan="3" class="fw-bold py-1">Paid Amount :</td>
+									<td class="text-end py-1" id="rPaid">₹0.00</td>
+								</tr>
+								<tr>
+									<td colspan="3" class="fw-bold py-1">Due :</td>
+									<td class="text-end py-1" id="rDue">₹0.00</td>
+								</tr>
+							</tfoot>
+						</table>
+						<div class="text-center invoice-bar mt-4">
+							<p class="small">**Thank you for your business!</p>
+							<div class="mb-2">
+								<img src="{% static 'assets/img/barcode/barcode-03.jpg' %}" alt="Barcode" style="max-width: 150px;">
+							</div>
+							<p class="text-dark fw-bold mb-0" id="rSaleNo"></p>
+							<p>Please Come Again</p>
+						</div>
+					</div>
+					<div class="text-center mt-3 no-print-btn">
+						<a href="javascript:void(0);" class="btn btn-primary" onclick="window.print()">Print Receipt</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<style>
+		@media print {
+			body * { visibility: hidden; }
+			#print-receipt, #print-receipt * { visibility: visible; }
+			#print-receipt { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
+			.no-print-btn, .modal-header, .close { display: none !important; }
+			.modal { position: static; display: block !important; opacity: 1 !important; }
+			.modal-dialog { margin: 0; width: 100%; max-width: 100%; }
+			.modal-content { border: none; box-shadow: none; }
+		}
+	</style>
+
 	<!-- ══════════════════════════════════════════════
      SCRIPTS  (same order as your original)
-══════════════════════════════════════════════ -->
+     ══════════════════════════════════════════════ -->
 	<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
 	<script src="{% static 'assets/js/feather.min.js' %}"></script>
 	<script src="{% static 'assets/js/jquery.slimscroll.min.js' %}"></script>
@@ -1252,6 +1238,12 @@
 		$(document).ready(function () {
 			// Disable the conflicting script.js behavior that toggles .active and hides the cart
 			$(document).off("click", ".product-info");
+
+			// Check if there's a redirected sale to print
+			const urlParams = new URLSearchParams(window.location.search);
+			if (urlParams.has('print_sale')) {
+				printSaleReceipt(urlParams.get('print_sale'));
+			}
 		});
 
 		/* ── Live clock ─────────────────────────────── */
@@ -1519,9 +1511,53 @@
 			document.getElementById('payBtnTotal').textContent = '₹' + grand.toFixed(2);
 		}
 
+		function printSaleReceipt(saleId) {
+			fetch(`/pharmacy/sales/${saleId}/`, {
+				headers: { 'X-Requested-With': 'XMLHttpRequest' }
+			})
+				.then(response => response.json())
+				.then(data => {
+					if (data.success === false) { alert(data.error); return; }
+					const sale = data.sale;
+					document.getElementById('rCustomer').innerText = sale.customer || 'Walk-in Customer';
+					document.getElementById('rInvoiceNo').innerText = sale.sale_no;
+					document.getElementById('rDate').innerText = sale.date;
+					document.getElementById('rSaleNo').innerText = 'Sale ' + sale.sale_no;
+					
+					let itemsHtml = '';
+					sale.items.forEach((item, index) => {
+						itemsHtml += `
+							<tr>
+								<td>${index + 1}. ${item.name}</td>
+								<td>₹${item.price}</td>
+								<td>${item.qty}</td>
+								<td class="text-end">₹${item.total}</td>
+							</tr>
+						`;
+					});
+					document.getElementById('rItems').innerHTML = itemsHtml;
+					document.getElementById('rSubtotal').innerText = '₹' + sale.subtotal;
+					document.getElementById('rDiscount').innerText = '-₹' + sale.discount;
+					document.getElementById('rTax').innerText = '₹' + sale.tax_amount;
+					document.getElementById('rTotal').innerText = '₹' + sale.total;
+					document.getElementById('rPaid').innerText = '₹' + sale.amount_paid;
+					document.getElementById('rDue').innerText = '₹' + sale.balance_due;
+
+					var myModal = new bootstrap.Modal(document.getElementById('print-receipt'));
+					myModal.show();
+				})
+				.catch(error => {
+					console.error('Error fetching sale details:', error);
+				});
+		}
+
 		/* Init */
 		renderCart();
 	</script>
+
+</body>
+
+</html>
 
 </body>
 

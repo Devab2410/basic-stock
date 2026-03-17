@@ -1,0 +1,644 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% if selected_category %}{{ selected_category.name }} — {% endif %}{% if q %}Search: {{ q }} — {% endif %}PharmaCare Online Store</title>
+<link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}">
+<link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'assets/plugins/tabler-icons/tabler-icons.min.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#24aeb1;--teal-d:#1a8c8f;--teal-xl:#e6f7f7;--teal-xs:#f0fbfb;
+  --red:#e53935;--orange:#f57c00;--green:#2e7d32;
+  --text:#212121;--muted:#757575;--border:#e0e0e0;
+  --card:#fff;--bg:#f5f5f5;--r:12px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);margin:0;font-size:14px;}
+a{text-decoration:none;}
+
+/* ── HEADER ── */
+.hdr{background:var(--teal);position:sticky;top:0;z-index:1030;box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.hdr .i{display:flex;align-items:center;gap:14px;padding:10px 20px;max-width:1320px;margin:0 auto;}
+.logo{display:flex;align-items:center;gap:8px;color:#fff;font-size:20px;font-weight:800;flex-shrink:0;letter-spacing:-.4px;}
+.logo-box{background:rgba(255,255,255,.2);width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.hdr-search{flex:1;max-width:640px;position:relative;}
+.hdr-search input{width:100%;padding:10px 44px 10px 16px;border-radius:8px;border:none;outline:none;font-size:13.5px;}
+.hdr-search .sbtn{position:absolute;right:0;top:0;bottom:0;width:44px;background:rgba(255,255,255,.15);border:none;border-radius:0 8px 8px 0;color:#fff;cursor:pointer;font-size:16px;transition:background .2s;}
+.hdr-search .sbtn:hover{background:rgba(255,255,255,.25);}
+.hdr-cart{display:flex;flex-direction:column;align-items:center;color:rgba(255,255,255,.9);font-size:11px;gap:2px;padding:6px 10px;border-radius:8px;cursor:pointer;position:relative;transition:background .2s;}
+.hdr-cart:hover{background:rgba(255,255,255,.15);color:#fff;}
+.hdr-cart i{font-size:20px;}
+.cart-badge{position:absolute;top:2px;right:6px;background:var(--red);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+.ham{background:rgba(255,255,255,.15);border:none;color:#fff;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;}
+
+/* ── CAT BAR ── */
+.cbar{background:var(--teal-d);overflow-x:auto;scrollbar-width:none;border-bottom:1px solid rgba(255,255,255,.1);}
+.cbar::-webkit-scrollbar{display:none;}
+.cbar .i{display:flex;max-width:1320px;margin:0 auto;padding:0 20px;}
+.cbar a{color:rgba(255,255,255,.85);font-size:12.5px;font-weight:500;padding:8px 16px;white-space:nowrap;border-bottom:2px solid transparent;transition:all .15s;}
+.cbar a:hover,.cbar a.active{color:#fff;border-bottom-color:#fff;}
+
+/* ── OFFCANVAS MENU ── */
+.offcanvas-header{background:var(--teal);color:#fff;}
+.offcanvas-header .btn-close{filter:invert(1);}
+.oc-nav a{display:flex;align-items:center;gap:12px;padding:11px 16px;color:var(--text);font-weight:500;border-bottom:1px solid var(--border);transition:background .15s;}
+.oc-nav a:hover{background:var(--teal-xs);color:var(--teal);}
+.oc-nav a i{color:var(--teal);font-size:17px;}
+.oc-hdr{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:13px 16px 5px;}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#0e8e91 0%,#24aeb1 50%,#2ec8cc 100%);padding:40px 20px;color:#fff;}
+.hero .i{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;}
+.hero h1{font-size:32px;font-weight:800;margin:0;line-height:1.2;}
+.hero p{font-size:15px;margin:0;opacity:.9;}
+.hero-search{width:100%;max-width:580px;display:flex;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+.hero-search input{flex:1;padding:14px 18px;border:none;outline:none;font-size:14px;}
+.hero-search button{padding:0 24px;background:#fff;border:none;color:var(--teal);font-size:16px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s;}
+.hero-search button:hover{background:#f0f0f0;}
+.hero-stats{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-top:4px;}
+.hero-stats span{display:flex;align-items:center;gap:6px;font-size:13px;opacity:.9;}
+.hero-stats i{font-size:16px;}
+
+/* ── PAGE ── */
+.page{max-width:1320px;margin:0 auto;padding:24px 16px 48px;}
+
+/* ── CATEGORIES STRIP ── */
+.cat-section{margin-bottom:28px;}
+.sec-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sec-title::before{content:'';display:block;width:4px;height:20px;background:var(--teal);border-radius:2px;}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;}
+.cat-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.cat-card:hover,.cat-card.active{border-color:var(--teal);background:var(--teal-xs);}
+.cat-card .ci{width:44px;height:44px;border-radius:50%;background:var(--teal-xl);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--teal);}
+.cat-card.active .ci{background:var(--teal);color:#fff;}
+.cat-card span{font-size:11.5px;font-weight:600;color:var(--text);line-height:1.3;text-align:center;}
+.cat-card.active span{color:var(--teal-d);}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;padding:12px 16px;background:var(--card);border-radius:var(--r);border:1px solid var(--border);}
+.result-info{font-size:13px;color:var(--muted);}
+.result-info strong{color:var(--text);}
+.clear-filter{font-size:12.5px;color:var(--teal);font-weight:600;display:inline-flex;align-items:center;gap:4px;}
+.clear-filter:hover{text-decoration:underline;}
+
+/* ── PRODUCT GRID ── */
+.prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+
+/* ── PRODUCT CARD ── */
+.prod-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s,transform .2s;position:relative;}
+.prod-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.1);transform:translateY(-3px);}
+.prod-img{height:180px;display:flex;align-items:center;justify-content:center;background:#fafafa;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.prod-img img{max-height:160px;max-width:90%;object-fit:contain;transition:transform .3s;}
+.prod-card:hover .prod-img img{transform:scale(1.05);}
+.prod-img .no-img-i{font-size:48px;color:#e0e0e0;}
+.prod-img .disc-tag{position:absolute;top:10px;left:10px;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.prod-img .rx-tag{position:absolute;top:10px;right:10px;background:#fff3e0;color:var(--orange);border:1px solid #ffe0b2;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px;}
+
+.prod-body{padding:12px;flex:1;display:flex;flex-direction:column;gap:4px;}
+.p-brand{font-size:10px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.4px;}
+.p-name{font-size:13.5px;font-weight:700;color:var(--text);line-height:1.35;flex:1;}
+.p-cat{font-size:11px;color:var(--muted);}
+.p-price-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.p-price{font-size:18px;font-weight:800;color:var(--teal);}
+.p-mrp{font-size:12px;color:var(--muted);text-decoration:line-through;}
+.p-off{font-size:11px;font-weight:700;color:var(--red);}
+
+.prod-foot{padding:0 12px 12px;display:flex;gap:8px;}
+.btn-detail{flex:1;padding:9px 12px;border-radius:8px;border:1.5px solid var(--teal);background:#fff;color:var(--teal);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.btn-detail:hover{background:var(--teal-xs);}
+.btn-cart{flex:1;padding:9px 12px;border-radius:8px;border:none;background:var(--teal);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.btn-cart:hover{background:var(--teal-d);}
+.btn-cart:disabled,.btn-cart[disabled]{background:#bdbdbd;cursor:not-allowed;}
+.btn-oos{flex:1;padding:9px 12px;border-radius:8px;border:1.5px solid #bdbdbd;background:#f5f5f5;color:#bdbdbd;font-size:12.5px;font-weight:600;cursor:not-allowed;display:flex;align-items:center;justify-content:center;gap:5px;}
+
+.stock-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;margin-top:5px;width:fit-content;}
+.sb-in{background:#e8f5e9;color:var(--green);}
+.sb-out{background:#ffebee;color:var(--red);}
+.sb-low{background:#fff8e1;color:var(--orange);}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-state i{font-size:64px;display:block;margin-bottom:14px;opacity:.3;}
+.empty-state h4{font-weight:700;color:var(--text);margin-bottom:8px;}
+.empty-state p{font-size:13.5px;}
+
+/* ── PAGINATION ── */
+.pagination-wrap{display:flex;justify-content:center;margin-top:32px;gap:6px;flex-wrap:wrap;}
+.pg-btn{min-width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;padding:0 10px;}
+.pg-btn:hover{border-color:var(--teal);color:var(--teal);}
+.pg-btn.active{background:var(--teal);color:#fff;border-color:var(--teal);}
+.pg-btn.disabled{opacity:.4;cursor:not-allowed;pointer-events:none;}
+
+/* ── CART MODAL ── */
+.cart-empty-msg{text-align:center;padding:30px 0;color:var(--muted);}
+.cart-empty-msg i{font-size:48px;display:block;margin-bottom:10px;opacity:.3;}
+.cart-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.cart-item:last-child{border-bottom:none;}
+.cart-item .ci-img{width:52px;height:52px;border-radius:8px;background:#f5f5f5;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
+.cart-item .ci-img img{max-width:44px;max-height:44px;object-fit:contain;}
+.cart-item .ci-name{font-size:13px;font-weight:600;flex:1;}
+.cart-item .ci-price{font-size:13px;font-weight:700;color:var(--teal);}
+.cart-item .ci-rm{background:none;border:none;color:#bdbdbd;cursor:pointer;font-size:18px;padding:0;}
+.cart-item .ci-rm:hover{color:var(--red);}
+.cart-total{background:#f5f5f5;border-radius:8px;padding:14px;margin-top:16px;display:flex;justify-content:space-between;align-items:center;}
+.cart-total span{font-size:13px;color:var(--muted);}
+.cart-total strong{font-size:18px;font-weight:800;color:var(--teal);}
+
+/* ── FOOTER ── */
+.footer{background:#212121;color:rgba(255,255,255,.7);padding:40px 20px 20px;margin-top:40px;}
+.footer .i{max-width:1320px;margin:0 auto;}
+.f-brand{font-size:19px;font-weight:800;color:#fff;margin-bottom:6px;}
+.f-desc{font-size:12.5px;line-height:1.7;max-width:300px;}
+.f-links h6{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:rgba(255,255,255,.45);font-weight:700;margin-bottom:12px;}
+.f-links ul{list-style:none;padding:0;margin:0;}
+.f-links li{margin-bottom:8px;}
+.f-links a{color:rgba(255,255,255,.65);font-size:12.5px;}
+.f-links a:hover{color:var(--teal);}
+.f-btm{border-top:1px solid rgba(255,255,255,.1);margin-top:24px;padding-top:16px;font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+
+/* ── BACK TOP ── */
+#bt{position:fixed;bottom:22px;right:22px;width:42px;height:42px;border-radius:50%;background:var(--teal);color:#fff;border:none;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;box-shadow:0 4px 14px rgba(36,174,177,.4);opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;}
+#bt.show{opacity:1;pointer-events:auto;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1199px){.prod-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:767px){
+  .prod-grid{grid-template-columns:repeat(2,1fr);}
+  .hdr-search{max-width:none;}
+  .hero h1{font-size:24px;}
+  .hero p{font-size:13px;}
+  .cat-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr));}
+}
+@media(max-width:575px){
+  .hdr .i{padding:8px 12px;gap:8px;}
+  .d-sm-none-custom{display:none!important;}
+  .prod-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .prod-img{height:140px;}
+  .p-price{font-size:15px;}
+  .page{padding:16px 10px 36px;}
+  .prod-body{padding:10px;}
+  .prod-foot{padding:0 10px 10px;gap:6px;}
+  .btn-detail,.btn-cart,.btn-oos{font-size:11.5px;padding:8px 8px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════ -->
+<header class="hdr">
+  <div class="i">
+    <button class="ham d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobMenu"><i class="ti ti-menu-2"></i></button>
+    <a href="{% url 'pharmacy:shop' %}" class="logo">
+      <div class="logo-box"><i class="ti ti-pill"></i></div>
+      <span class="d-none d-sm-inline">PharmaCare</span>
+    </a>
+    <form class="hdr-search" action="{% url 'pharmacy:shop' %}" method="get">
+      {% if cat_id %}<input type="hidden" name="category" value="{{ cat_id }}">{% endif %}
+      <input type="text" name="q" value="{{ q }}" placeholder="Search medicines, brands, categories…" autocomplete="off">
+      <button type="submit" class="sbtn"><i class="ti ti-search"></i></button>
+    </form>
+    <a class="hdr-cart" onclick="openCart()" style="text-decoration:none;">
+      <i class="ti ti-shopping-cart"></i>
+      <span class="d-none d-sm-inline">Cart</span>
+      <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+    </a>
+  </div>
+</header>
+
+<!-- Category bar -->
+<div class="cbar d-none d-md-block">
+  <div class="i">
+    <a href="{% url 'pharmacy:shop' %}" class="{% if not cat_id and not q %}active{% endif %}">All Products</a>
+    {% for cat in categories %}
+    <a href="{% url 'pharmacy:shop' %}?category={{ cat.pk }}"
+       class="{% if cat_id == cat.pk|stringformat:'s' %}active{% endif %}">{{ cat.name }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- ══ MOBILE MENU ══════════════════════════════════════ -->
+<div class="offcanvas offcanvas-start" id="mobMenu" tabindex="-1">
+  <div class="offcanvas-header">
+    <div class="d-flex align-items-center gap-2">
+      <i class="ti ti-pill fs-20"></i><span style="font-weight:800;font-size:17px;">PharmaCare</span>
+    </div>
+    <button class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body p-0">
+    <div class="p-3 border-bottom">
+      <form action="{% url 'pharmacy:shop' %}" method="get" class="d-flex gap-2">
+        <input class="form-control" name="q" value="{{ q }}" placeholder="Search medicines…">
+        <button class="btn btn-outline-secondary"><i class="ti ti-search"></i></button>
+      </form>
+    </div>
+    <nav class="oc-nav">
+      <div class="oc-hdr">Browse</div>
+      <a href="{% url 'pharmacy:shop' %}"><i class="ti ti-home"></i>All Products</a>
+      {% for cat in categories %}
+      <a href="{% url 'pharmacy:shop' %}?category={{ cat.pk }}">
+        <i class="ti ti-tag"></i>{{ cat.name }}
+      </a>
+      {% endfor %}
+    </nav>
+  </div>
+</div>
+
+<!-- ══ HERO ═══════════════════════════════════════════ -->
+<section class="hero">
+  <div class="i">
+    <div>
+      <h1><i class="ti ti-pill me-2"></i>Your Trusted Pharmacy</h1>
+      <p>Genuine medicines • Best prices • Trusted quality</p>
+    </div>
+    <form class="hero-search w-100" action="{% url 'pharmacy:shop' %}" method="get" style="max-width:580px;">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search by medicine name, brand…">
+      <button type="submit"><i class="ti ti-search me-2"></i>Search</button>
+    </form>
+    <div class="hero-stats">
+      <span><i class="ti ti-shield-check"></i> 100% Authentic Medicines</span>
+      <span><i class="ti ti-certificate"></i> Quality Checked</span>
+      <span><i class="ti ti-refresh"></i> Easy Returns</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MAIN PAGE ═══════════════════════════════════════ -->
+<div class="page">
+
+  <!-- ── Category Grid ── -->
+  {% if not q and not cat_id and categories %}
+  <div class="cat-section">
+    <div class="sec-title">Shop by Category</div>
+    <div class="cat-grid">
+      {% for cat in categories %}
+      <a href="{% url 'pharmacy:shop' %}?category={{ cat.pk }}" style="text-decoration:none;">
+        <div class="cat-card {% if cat_id == cat.pk|stringformat:'s' %}active{% endif %}">
+          <div class="ci">
+            {% if cat.image %}
+              <img src="{{ cat.image.url }}" alt="{{ cat.name }}" style="width:28px;height:28px;object-fit:contain;">
+            {% else %}
+              <i class="ti ti-tag"></i>
+            {% endif %}
+          </div>
+          <span>{{ cat.name }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── Filter / Result bar ── -->
+  <div class="filter-bar">
+    <div class="result-info">
+      {% if q %}
+        Showing <strong>{{ total_count }}</strong> result{{ total_count|pluralize }} for "<strong>{{ q }}</strong>"
+      {% elif selected_category %}
+        <strong>{{ selected_category.name }}</strong> — <strong>{{ total_count }}</strong> product{{ total_count|pluralize }}
+      {% else %}
+        <strong>{{ total_count }}</strong> product{{ total_count|pluralize }} available
+      {% endif %}
+    </div>
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      {% if q or cat_id %}
+      <a href="{% url 'pharmacy:shop' %}" class="clear-filter"><i class="ti ti-x fs-12"></i>Clear filters</a>
+      {% endif %}
+      {% if selected_category %}
+        <span style="background:var(--teal-xl);color:var(--teal);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;">
+          <i class="ti ti-tag me-1 fs-12"></i>{{ selected_category.name }}
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── Category pills (mobile) ── -->
+  <div class="d-md-none mb-3">
+    <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;">
+      <a href="{% url 'pharmacy:shop' %}" style="flex-shrink:0;padding:6px 14px;border-radius:20px;border:1.5px solid {% if not cat_id %}var(--teal){% else %}var(--border){% endif %};background:{% if not cat_id %}var(--teal-xs){% else %}#fff{% endif %};color:{% if not cat_id %}var(--teal){% else %}var(--text){% endif %};font-size:12px;font-weight:600;white-space:nowrap;">All</a>
+      {% for cat in categories %}
+      <a href="{% url 'pharmacy:shop' %}?category={{ cat.pk }}" style="flex-shrink:0;padding:6px 14px;border-radius:20px;border:1.5px solid {% if cat_id == cat.pk|stringformat:'s' %}var(--teal){% else %}var(--border){% endif %};background:{% if cat_id == cat.pk|stringformat:'s' %}var(--teal-xs){% else %}#fff{% endif %};color:{% if cat_id == cat.pk|stringformat:'s' %}var(--teal){% else %}var(--text){% endif %};font-size:12px;font-weight:600;white-space:nowrap;">{{ cat.name }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── Product Grid ── -->
+  {% if product_data %}
+  <div class="prod-grid">
+    {% for pd in product_data %}
+    {% with p=pd.product %}
+    <div class="prod-card">
+      <!-- Image -->
+      <div class="prod-img">
+        {% if pd.discount_pct > 0 %}
+        <span class="disc-tag">{{ pd.discount_pct }}% OFF</span>
+        {% endif %}
+        {% if p.requires_prescription %}
+        <span class="rx-tag">Rx</span>
+        {% endif %}
+        {% if pd.primary_img %}
+          <img src="{{ pd.primary_img.image.url }}" alt="{{ p.name }}" loading="lazy">
+        {% else %}
+          <i class="ti ti-photo-off no-img-i"></i>
+        {% endif %}
+      </div>
+
+      <!-- Body -->
+      <div class="prod-body">
+        <div class="p-brand">{{ p.brand.name|default:"Generic" }}</div>
+        <div class="p-name">{{ p.name|truncatechars:55 }}</div>
+        {% if p.category %}
+        <div class="p-cat"><i class="ti ti-tag me-1 fs-11"></i>{{ p.category.name }}</div>
+        {% endif %}
+
+        <!-- Stock badge -->
+        {% if pd.in_stock %}
+          {% if pd.stock_qty <= 10 %}
+          <span class="stock-badge sb-low"><i class="ti ti-alert-triangle fs-11"></i>Only {{ pd.stock_qty }} left</span>
+          {% else %}
+          <span class="stock-badge sb-in"><i class="ti ti-circle-check fs-11"></i>In Stock</span>
+          {% endif %}
+        {% else %}
+          <span class="stock-badge sb-out"><i class="ti ti-circle-x fs-11"></i>Out of Stock</span>
+        {% endif %}
+
+        <!-- Price -->
+        <div class="p-price-row">
+          <span class="p-price">₹{{ p.selling_price|floatformat:2 }}</span>
+          <span class="p-mrp">₹{{ pd.mrp|floatformat:2 }}</span>
+          {% if pd.discount_pct > 0 %}<span class="p-off">{{ pd.discount_pct }}% OFF</span>{% endif %}
+        </div>
+      </div>
+
+      <!-- Footer actions -->
+      <div class="prod-foot">
+        <a href="{% url 'pharmacy:product_detail_modern' p.pk %}" class="btn-detail">
+          <i class="ti ti-eye fs-13"></i> Details
+        </a>
+        {% if pd.in_stock %}
+        <button class="btn-cart"
+          onclick="addToCart({{ p.pk }},'{{ p.name|escapejs }}',{{ p.selling_price }},'{% if pd.primary_img %}{{ pd.primary_img.image.url }}{% endif %}')">
+          <i class="ti ti-shopping-cart-plus fs-13"></i> Add
+        </button>
+        {% else %}
+        <span class="btn-oos"><i class="ti ti-ban fs-13"></i> Out of Stock</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+  </div>
+
+  <!-- ── Pagination ── -->
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="pagination-wrap">
+    {% if page_obj.has_previous %}
+    <a href="?{% if q %}q={{ q }}&{% endif %}{% if cat_id %}category={{ cat_id }}&{% endif %}page={{ page_obj.previous_page_number }}" class="pg-btn">
+      <i class="ti ti-chevron-left"></i>
+    </a>
+    {% endif %}
+    {% for n in page_obj.paginator.page_range %}
+      {% if n == page_obj.number %}
+        <span class="pg-btn active">{{ n }}</span>
+      {% elif n >= page_obj.number|add:"-2" and n <= page_obj.number|add:"2" %}
+        <a href="?{% if q %}q={{ q }}&{% endif %}{% if cat_id %}category={{ cat_id }}&{% endif %}page={{ n }}" class="pg-btn">{{ n }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <a href="?{% if q %}q={{ q }}&{% endif %}{% if cat_id %}category={{ cat_id }}&{% endif %}page={{ page_obj.next_page_number }}" class="pg-btn">
+      <i class="ti ti-chevron-right"></i>
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <!-- Empty state -->
+  <div class="empty-state">
+    <i class="ti ti-mood-sad-2"></i>
+    <h4>No products found</h4>
+    {% if q %}
+    <p>No results for "<strong>{{ q }}</strong>". Try a different search term.</p>
+    {% elif selected_category %}
+    <p>No products in this category yet.</p>
+    {% else %}
+    <p>No products available at the moment.</p>
+    {% endif %}
+    <a href="{% url 'pharmacy:shop' %}" class="btn btn-outline-secondary mt-3">
+      <i class="ti ti-arrow-left me-1"></i> Back to All Products
+    </a>
+  </div>
+  {% endif %}
+
+</div><!-- /page -->
+
+<!-- ══ CART MODAL ══════════════════════════════════════ -->
+<div class="modal fade" id="cartModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-end modal-dialog-scrollable" style="max-width:480px;margin-left:auto;margin-right:0;min-height:100vh;">
+    <div class="modal-content" style="min-height:100vh;border-radius:0;">
+      <div class="modal-header" style="background:var(--teal);color:#fff;">
+        <h5 class="modal-title d-flex align-items-center gap-2">
+          <i class="ti ti-shopping-cart fs-20"></i>My Cart
+          <span id="cartCountLabel" class="badge" style="background:rgba(255,255,255,.25);font-size:12px;">0 items</span>
+        </h5>
+        <button class="btn-close" style="filter:invert(1);" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="cartBody">
+        <div class="cart-empty-msg">
+          <i class="ti ti-shopping-cart-off"></i>
+          <p>Your cart is empty.<br>Browse products and add items.</p>
+        </div>
+      </div>
+      <div class="modal-footer flex-column gap-2" id="cartFooter" style="display:none!important;">
+        <div class="cart-total w-100">
+          <span>Total Amount</span>
+          <strong id="cartTotalAmt">₹0.00</strong>
+        </div>
+        <button class="btn btn-outline-danger w-100" onclick="clearCart()"><i class="ti ti-trash me-1"></i>Clear Cart</button>
+        <button class="btn w-100" style="background:var(--teal);color:#fff;font-weight:700;font-size:15px;" onclick="printCart()">
+          <i class="ti ti-printer me-1"></i>Print Shopping List
+        </button>
+        <p style="font-size:11px;color:var(--muted);text-align:center;margin:0;">
+          Bring this list to our pharmacy counter to complete your purchase.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ═════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="i">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="f-brand"><i class="ti ti-pill me-2"></i>PharmaCare</div>
+        <p class="f-desc">Your trusted pharmacy for genuine medicines and health products. Quality checked, authentic, and affordable.</p>
+        <div class="d-flex gap-3 mt-3">
+          <span style="color:rgba(255,255,255,.6);font-size:12px;"><i class="ti ti-shield-check me-1"></i>Authentic</span>
+          <span style="color:rgba(255,255,255,.6);font-size:12px;"><i class="ti ti-certificate me-1"></i>Quality</span>
+        </div>
+      </div>
+      <div class="col-6 col-md-2 f-links">
+        <h6>Categories</h6>
+        <ul>
+          {% for cat in categories|slice:":6" %}
+          <li><a href="{% url 'pharmacy:shop' %}?category={{ cat.pk }}">{{ cat.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="col-6 col-md-2 f-links">
+        <h6>Info</h6>
+        <ul>
+          <li><a href="{% url 'pharmacy:shop' %}">All Products</a></li>
+          <li><a href="{% url 'pharmacy:shop' %}?q=otc">OTC Products</a></li>
+          <li><a href="{% url 'pharmacy:shop' %}?q=vitamins">Vitamins</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4 f-links">
+        <h6>Visit Our Store</h6>
+        <ul>
+          <li><i class="ti ti-map-pin me-2" style="color:var(--teal);"></i>Visit us at your nearest location</li>
+          <li style="margin-top:8px;"><i class="ti ti-clock me-2" style="color:var(--teal);"></i>Mon – Sat: 8 AM – 9 PM</li>
+          <li style="margin-top:8px;font-size:11.5px;color:rgba(255,255,255,.5);">All sales are at the counter. This website is for browsing only.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="f-btm">
+      <span>© 2026 PharmaCare — All rights reserved.</span>
+      <span style="font-size:11px;opacity:.5;">Prices shown are inclusive of all taxes.</span>
+    </div>
+  </div>
+</footer>
+
+<button id="bt" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="ti ti-chevron-up"></i></button>
+
+<!-- ══ SCRIPTS ══════════════════════════════════════════ -->
+<script src="{% static 'assets/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+// ── Cart (localStorage) ───────────────────────────────
+const CART_KEY = 'pharmacare_cart';
+
+function getCart() {
+  try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
+  catch(e) { return []; }
+}
+function saveCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  updateCartUI();
+}
+
+function addToCart(id, name, price, img) {
+  let cart = getCart();
+  const idx = cart.findIndex(i => i.id === id);
+  if (idx >= 0) {
+    cart[idx].qty += 1;
+  } else {
+    cart.push({ id, name, price: parseFloat(price), img, qty: 1 });
+  }
+  saveCart(cart);
+  showToast(name + ' added to cart!');
+}
+
+function removeFromCart(id) {
+  let cart = getCart().filter(i => i.id !== id);
+  saveCart(cart);
+  renderCartBody();
+}
+
+function clearCart() {
+  saveCart([]);
+  renderCartBody();
+}
+
+function updateCartUI() {
+  const cart = getCart();
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  const badge = document.getElementById('cartBadge');
+  if (badge) { badge.textContent = total; badge.style.display = total > 0 ? 'flex' : 'none'; }
+  const lbl = document.getElementById('cartCountLabel');
+  if (lbl) lbl.textContent = total + ' item' + (total !== 1 ? 's' : '');
+}
+
+function renderCartBody() {
+  const cart = getCart();
+  const body = document.getElementById('cartBody');
+  const footer = document.getElementById('cartFooter');
+  if (!body) return;
+  if (cart.length === 0) {
+    body.innerHTML = '<div class="cart-empty-msg"><i class="ti ti-shopping-cart-off"></i><p>Your cart is empty.<br>Browse products and add items.</p></div>';
+    if (footer) footer.style.display = 'none';
+    return;
+  }
+  if (footer) footer.style.removeProperty('display');
+  let html = '';
+  let total = 0;
+  cart.forEach(item => {
+    total += item.price * item.qty;
+    html += `<div class="cart-item">
+      <div class="ci-img">${item.img ? `<img src="${item.img}" alt="">` : '<i class="ti ti-photo-off" style="font-size:20px;color:#ccc;"></i>'}</div>
+      <div style="flex:1">
+        <div class="ci-name">${item.name}</div>
+        <div style="font-size:12px;color:#888;">₹${item.price.toFixed(2)} × ${item.qty}</div>
+      </div>
+      <div class="ci-price">₹${(item.price * item.qty).toFixed(2)}</div>
+      <button class="ci-rm" onclick="removeFromCart(${item.id})"><i class="ti ti-x"></i></button>
+    </div>`;
+  });
+  body.innerHTML = html;
+  const ta = document.getElementById('cartTotalAmt');
+  if (ta) ta.textContent = '₹' + total.toFixed(2);
+}
+
+function openCart() {
+  renderCartBody();
+  const modal = new bootstrap.Modal(document.getElementById('cartModal'));
+  modal.show();
+}
+
+function printCart() {
+  const cart = getCart();
+  if (!cart.length) return;
+  let rows = cart.map(i => `<tr><td>${i.name}</td><td style="text-align:center">${i.qty}</td><td style="text-align:right">₹${(i.price*i.qty).toFixed(2)}</td></tr>`).join('');
+  let total = cart.reduce((s,i) => s+i.price*i.qty, 0);
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>Shopping List — PharmaCare</title>
+  <style>body{font-family:sans-serif;padding:24px;}h2{color:#24aeb1;}table{width:100%;border-collapse:collapse;margin-top:16px;}th,td{border:1px solid #ddd;padding:8px 12px;}th{background:#f5f5f5;}tfoot td{font-weight:bold;background:#e6f7f7;}p{color:#666;font-size:12px;}</style>
+  </head><body><h2>🏥 PharmaCare — Shopping List</h2>
+  <p>Date: ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</p>
+  <p>Please bring this list to our pharmacy counter.</p>
+  <table><thead><tr><th>Medicine</th><th>Qty</th><th>Price</th></tr></thead><tbody>${rows}</tbody>
+  <tfoot><tr><td colspan="2">Total</td><td style="text-align:right">₹${total.toFixed(2)}</td></tr></tfoot></table>
+  <p style="margin-top:24px;">* Prescription medicines require a valid doctor's prescription at the time of purchase.</p>
+  </body></html>`);
+  w.document.close(); w.print();
+}
+
+// ── Toast notification ────────────────────────────────
+function showToast(msg) {
+  let t = document.getElementById('cartToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'cartToast';
+    t.style.cssText = 'position:fixed;bottom:72px;right:20px;background:#212121;color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.3);transition:opacity .3s;';
+    document.body.appendChild(t);
+  }
+  t.innerHTML = '<i class="ti ti-check" style="color:#4caf50;font-size:16px;"></i>' + msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2200);
+}
+
+// ── Back to top ──────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('bt').classList.toggle('show', scrollY > 300);
+});
+
+// ── Init ──────────────────────────────────────────────
+updateCartUI();
+</script>
+</body>
+</html>

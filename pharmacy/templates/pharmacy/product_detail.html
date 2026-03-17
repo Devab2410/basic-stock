@@ -13,7 +13,7 @@
 		<meta name="keywords" content="inventory management, admin dashboard, bootstrap template, invoicing, estimates, business management, responsive admin, POS system">
 		<meta name="author" content="Dreams Technologies">
 		<meta name="robots" content="index, follow">
-		<title>Dreams POS - Inventory Management & Admin Dashboard Template</title>
+		<title>{{ product.name }} - Pharmacy POS</title>
 		
 		<script src="{% static 'assets/js/theme-script.js' %}" type="2cb85281435350398ba0d308-text/javascript"></script>
 
@@ -54,9 +54,6 @@
     </head>
     <body><a href="https://dreamspos.dreamstechnologies.com/cdn-cgi/content?id=nkPV_l756p48pWIF8QQjcWl.YFhGbxSZyl.nfeDspJ8-1772177001.4701698-1.0.1.1-kzlp1dVjVkS3.lRMFA9yQG81zJvPH7ngFFxnNLbAQpo" aria-hidden="true" rel="nofollow noopener" style="display: none !important; visibility: hidden !important"></a>
 		
-		<div id="global-loader" >
-			<div class="whirly-loader"> </div>
-		</div>
 		 
 		<!-- Main Wrapper -->
         <div class="main-wrapper">
@@ -2427,7 +2424,12 @@
 					<div class="page-header">
 						<div class="page-title">
 							<h4>Product Details</h4>
-							<h6>Full details of a product</h6>
+							<h6>View detailed information of <strong>{{ product.name }}</strong></h6>
+						</div>
+						<div class="page-btn">
+							<a href="{% url 'pharmacy:pos' %}" class="btn btn-secondary d-flex align-items-center">
+								<i class="ti ti-arrow-left me-2"></i>Back to POS
+							</a>
 						</div>
 					</div>
 					<!-- /add -->
@@ -2435,68 +2437,59 @@
 						<div class="col-lg-8 col-sm-12">
 							<div class="card">
 								<div class="card-body">
-									<div class="bar-code-view">
-										<div class="product-details-barcode">
-											<img src="{% static 'assets/img/barcode/barcode1.png' %}" class="barcode" alt="barcode">
-											<img src="{% static 'assets/img/barcode/barcode1-white.png' %}" class="barcode-white" alt="barcode">
+									<div class="product-details-barcode mb-4">
+										{% if product.barcode %}
+										<p class="mb-1 text-muted">Barcode: {{ product.barcode }}</p>
+										<div class="bg-light p-2 d-inline-block rounded border">
+											<i class="ti ti-barcode fs-40"></i>
 										</div>
-										<a class="printimg">
-											<i class="ti ti-printer fs-24 text-dark"></i>
-										</a>
+										{% endif %}
 									</div>
 									<div class="productdetails">
 										<ul class="product-bar">
 											<li>
 												<h4>Product</h4>
-												<h6>Macbook pro	</h6>
+												<h6>{{ product.name }}</h6>
 											</li>
 											<li>
 												<h4>Category</h4>
-												<h6>Computers</h6>
-											</li>
-											<li>
-												<h4>Sub Category</h4>
-												<h6>None</h6>
+												<h6>{{ product.category.name|default:"N/A" }}</h6>
 											</li>
 											<li>
 												<h4>Brand</h4>
-												<h6>None</h6>
+												<h6>{{ product.brand.name|default:"N/A" }}</h6>
 											</li>
 											<li>
 												<h4>Unit</h4>
-												<h6>Piece</h6>
+												<h6>{{ product.unit.name|default:"N/A" }}</h6>
 											</li>
 											<li>
 												<h4>SKU</h4>
-												<h6>PT0001</h6>
+												<h6>{{ product.sku|default:"N/A" }}</h6>
 											</li>
 											<li>
-												<h4>Minimum Qty</h4>
-												<h6>5</h6>
+												<h4>Barcode</h4>
+												<h6>{{ product.barcode|default:"N/A" }}</h6>
 											</li>
 											<li>
-												<h4>Quantity</h4>
-												<h6>50</h6>
+												<h4>Selling Price</h4>
+												<h6>₹{{ product.selling_price }}</h6>
 											</li>
 											<li>
 												<h4>Tax</h4>
-												<h6>0.00 %</h6>
+												<h6>{{ product.tax_rate|default:"0" }} %</h6>
 											</li>
 											<li>
-												<h4>Discount Type</h4>
-												<h6>Percentage</h6>
+												<h4>Schedule Type</h4>
+												<h6>{{ product.schedule_type }}</h6>
 											</li>
 											<li>
-												<h4>Price</h4>
-												<h6>1500.00</h6>
-											</li>
-											<li>
-												<h4>Status</h4>
-												<h6>Active</h6>
+												<h4>Prescription Required</h4>
+												<h6>{% if product.requires_prescription %}Yes{% else %}No{% endif %}</h6>
 											</li>
 											<li>
 												<h4>Description</h4>
-												<h6>Designed for professionals, it offers smooth multitasking and high-end graphics capability.</h6>
+												<h6>{{ product.description|default:"No description provided." }}</h6>
 											</li>
 										</ul>
 									</div>
@@ -2509,17 +2502,19 @@
 									<div class="slider-product-details">
 
 										<div class="owl-carousel owl-theme product-slide">
+											{% for img in product.images.all %}
 											<div class="slider-product">
-												<img src="{% static 'assets/img/products/product69.jpg' %}" alt="img">
-												<h4 class="text-dark">macbookpro.jpg</h4>
-												<h6 class="text-dark">581kb</h6>
+												<img src="{{ img.image.url }}" alt="{{ product.name }}">
+												<h4 class="text-dark">{{ img.image.name }}</h4>
 											</div>
-
+											{% empty %}
 											<div class="slider-product">
-												<img src="{% static 'assets/img/products/product69.jpg' %}" alt="img">
-												<h4 class="text-dark">macbookpro.jpg</h4>
-												<h6 class="text-dark">581kb</h6>
+												<div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px; border-radius: 8px;">
+													<i class="ti ti-photo fs-48 text-muted"></i>
+												</div>
+												<h4 class="text-dark">No Image</h4>
 											</div>
+											{% endfor %}
 										</div>
 
 										<div class="product-nav-controls d-flex align-items-center justify-content-between">
